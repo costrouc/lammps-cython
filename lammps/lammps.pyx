@@ -1,49 +1,15 @@
-from libc.stdlib cimport malloc, free
-from libc.stdint cimport int64_t
+include "lammps.pyd"
 
-from mpi4py import MPI          # Automatically calls Init and Finalize
-cimport mpi4py.libmpi as mpi
+from libc.stdlib cimport malloc, free 
 
-# bigint is of type int64_t
-# TODO do we need the constructors (excluding LAMMPS)?
+# Import the Python-level symbols
+from mpi4py import MPI
 
-
-cdef extern from "input.h" namespace "LAMMPS_NS":
-     cdef cppclass Input:
-          Input(LAMMPS*, int, char**) except +
-          char* one(const char*)
-          void file(const char*)
-
-# cdef extern from "atom.h" namespace "LAMMPS_NS":
-#      cdef cppclass Atom:
-#           Atom(LAMMPS*) except +
-#           int64_t natoms
-
-cdef extern from "universe.h" namespace "LAMMPS_NS":
-     cdef cppclass Universe:
-          Universe(LAMMPS*, mpi.MPI_COMM) except +
-          const char* version
-          
-cdef extern from "domain.h" namespace "LAMMPS_NS":
-     cdef cppclass Domain:
-          Domain(LAMMPS*) except +
-          int dimension
-          double boxlo[3]
-          double boxhi[3]
-          double xy,xz,yz
-
-cdef extern from "lammps.h" namespace "LAMMPS_NS":
-    cdef cppclass LAMMPS:
-         LAMMPS(int, char**, mpi.MPI_Comm) except +
-         Input* input
-         Domain* domain
-         Universe* universe
-         
-         
 
 cdef class Lammps:
     cdef LAMMPS *thisptr
     cdef public Box box
+    cdef public Atoms atoms
     def __cinit__(self):
         args = [] # TODO reimplement properly
         cdef int argc = len(args)
@@ -55,6 +21,11 @@ cdef class Lammps:
 
         self.thisptr = new LAMMPS(argc, argv, comm)
         self.box = Box(self)
+        self.atoms = Atoms(self)
+
+    def __dealloc__(self):
+        del self.thisptr
+        # TODO should I free string?
 
     @property
     def __version__(self):
@@ -74,10 +45,41 @@ cdef class Lammps:
     def reset(self):
         self.thisptr.input.one(b'clear')
 
-    def __dealloc__(self):
-        del self.thisptr
-        # TODO should I free string?
 
+cdef class Atoms:
+    cdef LAMMPS *thisptr
+    def __cinit__(self, Lammps lammps):
+        self.thisptr = lammps.thisptr
+
+    @property
+    def total_num(self):
+        return self.thisptr.atom.natoms
+
+    @property
+    def local_num(self):
+        return self.thisptr.atom.nlocal
+
+    def __len__(self):
+        return self.local_num
+
+    @property
+    def tags(self):
+        cdef size_t N = self.local_num
+        cdef tagint[::1] array = <tagint[:N]>self.thisptr.atom.tag
+        return array
+
+    # TODO how to cast a double** array (why did lammps use this data structure)
+    # @property
+    # def position(self):
+    #     cdef size_t N = self.local_num
+    #     cdef double[:][::1] array = <double[:N][:3]>self.thisptr.atom.x
+    #     return array
+
+    @property
+    def charges(self):
+        cdef size_t N = self.local_num
+        cdef double[::1] q = <double[:N]>self.thisptr.atom.q
+        return q
 
 cdef class Box:
     cdef LAMMPS *thisptr
@@ -101,6 +103,3 @@ cdef class Box:
         cdef double xz = self.thisptr.domain.xz
         cdef double yz = self.thisptr.domain.yz
         return xy, xz, yz
-
-    
-    

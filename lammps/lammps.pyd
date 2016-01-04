@@ -1,0 +1,48 @@
+from libc.stdint cimport int64_t
+
+cimport mpi4py.libmpi as mpi
+
+# Assumed #DEFINE LAMMPS_SMALLBIG
+# TODO do we need the constructors (excluding LAMMPS)?
+ctypedef int smallint;
+ctypedef int imageint;
+ctypedef int tagint;
+ctypedef int64_t bigint;
+
+cdef extern from "input.h" namespace "LAMMPS_NS":
+     cdef cppclass INPUT "LAMMPS_NS::Input":
+          INPUT(LAMMPS*, int, char**) except +
+          char* one(const char*)
+          void file(const char*)
+
+cdef extern from "atom.h" namespace "LAMMPS_NS":
+     cdef cppclass ATOM "LAMMPS_NS":
+          ATOM(LAMMPS*) except +
+          bigint natoms
+          int nlocal
+          tagint *tag
+          double *q
+          double **x
+          double **v
+          double **f
+
+cdef extern from "universe.h" namespace "LAMMPS_NS":
+     cdef cppclass UNIVERSE "LAMMPS_NS:Universe":
+          UNIVERSE(LAMMPS*, mpi.MPI_COMM) except +
+          const char* version
+          
+cdef extern from "domain.h" namespace "LAMMPS_NS":
+     cdef cppclass DOMAIN "LAMMPS_NS:Domain":
+          DOMAIN(LAMMPS*) except +
+          int dimension
+          double boxlo[3]
+          double boxhi[3]
+          double xy,xz,yz
+
+cdef extern from "lammps.h" namespace "LAMMPS_NS":
+    cdef cppclass LAMMPS:
+         LAMMPS(int, char**, mpi.MPI_Comm) except +
+         INPUT* input
+         UNIVERSE* universe
+         ATOM* atom
+         DOMAIN* domain
