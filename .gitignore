@@ -58,8 +58,5 @@ docs/_build/
 # PyBuilder
 target/
 
-#LAMMPS logfile
-log.lammps
-
 # cython builds
 *.cpp

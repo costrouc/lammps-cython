@@ -24,22 +24,26 @@ cdef extern from "universe.h" namespace "LAMMPS_NS":
           Universe(LAMMPS*, mpi.MPI_COMM) except +
           const char* version
           
-# cdef extern from "domain.h" namespace "LAMMPS_NS":
-#      cdef cppclass Domain:
-#           Domain(LAMMPS*) except +
-#           int box_exist
-#           int dimension
-#           int nonperiodic
+cdef extern from "domain.h" namespace "LAMMPS_NS":
+     cdef cppclass Domain:
+          Domain(LAMMPS*) except +
+          int dimension
+          double boxlo[3]
+          double boxhi[3]
+          double xy,xz,yz
 
 cdef extern from "lammps.h" namespace "LAMMPS_NS":
     cdef cppclass LAMMPS:
          LAMMPS(int, char**, mpi.MPI_Comm) except +
          Input* input
+         Domain* domain
          Universe* universe
+         
          
 
 cdef class Lammps:
     cdef LAMMPS *thisptr
+    cdef public Box box
     def __cinit__(self):
         args = [] # TODO reimplement properly
         cdef int argc = len(args)
@@ -50,6 +54,7 @@ cdef class Lammps:
             argv[i] = temp_string # To prevent garbage collection
 
         self.thisptr = new LAMMPS(argc, argv, comm)
+        self.box = Box(self)
 
     @property
     def __version__(self):
@@ -62,7 +67,27 @@ cdef class Lammps:
         """
         self.thisptr.input.one(cmd)
 
+    def file(self, filename):
+        """Runs a LAMMPS file"""
+        self.thisptr.input.file(filename)
+
     def __dealloc__(self):
         del self.thisptr
         # TODO should I free string?
-        
+
+
+cdef class Box:
+    cdef LAMMPS *thisptr
+    def __cinit__(self, Lammps lammps):
+        self.thisptr = lammps.thisptr
+
+    @property
+    def dimension(self):
+        """ The dimension of the lammps run """
+        return self.thisptr.domain.dimension
+
+    @property
+    def lengths(self):
+        cdef double[:] boxlo = self.thisptr.domain.boxlo
+        cdef double[:] boxhi = self.thisptr.domain.boxhi
+        return boxlo, boxhi
