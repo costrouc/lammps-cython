@@ -1,9 +1,9 @@
 import sys
 sys.path.append('../../')
 
-import lammps
+from lammps import Lammps
 
-lmp = lammps.Lammps()
+lmp = Lammps()
 
 print("Version of Lammps: {}".format(lmp.__version__))
 boxlo, boxhi = lmp.box.lengths
