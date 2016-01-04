@@ -71,6 +71,9 @@ cdef class Lammps:
         """Runs a LAMMPS file"""
         self.thisptr.input.file(filename)
 
+    def reset(self):
+        self.thisptr.input.one(b'clear')
+
     def __dealloc__(self):
         del self.thisptr
         # TODO should I free string?
@@ -91,3 +94,13 @@ cdef class Box:
         cdef double[:] boxlo = self.thisptr.domain.boxlo
         cdef double[:] boxhi = self.thisptr.domain.boxhi
         return boxlo, boxhi
+
+    @property
+    def tilts(self):
+        cdef double xy = self.thisptr.domain.xy
+        cdef double xz = self.thisptr.domain.xz
+        cdef double yz = self.thisptr.domain.yz
+        return xy, xz, yz
+
+    
+    
