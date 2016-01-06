@@ -9,15 +9,15 @@ ctypedef int imageint;
 ctypedef int tagint;
 ctypedef int64_t bigint;
 
+
 cdef extern from "input.h" namespace "LAMMPS_NS":
      cdef cppclass INPUT "LAMMPS_NS::Input":
-          INPUT(LAMMPS*, int, char**) except +
           char* one(const char*)
           void file(const char*)
 
+
 cdef extern from "atom.h" namespace "LAMMPS_NS":
      cdef cppclass ATOM "LAMMPS_NS":
-          ATOM(LAMMPS*) except +
           bigint natoms
           int nlocal
           tagint *tag
@@ -26,27 +26,37 @@ cdef extern from "atom.h" namespace "LAMMPS_NS":
           double **v
           double **f
 
+
+cdef extern from "update.h" namespace "LAMMPS_NS":
+     cdef cppclass UPDATE "LAMMPS_NS:Update":
+          double dt             # timestep
+          bigint ntimestep      # current step
+          double atime          # simultation time at atimestep
+
+
 cdef extern from "output.h" namespace "LAMMPS_NS":
      cdef cppclass THERMO "LAMMPS_NS:Thermo":
           void compute_vol()
+
 
 cdef extern from "output.h" namespace "LAMMPS_NS":
      cdef cppclass OUTPUT "LAMMPS_NS:Output":
           THERMO* thermo
 
+
 cdef extern from "universe.h" namespace "LAMMPS_NS":
      cdef cppclass UNIVERSE "LAMMPS_NS:Universe":
-          UNIVERSE(LAMMPS*, mpi.MPI_COMM) except +
           const char* version
           
+
 cdef extern from "domain.h" namespace "LAMMPS_NS":
      cdef cppclass DOMAIN "LAMMPS_NS:Domain":
-          DOMAIN(LAMMPS*) except +
           int dimension
           double boxlo[3]
           double boxhi[3]
           double xy,xz,yz
           double xprd, yprd, zprd
+
 
 cdef extern from "lammps.h" namespace "LAMMPS_NS":
     cdef cppclass LAMMPS:
@@ -56,3 +66,4 @@ cdef extern from "lammps.h" namespace "LAMMPS_NS":
          ATOM* atom
          DOMAIN* domain
          OUTPUT* output
+         UPDATE* update

@@ -49,20 +49,20 @@ Step Temp E_pair E_mol TotEng Press
      150    1.6324555   -4.7286791            0    -2.280608    5.9589514 
      200    1.6630725   -4.7750988            0   -2.2811136    5.7364886 
      250    1.6275257   -4.7224992            0    -2.281821    5.9567365 
-Loop time of 0.548593 on 1 procs for 250 steps with 4000 atoms
+Loop time of 0.550891 on 1 procs for 250 steps with 4000 atoms
 
-Performance: 196867.157 tau/day, 455.711 timesteps/s
-100.6% CPU use with 1 MPI tasks x no OpenMP threads
+Performance: 196046.069 tau/day, 453.810 timesteps/s
+99.5% CPU use with 1 MPI tasks x no OpenMP threads
 
 MPI task timing breakdown:
 Section |  min time  |  avg time  |  max time  |%varavg| %total
 ---------------------------------------------------------------
-Pair    | 0.46481    | 0.46481    | 0.46481    |   0.0 | 84.73
-Neigh   | 0.065659   | 0.065659   | 0.065659   |   0.0 | 11.97
-Comm    | 0.0079272  | 0.0079272  | 0.0079272  |   0.0 |  1.45
-Output  | 0.00015664 | 0.00015664 | 0.00015664 |   0.0 |  0.03
-Modify  | 0.0080791  | 0.0080791  | 0.0080791  |   0.0 |  1.47
-Other   |            | 0.001961   |            |       |  0.36
+Pair    | 0.46723    | 0.46723    | 0.46723    |   0.0 | 84.81
+Neigh   | 0.065794   | 0.065794   | 0.065794   |   0.0 | 11.94
+Comm    | 0.0077569  | 0.0077569  | 0.0077569  |   0.0 |  1.41
+Output  | 0.00016832 | 0.00016832 | 0.00016832 |   0.0 |  0.03
+Modify  | 0.0079756  | 0.0079756  | 0.0079756  |   0.0 |  1.45
+Other   |            | 0.001966   |            |       |  0.36
 
 Nlocal:    4000 ave 4000 max 4000 min
 Histogram: 1 0 0 0 0 0 0 0 0 0

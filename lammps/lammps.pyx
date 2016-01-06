@@ -17,6 +17,7 @@ cdef class Lammps:
     cdef LAMMPS *thisptr
     cdef public Box box
     cdef public Atoms atoms
+    cdef public Update update
     def __cinit__(self):
         args = [] # TODO reimplement properly
         cdef int argc = len(args)
@@ -29,6 +30,7 @@ cdef class Lammps:
         self.thisptr = new LAMMPS(argc, argv, comm)
         self.box = Box(self)
         self.atoms = Atoms(self)
+        self.update = Update(self)
 
     def __dealloc__(self):
         del self.thisptr
@@ -51,6 +53,24 @@ cdef class Lammps:
 
     def reset(self):
         self.thisptr.input.one(b'clear')
+
+
+cdef class Update:
+    cdef LAMMPS *thisptr
+    def __cinit__(self, Lammps lammps):
+        self.thisptr = lammps.thisptr
+
+    @property
+    def dt(self):
+        return self.thisptr.update.dt
+
+    @property
+    def time_step(self):
+        return self.thisptr.update.ntimestep
+
+    @property #TODO not exact (see update.atimestep)
+    def time(self):
+        return self.thisptr.update.atime
 
 
 cdef class Atoms:
@@ -128,14 +148,32 @@ cdef class Box:
         return self.thisptr.domain.dimension
 
     @property
-    def lengths(self):
-        cdef double[:] boxlo = self.thisptr.domain.boxlo
-        cdef double[:] boxhi = self.thisptr.domain.boxhi
-        return boxlo, boxhi
+    def lohi(self):
+        cdef int dim = self.dimension
+        cdef double[::1] boxlo = <double[:dim]>self.thisptr.domain.boxlo
+        cdef double[::1] boxhi = <double[:dim]>self.thisptr.domain.boxhi
+        return {'boxlo': np.array(boxlo), 'boxhi': np.array(boxhi)} # We copy arrays
 
     @property
-    def tilts(self):
+    def tilts(self): #TODO how to handle 2d?
         cdef double xy = self.thisptr.domain.xy
         cdef double xz = self.thisptr.domain.xz
         cdef double yz = self.thisptr.domain.yz
-        return xy, xz, yz
+        return {'xy': xy, 'xz': xz, 'yz': yz}
+    
+    # See http://lammps.sandia.gov/doc/Section_howto.html#4_12
+    @property
+    def lengths(self):
+        raise NotImplementedError()
+
+    @property
+    def angles(self):
+        raise NotImplementedError()
+
+    @property
+    def volume(self):
+        cdef double vol = self.thisptr.domain.xprd * self.thisptr.domain.yprd
+        if self.dimension == 2:
+            return vol
+        else: # dimension == 3
+            return vol * self.thisptr.domain.zprd
