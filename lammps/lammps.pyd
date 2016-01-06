@@ -26,6 +26,14 @@ cdef extern from "atom.h" namespace "LAMMPS_NS":
           double **v
           double **f
 
+cdef extern from "output.h" namespace "LAMMPS_NS":
+     cdef cppclass THERMO "LAMMPS_NS:Thermo":
+          void compute_vol()
+
+cdef extern from "output.h" namespace "LAMMPS_NS":
+     cdef cppclass OUTPUT "LAMMPS_NS:Output":
+          THERMO* thermo
+
 cdef extern from "universe.h" namespace "LAMMPS_NS":
      cdef cppclass UNIVERSE "LAMMPS_NS:Universe":
           UNIVERSE(LAMMPS*, mpi.MPI_COMM) except +
@@ -38,6 +46,7 @@ cdef extern from "domain.h" namespace "LAMMPS_NS":
           double boxlo[3]
           double boxhi[3]
           double xy,xz,yz
+          double xprd, yprd, zprd
 
 cdef extern from "lammps.h" namespace "LAMMPS_NS":
     cdef cppclass LAMMPS:
@@ -46,3 +55,4 @@ cdef extern from "lammps.h" namespace "LAMMPS_NS":
          UNIVERSE* universe
          ATOM* atom
          DOMAIN* domain
+         OUTPUT* output

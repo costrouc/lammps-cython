@@ -1,10 +1,17 @@
 include "lammps.pyd"
 
-from libc.stdlib cimport malloc, free 
+from libc.stdlib cimport malloc, free
+cimport numpy as np
 
 # Import the Python-level symbols
 from mpi4py import MPI
+import numpy as np
 
+# Ownership of numpy array (2 steps)
+# cdef extern from "numpy/arrayobject.h":
+#     void PyArray_ENABLEFLAGS(np.ndarray arr, int flags)
+#
+# PyArray_ENABLEFLAGS(a, np.NPY_OWNDATA)
 
 cdef class Lammps:
     cdef LAMMPS *thisptr
@@ -64,22 +71,51 @@ cdef class Atoms:
 
     @property
     def tags(self):
+        if self.thisptr.atom.x == NULL:
+            return None
+        
         cdef size_t N = self.local_num
         cdef tagint[::1] array = <tagint[:N]>self.thisptr.atom.tag
-        return array
+        return np.asarray(array)
 
     # TODO how to cast a double** array (why did lammps use this data structure)
-    # @property
-    # def position(self):
-    #     cdef size_t N = self.local_num
-    #     cdef double[:][::1] array = <double[:N][:3]>self.thisptr.atom.x
-    #     return array
+    # Unique way that lammps represents internal data structure
+    @property
+    def positions(self):
+        if self.thisptr.atom.x == NULL:
+            return None
+        
+        cdef size_t N = self.local_num
+        cdef double[:, ::1] array = <double[:N, :3]>self.thisptr.atom.x[0]
+        return np.asarray(array)
+
+    @property
+    def velocities(self):
+        if self.thisptr.atom.v == NULL:
+            return None
+        
+        cdef size_t N = self.local_num
+        cdef double[:, ::1] array = <double[:N, :3]>self.thisptr.atom.v[0]
+        return np.asarray(array)
+
+    @property
+    def forces(self):
+        if self.thisptr.atom.f == NULL:
+            return None
+        
+        cdef size_t N = self.local_num
+        cdef double[:, ::1] array = <double[:N, :3]>self.thisptr.atom.f[0]
+        return np.asarray(array)
 
     @property
     def charges(self):
+        if self.thisptr.atom.q == NULL:
+            return None
+        
         cdef size_t N = self.local_num
-        cdef double[::1] q = <double[:N]>self.thisptr.atom.q
-        return q
+        cdef double[::1] array = <double[:N]>self.thisptr.atom.q
+        return np.asarray(array)
+
 
 cdef class Box:
     cdef LAMMPS *thisptr

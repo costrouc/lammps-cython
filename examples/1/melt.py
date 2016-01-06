@@ -28,4 +28,3 @@ print(("Box Dimension:\n"
        "z {:3.2f} - {:3.2f}\n"
 ).format(boxlo[0], boxhi[0], boxlo[1], boxhi[1], boxlo[2], boxhi[2]))
 
-print(len(lmp.atoms.tags))
