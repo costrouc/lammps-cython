@@ -18,6 +18,7 @@ cdef class Lammps:
     cdef public Box box
     cdef public Atoms atoms
     cdef public Update update
+    cdef public Thermo thermo
     def __cinit__(self):
         args = [] # TODO reimplement properly
         cdef int argc = len(args)
@@ -31,6 +32,7 @@ cdef class Lammps:
         self.box = Box(self)
         self.atoms = Atoms(self)
         self.update = Update(self)
+        self.thermo = Thermo(self)
 
     def __dealloc__(self):
         del self.thisptr
@@ -53,6 +55,33 @@ cdef class Lammps:
 
     def reset(self):
         self.thisptr.input.one(b'clear')
+
+
+cdef class Thermo:
+    cdef LAMMPS *thisptr
+    cdef public Compute temperature
+    cdef public Compute pressure
+    cdef public Compute energy
+    def __cinit__(self, Lammps lammps):
+        self.thisptr = lammps.thisptr
+
+        cdef int index_temp = self.thisptr.modify.find_compute(b"thermo_temp")
+        cdef int index_press = self.thisptr.modify.find_compute(b"thermo_press")
+        cdef int index_pe = self.thisptr.modify.find_compute(b"thermo_pe")
+
+        self.temperature = Compute(lammps, index_temp)
+        self.pressure = Compute(lammps, index_press)
+        self.energy = Compute(lammps, index_pe)
+
+
+
+cdef class Compute:
+     cdef COMPUTE *thisptr
+     def __cinit__(self, Lammps lammps, int index):
+         self.thisptr = lammps.thisptr.modify.compute[index]
+     
+     def scalar(self):
+         return self.thisptr.compute_scalar()
 
 
 cdef class Update:
