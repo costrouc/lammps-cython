@@ -79,10 +79,25 @@ cdef class Compute:
      cdef COMPUTE *thisptr
      def __cinit__(self, Lammps lammps, int index):
          self.thisptr = lammps.thisptr.modify.compute[index]
-     
-     def scalar(self):
-         return self.thisptr.compute_scalar()
 
+     @property
+     def scalar(self):
+         if self.thisptr.scalar_flag == 0:
+             raise NotImplementedError()
+
+         self.thisptr.compute_scalar()
+         return self.thisptr.scalar
+
+     @property
+     def vector(self):
+         if self.thisptr.vector_flag == 0:
+             raise NotImplementedError()
+
+         cdef int n = self.thisptr.size_vector
+         self.thisptr.compute_vector()
+         cdef double[::1] array = <double[:n]>self.thisptr.vector
+         return np.asarray(array)
+         
 
 cdef class Update:
     cdef LAMMPS *thisptr
