@@ -1,4 +1,15 @@
+""" Cython header file to lammps headers
+
+You will see my description of what each modules does in my opinion
+and some notes.  Notice that not all methods are exposed. This is
+because only some methods are really needed for the interface. Also
+with the power of python we dont need some of the computes (becuase
+they are trivial).
+"""
+
 from libc.stdint cimport int64_t
+from libcpp.map cimport map
+from libcpp.string cimport string
 
 cimport mpi4py.libmpi as mpi
 
@@ -10,14 +21,17 @@ ctypedef int tagint;
 ctypedef int64_t bigint;
 
 
+
+# Input class
 cdef extern from "input.h" namespace "LAMMPS_NS":
      cdef cppclass INPUT "LAMMPS_NS::Input":
           char* one(const char*)
           void file(const char*)
 
 
+# Atom class          
 cdef extern from "atom.h" namespace "LAMMPS_NS":
-     cdef cppclass ATOM "LAMMPS_NS":
+     cdef cppclass ATOM "LAMMPS_NS::Atom":
           bigint natoms
           int nlocal
           tagint *tag
@@ -26,31 +40,55 @@ cdef extern from "atom.h" namespace "LAMMPS_NS":
           double **v
           double **f
 
+# Compute class (and extended classes eg. ComputeTemp)
+cdef extern from "compute.h" namespace "LAMMPS_NS":
+     cdef cppclass COMPUTE "LAMMPS_NS::Compute":
+          char* id
+          char* style
 
+          int scalar_flag       # 0/1 if compute_scalar() function exists 
+          double scalar         # computed scalar from compute_scalar()
+          double compute_scalar()
+          
+          int vector_flag       # 0/1 if compute_vector() function exists 
+          double *vector        # compute vector from compute_vector()
+          int size_vector
+          void compute_vector()
+
+
+# Update class
 cdef extern from "update.h" namespace "LAMMPS_NS":
-     cdef cppclass UPDATE "LAMMPS_NS:Update":
+     cdef cppclass UPDATE "LAMMPS_NS::Update":
           double dt             # timestep
           bigint ntimestep      # current step
           double atime          # simultation time at atimestep
 
 
+# Output class 
+# automatically defines computes:
+#     temperature: thermo_temp
+#     pressure: thermo_press
+#     potential energy: thermo_pe
 cdef extern from "output.h" namespace "LAMMPS_NS":
-     cdef cppclass THERMO "LAMMPS_NS:Thermo":
-          void compute_vol()
+     cdef cppclass OUTPUT "LAMMPS_NS::Output":
+         THERMO* thermo
 
 
-cdef extern from "output.h" namespace "LAMMPS_NS":
-     cdef cppclass OUTPUT "LAMMPS_NS:Output":
-          THERMO* thermo
+# Thermo class
+cdef extern from "thermo.h" namespace "LAMMPS_NS":
+     cdef cppclass THERMO "LAMMPS_NS::Thermo":
+          double compute_vol()
 
 
+# Universe class
 cdef extern from "universe.h" namespace "LAMMPS_NS":
-     cdef cppclass UNIVERSE "LAMMPS_NS:Universe":
+     cdef cppclass UNIVERSE "LAMMPS_NS::Universe":
           const char* version
           
 
+# Domain class
 cdef extern from "domain.h" namespace "LAMMPS_NS":
-     cdef cppclass DOMAIN "LAMMPS_NS:Domain":
+     cdef cppclass DOMAIN "LAMMPS_NS::Domain":
           int dimension
           double boxlo[3]
           double boxhi[3]
@@ -58,6 +96,17 @@ cdef extern from "domain.h" namespace "LAMMPS_NS":
           double xprd, yprd, zprd
 
 
+# Modify class
+ctypedef COMPUTE *(*ComputeCreator)(LAMMPS *, int, char **)
+
+cdef extern from "modify.h" namespace "LAMMPS_NS":
+     cdef cppclass MODIFY "LAMMPS_NS::Modify":
+          COMPUTE **compute
+          void add_compute(int, char **, int trysuffix=0)
+          int find_compute(const char *)
+         
+
+# LAMMPS class
 cdef extern from "lammps.h" namespace "LAMMPS_NS":
     cdef cppclass LAMMPS:
          LAMMPS(int, char**, mpi.MPI_Comm) except +
@@ -67,3 +116,4 @@ cdef extern from "lammps.h" namespace "LAMMPS_NS":
          DOMAIN* domain
          OUTPUT* output
          UPDATE* update
+         MODIFY* modify
