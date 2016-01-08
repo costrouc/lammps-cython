@@ -1,3 +1,17 @@
+"""LAMMPS Python interface (the GOOD parts) 
+
+This interface is inspired by HOOMD and tries its best to look
+similar. I try to include only orthogonal functions (e.g. make
+there only be ONE way to do something).
+
+TODO Features
+ - Group support
+ - integrator support
+ - finish not implemented functions
+
+"""
+
+
 include "lammps.pyd"
 
 from libc.stdlib cimport malloc, free
@@ -7,33 +21,32 @@ cimport numpy as np
 from mpi4py import MPI
 import numpy as np
 
-# Ownership of numpy array (2 steps)
-# cdef extern from "numpy/arrayobject.h":
-#     void PyArray_ENABLEFLAGS(np.ndarray arr, int flags)
-#
-# PyArray_ENABLEFLAGS(a, np.NPY_OWNDATA)
 
 # helper functions char**
 cdef char** args_to_cargv(args):
-     cdef char** argv = <char**>malloc(len(args) * sizeof(char*))
-     cdef int i
-     for i in range(len(args)):
-         temp = args[i].encode('UTF-8')
-         argv[i] = temp
-     return argv
-
-cdef void free_cargv(int argc, char** argv):
-     cdef int i
-     for i in range(argc):
-         free(argv[i])
-     free(argv)
+    """ Convert list of args[str] to char** 
+    
+    TODO: determine if I need to free char* strings
+    """
+    cdef char** argv = <char**>malloc(len(args) * sizeof(char*))
+    cdef int i
+    for i in range(len(args)):
+        temp = args[i].encode('UTF-8')
+        argv[i] = temp
+    return argv
 
 
 cdef class Lammps:
+    """ LAMMPS base class
+
+    Representation of LAMMPS
+       box 
+
+    """
     cdef LAMMPS *_lammps
     cdef mpi.MPI_Comm _comm
     cdef public Box box
-    cdef public Atoms atoms
+    cdef public Atoms system
     cdef public Update update
     cdef public Thermo thermo
     def __cinit__(self, args, comm=None):
@@ -49,7 +62,7 @@ cdef class Lammps:
         # don't free char** becuase used by lammps (they don't copy their strings!)
 
         self.box = Box(self)
-        self.atoms = Atoms(self)
+        self.system = Atoms(self)
         self.update = Update(self)
         self.thermo = Thermo(self)
 
