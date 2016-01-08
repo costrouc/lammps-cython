@@ -105,16 +105,28 @@ cdef class Compute:
      cdef COMPUTE *_compute
      def __cinit__(self, Thermo thermo, id, args=None):
          cdef int index = thermo._modify.find_compute(id)
-         if index == -1:
-             if args is None:
-                 raise ValueError("args must be supplied for new compute")
-             raise NotImplementedError()
-             # self._compute.add_compute(.... need to copy to char*) 
-         else:
-             if index == -1:    # Modify Compute and add
-                 raise NotImplementedError()
-             else:               # Don't modify compute and add
-                 self._compute = thermo._modify.compute[index]
+         cdef char** argv
+         cdef int argc
+         if index == -1 and args is None:
+             raise ValueError("args must be supplied for new compute")
+         elif index != -1 and args:
+             raise ValueError("compute id already exists use modify or delete")
+         elif index == -1:
+             # Hack to add id to args (needed for add compute)
+             args = [id] + args
+             argv = args_to_cargv(args)
+             argc = len(args)
+             thermo._modify.add_compute(argc, argv)
+             free_cargv(argc, argv)
+             index = thermo._modify.find_compute(id)
+        
+         self._compute = thermo._modify.compute[index]
+
+     def modify(self, args):
+         cdef char** argv = args_to_cargv(args)
+         cdef int argc = len(args)
+         self._compute.modify_params(argc, argv)
+         free_cargv(argc, argv)
 
      @property
      def id(self):
