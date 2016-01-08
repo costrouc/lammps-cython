@@ -133,7 +133,6 @@ cdef class Compute:
              argv = args_to_cargv(args)
              argc = len(args)
              thermo._modify.add_compute(argc, argv)
-             free_cargv(argc, argv)
              index = thermo._modify.find_compute(id)
         
          self._compute = thermo._modify.compute[index]
@@ -142,7 +141,6 @@ cdef class Compute:
          cdef char** argv = args_to_cargv(args)
          cdef int argc = len(args)
          self._compute.modify_params(argc, argv)
-         free_cargv(argc, argv)
 
      @property
      def id(self):
