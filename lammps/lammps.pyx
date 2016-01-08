@@ -14,7 +14,7 @@ import numpy as np
 # PyArray_ENABLEFLAGS(a, np.NPY_OWNDATA)
 
 cdef class Lammps:
-    cdef LAMMPS *thisptr
+    cdef LAMMPS *_lammps
     cdef public Box box
     cdef public Atoms atoms
     cdef public Update update
@@ -27,138 +27,136 @@ cdef class Lammps:
             temp_string = args[i].encode('UTF-8')
             argv[i] = temp_string # To prevent garbage collection
 
-        self.thisptr = new LAMMPS(argc, argv, comm)
+        self._lammps = new LAMMPS(argc, argv, comm)
         self.box = Box(self)
         self.atoms = Atoms(self)
         self.update = Update(self)
 
     def __dealloc__(self):
-        del self.thisptr
+        del self._lammps
         # TODO should I free string?
 
     @property
     def __version__(self):
-        return self.thisptr.universe.version
+        return self._lammps.universe.version
 
     def command(self, cmd):
         """Runs a LAMMPS command
 
            command: str
         """
-        self.thisptr.input.one(cmd)
+        self._lammps.input.one(cmd)
 
     def file(self, filename):
         """Runs a LAMMPS file"""
-        self.thisptr.input.file(filename)
+        self._lammps.input.file(filename)
 
     def reset(self):
-        self.thisptr.input.one(b'clear')
+        self._lammps.input.one(b'clear')
 
 
 cdef class Update:
-    cdef LAMMPS *thisptr
+    cdef UPDATE *_update
     def __cinit__(self, Lammps lammps):
-        self.thisptr = lammps.thisptr
+        self._update = lammps._lammps.update
 
     @property
     def dt(self):
-        return self.thisptr.update.dt
+        return self._update.dt
 
     @property
     def time_step(self):
-        return self.thisptr.update.ntimestep
+        return self._update.ntimestep
 
-    @property #TODO not exact (see update.atimestep)
+    @property
     def time(self):
-        return self.thisptr.update.atime
+        return self._update.atime
 
 
 cdef class Atoms:
-    cdef LAMMPS *thisptr
+    cdef ATOM* _atom
     def __cinit__(self, Lammps lammps):
-        self.thisptr = lammps.thisptr
+        self._atom = lammps._lammps._atom
 
     @property
-    def total_num(self):
-        return self.thisptr.atom.natoms
+    def num_total(self):
+        return self._atom.natoms
 
     @property
-    def local_num(self):
-        return self.thisptr.atom.nlocal
+    def num_local(self):
+        return self._atom.nlocal
 
     def __len__(self):
-        return self.local_num
+        return self.num_local
 
     @property
     def tags(self):
-        if self.thisptr.atom.x == NULL:
+        if self._atom.x == NULL:
             return None
         
-        cdef size_t N = self.local_num
-        cdef tagint[::1] array = <tagint[:N]>self.thisptr.atom.tag
+        cdef size_t N = self.num_local
+        cdef tagint[::1] array = <tagint[:N]>self._atom.tag
         return np.asarray(array)
 
-    # TODO how to cast a double** array (why did lammps use this data structure)
-    # Unique way that lammps represents internal data structure
     @property
     def positions(self):
-        if self.thisptr.atom.x == NULL:
+        if self._atom.x == NULL:
             return None
         
-        cdef size_t N = self.local_num
-        cdef double[:, ::1] array = <double[:N, :3]>self.thisptr.atom.x[0]
+        cdef size_t N = self.num_local
+        cdef double[:, ::1] array = <double[:N, :3]>self._atom.x[0]
         return np.asarray(array)
 
     @property
     def velocities(self):
-        if self.thisptr.atom.v == NULL:
+        if self._atom.v == NULL:
             return None
-        
-        cdef size_t N = self.local_num
-        cdef double[:, ::1] array = <double[:N, :3]>self.thisptr.atom.v[0]
+
+        cdef size_t N = self.num_local
+        cdef double[:, ::1] array = <double[:N, :3]>self._atom.v[0]
         return np.asarray(array)
 
     @property
     def forces(self):
-        if self.thisptr.atom.f == NULL:
+        if self._atom.f == NULL:
             return None
         
-        cdef size_t N = self.local_num
-        cdef double[:, ::1] array = <double[:N, :3]>self.thisptr.atom.f[0]
-        return np.asarray(array)
+        cdef size_t N = self.num_local
+        cdef double[:, ::1] arr = <double[:N, :3]>self._atom.f[0]
+        return np.asarray(arr)
 
     @property
     def charges(self):
-        if self.thisptr.atom.q == NULL:
+        if self._atom.q == NULL:
             return None
         
-        cdef size_t N = self.local_num
-        cdef double[::1] array = <double[:N]>self.thisptr.atom.q
-        return np.asarray(array)
+        cdef size_t N = self.num_local
+        cdef double[::1] vector = <double[:N]>self._atom.q
+        return np.asarray(vector)
 
 
 cdef class Box:
-    cdef LAMMPS *thisptr
+    cdef DOMAIN* _domain
     def __cinit__(self, Lammps lammps):
-        self.thisptr = lammps.thisptr
+        self._domain = lammps._lammps.domain
 
     @property
     def dimension(self):
         """ The dimension of the lammps run """
-        return self.thisptr.domain.dimension
+        return self._domain.dimension
 
     @property
     def lohi(self):
         cdef int dim = self.dimension
-        cdef double[::1] boxlo = <double[:dim]>self.thisptr.domain.boxlo
-        cdef double[::1] boxhi = <double[:dim]>self.thisptr.domain.boxhi
+        cdef double[::1] boxlo = <double[:dim]>self._domain.boxlo
+        cdef double[::1] boxhi = <double[:dim]>self._domain.boxhi
         return {'boxlo': np.array(boxlo), 'boxhi': np.array(boxhi)} # We copy arrays
 
     @property
     def tilts(self): #TODO how to handle 2d?
-        cdef double xy = self.thisptr.domain.xy
-        cdef double xz = self.thisptr.domain.xz
-        cdef double yz = self.thisptr.domain.yz
+        cdef double xy = self._domain.xy
+        cdef double xz = self._domain.xz
+        cdef double yz = self._domain.yz
         return {'xy': xy, 'xz': xz, 'yz': yz}
     
     # See http://lammps.sandia.gov/doc/Section_howto.html#4_12
@@ -172,8 +170,8 @@ cdef class Box:
 
     @property
     def volume(self):
-        cdef double vol = self.thisptr.domain.xprd * self.thisptr.domain.yprd
+        cdef double vol = self._domain.xprd * self._domain.yprd
         if self.dimension == 2:
             return vol
         else: # dimension == 3
-            return vol * self.thisptr.domain.zprd
+            return vol * self._domain.zprd
