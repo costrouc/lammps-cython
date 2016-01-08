@@ -71,6 +71,9 @@ cdef class Lammps:
         """Runs a LAMMPS file"""
         self._lammps.input.file(filename)
 
+    def run(self, long steps):
+        self._lammps.input.one(str.encode('run {}'.format(steps)))
+
     def reset(self):
         self._lammps.input.one(b'clear')
 
