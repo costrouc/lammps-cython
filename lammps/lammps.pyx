@@ -165,10 +165,18 @@ cdef class Update:
     def dt(self):
         return self._update.dt
 
+    @dt.setter
+    def dt(self, double value):
+        self._update.dt = value
+
     @property
     def time_step(self):
         return self._update.ntimestep
 
+    @time_step.setter
+    def time_step(self, bigint value):
+        self._update.reset_timestep(value)
+    
     @property
     def time(self):
         return self._update.atime
