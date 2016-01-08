@@ -102,8 +102,9 @@ ctypedef COMPUTE *(*ComputeCreator)(LAMMPS *, int, char **)
 cdef extern from "modify.h" namespace "LAMMPS_NS":
      cdef cppclass MODIFY "LAMMPS_NS::Modify":
           COMPUTE **compute
-          void add_compute(int, char **, int trysuffix=0)
           int find_compute(const char *)
+          void add_compute(int, char **, int trysuffix=0)
+          void modify_compute(int, char **)
          
 
 # LAMMPS class

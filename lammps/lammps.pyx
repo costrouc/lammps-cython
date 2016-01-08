@@ -13,22 +13,41 @@ import numpy as np
 #
 # PyArray_ENABLEFLAGS(a, np.NPY_OWNDATA)
 
+# helper functions char**
+cdef char** args_to_cargv(args):
+     cdef char** argv = <char**>malloc(len(args) * sizeof(char*))
+     cdef int i
+     for i in range(len(args)):
+         temp = args[i].encode('UTF-8')
+         argv[i] = temp
+     return argv
+
+cdef void free_cargv(int argc, char** argv):
+     cdef int i
+     for i in range(argc):
+         free(argv[i])
+     free(argv)
+
+
 cdef class Lammps:
     cdef LAMMPS *_lammps
+    cdef mpi.MPI_Comm _comm
     cdef public Box box
     cdef public Atoms atoms
     cdef public Update update
     cdef public Thermo thermo
-    def __cinit__(self):
-        args = [] # TODO reimplement properly
+    def __cinit__(self, args, comm=None):
         cdef int argc = len(args)
-        cdef char** argv = <char**>malloc(len(args) * sizeof(char*))
-        cdef mpi.MPI_Comm comm = mpi.MPI_COMM_WORLD
-        for i in range(len(args)):
-            temp_string = args[i].encode('UTF-8')
-            argv[i] = temp_string # To prevent garbage collection
+        cdef char** argv = <char**>args_to_cargv(args)
 
-        self._lammps = new LAMMPS(argc, argv, comm)
+        if comm is None:
+            self._comm = mpi.MPI_COMM_WORLD
+        else:
+            raise NotImplementedError()
+
+        self._lammps = new LAMMPS(argc, argv, self._comm)
+        # don't free char** becuase used by lammps (they don't copy their strings!)
+
         self.box = Box(self)
         self.atoms = Atoms(self)
         self.update = Update(self)
@@ -36,7 +55,6 @@ cdef class Lammps:
 
     def __dealloc__(self):
         del self._lammps
-        # TODO should I free string?
 
     @property
     def __version__(self):
@@ -58,45 +76,72 @@ cdef class Lammps:
 
 
 cdef class Thermo:
-    cdef LAMMPS *thisptr
+    cdef MODIFY* _modify
     cdef public Compute temperature
     cdef public Compute pressure
-    cdef public Compute energy
+    cdef public Compute potential_energy
+    cdef public dict computes
     def __cinit__(self, Lammps lammps):
-        self.thisptr = lammps.thisptr
+        self._modify = lammps._lammps.modify
+        self.computes = dict()
 
-        cdef int index_temp = self.thisptr.modify.find_compute(b"thermo_temp")
-        cdef int index_press = self.thisptr.modify.find_compute(b"thermo_press")
-        cdef int index_pe = self.thisptr.modify.find_compute(b"thermo_pe")
+        # Add computes automatically added by
+        # Lammps (output.h)
+        self.temperature = Compute(self, b"thermo_temp")
+        self.computes.update({'thermo_temp': self.temperature})
+        self.pressure = Compute(self, b"thermo_press")
+        self.computes.update({'thermo_press': self.pressure})
+        self.potential_energy = Compute(self, b"thermo_pe")
+        self.computes.update({'thermo_pe': self.potential_energy})
 
-        self.temperature = Compute(lammps, index_temp)
-        self.pressure = Compute(lammps, index_press)
-        self.energy = Compute(lammps, index_pe)
+    def modify(self, id, args):
+        raise NotImplementedError()
 
+    def add(self, id, args):
+        raise NotImplementedError()
 
 
 cdef class Compute:
-     cdef COMPUTE *thisptr
-     def __cinit__(self, Lammps lammps, int index):
-         self.thisptr = lammps.thisptr.modify.compute[index]
+     cdef COMPUTE *_compute
+     def __cinit__(self, Thermo thermo, id, args=None):
+         cdef int index = thermo._modify.find_compute(id)
+         if index == -1:
+             if args is None:
+                 raise ValueError("args must be supplied for new compute")
+             raise NotImplementedError()
+             # self._compute.add_compute(.... need to copy to char*) 
+         else:
+             if index == -1:    # Modify Compute and add
+                 raise NotImplementedError()
+             else:               # Don't modify compute and add
+                 self._compute = thermo._modify.compute[index]
+
+     @property
+     def id(self):
+         return self._compute.id
+
+     @property
+     def style(self):
+         return self._compute.style
 
      @property
      def scalar(self):
-         if self.thisptr.scalar_flag == 0:
+         if self._compute.scalar_flag == 0:
              raise NotImplementedError()
 
-         self.thisptr.compute_scalar()
-         return self.thisptr.scalar
+         self._compute.compute_scalar()
+         return self._compute.scalar
 
      @property
      def vector(self):
-         if self.thisptr.vector_flag == 0:
+         if self._compute.vector_flag == 0:
              raise NotImplementedError()
 
-         cdef int n = self.thisptr.size_vector
-         self.thisptr.compute_vector()
-         cdef double[::1] array = <double[:n]>self.thisptr.vector
-         return np.asarray(array)
+         self._compute.compute_vector()
+
+         cdef int N = self._compute.size_vector
+         cdef double[::1] vector = <double[:N]>self._compute.vector
+         return np.asarray(vector)
          
 
 cdef class Update:
@@ -120,7 +165,7 @@ cdef class Update:
 cdef class Atoms:
     cdef ATOM* _atom
     def __cinit__(self, Lammps lammps):
-        self._atom = lammps._lammps._atom
+        self._atom = lammps._lammps.atom
 
     @property
     def num_total(self):

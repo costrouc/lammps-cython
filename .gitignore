@@ -60,3 +60,6 @@ target/
 
 # cython builds
 *.cpp
+
+# lammps
+log.lammps
