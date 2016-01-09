@@ -4,7 +4,7 @@ This interface is inspired by HOOMD and tries its best to look
 similar. I try to include only orthogonal functions (e.g. make
 there only be ONE way to do something).
 
-TODO Features
+todo Features
  - Group support
  - integrator support
  - finish not implemented functions
@@ -37,11 +37,16 @@ cdef char** args_to_cargv(args):
 
 
 cdef class Lammps:
-    """ LAMMPS base class
+    r""" LAMMPS base class
 
     Representation of LAMMPS
        box 
 
+    :math:`a^2 + b^2 = c^2`
+    :math:`\alpha \beta \frac{1}{2}`
+    :math:`\alpha + \beta  = \frac{1}{2}`
+    
+..  todo:: Something to do.
     """
     cdef LAMMPS *_lammps
     cdef mpi.MPI_Comm _comm
@@ -86,6 +91,21 @@ cdef class Lammps:
 
     def run(self, long steps):
         self._lammps.input.one(str.encode('run {}'.format(steps)))
+
+    def send_message(sender, recipient, message_body, priority):
+        """ Send message (not true)
+        
+        :param str sender: The person sending the message
+        :param str recipient: The recipient of the message
+        :param str message_body: The body of the message
+        :param priority: The priority of the message, can be a number 1-5
+        :type priority: integer or None
+        :return: the message id
+        :rtype: int
+        :raises ValueError: if the message_body exceeds 160 characters
+        :raises TypeError: if the message_body is not a basestring
+        """
+        return 10
 
     def reset(self):
         self._lammps.input.one(b'clear')
