@@ -6,7 +6,7 @@ of this project is to put an opinionated wrapper around LAMMPS (the
 good parts) and allow the user to easily extend it's functionality in
 python.
 
-## Features
+# Features
 
  - Full MPI support  
  - Pythonic MD api inspired by
@@ -19,24 +19,16 @@ import sys
 Lammps(args=sys.args)
 ```
 
+# Install
+First install all the dependencies. You must install an MPI
+implementation separately.
+`pip install -r requirements.txt`
 
-## Dependencies
+python setup.py install
+
+# Dependencies
 
 - Some MPI implementation (preferably implementing the MPI3 api)  
 - [mpi4py](https://bitbucket.org/mpi4py/mpi4py/)  
 - [numpy](http://www.numpy.org/)  
 - [cython](http://cython.org/)  
-
-
-# Documentation for now
-## Creation of Box and Atoms
-This is a step that I was very confused with at first. It is not the
-#most elegant method but again it the lammps code does not make it easy.
-
-I will use the method
-
-`region <region_id> prism xlo xhi ylo yhi zlo zhi xy xz yz`
-`create_box <num_atom_types> <region_id>`
-
-Repeat for as many atoms as there are
-`create_atoms <num_atom_types> single`
