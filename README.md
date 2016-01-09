@@ -4,14 +4,14 @@ A cython wrapper around lammps. Lammps is a great molecular dynamics
 package that currently does not have a convenient way to run. The goal
 of this project is to put an opinionated wrapper around LAMMPS (the
 good parts) and allow the user to easily extend it's functionality in
-python.
+python. The api should feel very similar to 
+[HOOMD](https://codeblue.umich.edu/hoomd-blue/)  
 
 # Features
 
  - Full MPI support  
  - Pythonic MD api inspired by
 [HOOMD](https://codeblue.umich.edu/hoomd-blue/)  
- - 
  - Run lammps regularly (use "-i" instead of stdin) 
 ```python 
 from lammps import Lammps
