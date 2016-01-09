@@ -21,10 +21,12 @@ Lammps(args=sys.args)
 
 # Install
 First install all the dependencies. You must install an MPI
-implementation separately.
-`pip install -r requirements.txt`
+implementation separately.  
+> `pip install -r requirements.txt`  
 
-python setup.py install
+Edit the lammps.cfg to have the correct directories and
+filenames. Often times the lammps.cfg does not require much editing.  
+> `python setup.py install`  
 
 # Dependencies
 
