@@ -26,17 +26,10 @@ Compute Object
    :members:
    :inherited-members:
 
-Update Object
+System Object
 -------------
 
-.. autoclass:: Update
-   :members:
-   :inherited-members:
-
-Atoms Object
-------------
-
-.. autoclass:: Atoms
+.. autoclass:: System
    :members:
    :inherited-members:
 

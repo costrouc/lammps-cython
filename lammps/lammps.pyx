@@ -1,3 +1,5 @@
+#!python
+#cython: embedsignature=True
 """LAMMPS Python interface (the GOOD parts) 
 
 This interface is inspired by HOOMD and tries its best to look
@@ -39,7 +41,7 @@ cdef char** args_to_cargv(args):
 cdef class Lammps:
     """LAMMPS base class
 
-..  py:function:: __init__(args, comm=None)
+..  py:function:: __init__(self, args, comm=None)
     
     Initialize a Lammps object. 
 
@@ -153,7 +155,7 @@ cdef class Thermo:
     are always created, named “thermo_temp”, “thermo_press”, and
     “thermo_pe” these are initialized in the output.cpp in LAMMPS.
 
-..  py:function:: __init__(Lammps)
+..  py:function:: __init__(self, Lammps)
     
     Initialize a Thermo object.
 
@@ -200,7 +202,7 @@ cdef class Compute:
     See `compute <http://lammps.sandia.gov/doc/compute.html>`_ for
     more information on available computes.
 
-..  py:function:: __init__(Lammps)
+..  py:function:: __init__(self, Lammps)
     
     Initialize a Compute object.
 
@@ -290,64 +292,103 @@ cdef class Compute:
          
 
 cdef class System:
+    """ Represents all the atoms in the LAMMPS simulation
+
+    Since LAMMPS is a distributed system each processor has a local
+    view of its Atoms.
+
+..  py:function:: __init__(self, Lammps)
+    
+    Initialize a Compute object.
+
+    :param lammps: Lammps object
+    """
     cdef ATOM* _atom
     def __cinit__(self, Lammps lammps):
-        """ Docstring in Atom base class (sphinx can find doc when compiled) """
+        """ Docstring in System base class (sphinx can find doc when compiled) """
         self._atom = lammps._lammps.atom
 
     @property
-    def num_total(self):
+    def total(self):
+        """ Total number of atoms in LAMMPS simulation
+
+        :getter: Returns the total number of atoms in LAMMPS simulation
+        """
         return self._atom.natoms
 
     @property
-    def num_local(self):
+    def local(self):
+        """ Local number of atoms stored in core
+
+        :getter: Returns the local number of atoms specific to core
+        """
         return self._atom.nlocal
 
     def __len__(self):
-        return self.num_local
+        return self.local
 
     @property
     def tags(self):
+        """ Tags associated with local atoms stored on core in numpy.ndarray
+
+        :getter: Returns the local tags of atoms specific to core
+        """
         if self._atom.x == NULL:
             return None
         
-        cdef size_t N = self.num_local
+        cdef size_t N = self.local
         cdef tagint[::1] array = <tagint[:N]>self._atom.tag
         return np.asarray(array)
 
     @property
     def positions(self):
+        """ Positions associated with local atoms stored on core in numpy.ndarray
+
+        :getter: Returns the local positions of atoms specific to core
+        """
         if self._atom.x == NULL:
             return None
         
-        cdef size_t N = self.num_local
+        cdef size_t N = self.local
         cdef double[:, ::1] array = <double[:N, :3]>self._atom.x[0]
         return np.asarray(array)
 
     @property
     def velocities(self):
+        """ Velocities associated with local atoms stored on core in numpy.ndarray
+
+        :getter: Returns the local velocities of atoms specific to core
+        """
         if self._atom.v == NULL:
             return None
 
-        cdef size_t N = self.num_local
+        cdef size_t N = self.local
         cdef double[:, ::1] array = <double[:N, :3]>self._atom.v[0]
         return np.asarray(array)
 
     @property
     def forces(self):
+        """ Forces associated with local atoms stored on core
+
+        :getter: Returns the local forces of atoms specific to core
+        """
         if self._atom.f == NULL:
             return None
         
-        cdef size_t N = self.num_local
+        cdef size_t N = self.local
         cdef double[:, ::1] arr = <double[:N, :3]>self._atom.f[0]
         return np.asarray(arr)
 
     @property
     def charges(self):
+        """ Charges associated with local atoms stored on core
+
+        :getter: Returns the local charges of atoms specific to core
+        """
         if self._atom.q == NULL:
             return None
         
-        cdef size_t N = self.num_local
+        cdef size_t N = self.local
         cdef double[::1] vector = <double[:N]>self._atom.q
         return np.asarray(vector)
 

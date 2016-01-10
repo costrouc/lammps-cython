@@ -35,5 +35,5 @@ setup(
     version='0.0.1',
     author='Christopher Ostrouchov',
     description='Pythonic Wrapper to LAMMPS',
-    ext_modules=cythonize(extensions),
+    ext_modules=cythonize(extensions, compiler_directives={'embedsignature': True}),
 )
