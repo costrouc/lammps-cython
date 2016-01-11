@@ -1,7 +1,7 @@
 API
 ===
 
-.. module:: lammps
+.. module:: lammps.core
 	    
 This part of the documentation covers all the interfaces to LAMMPS.
 	    
