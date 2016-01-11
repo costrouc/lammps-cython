@@ -7,7 +7,7 @@ good parts) and allow the user to easily extend it's functionality in
 python. The api should feel very similar to
 [HOOMD](https://codeblue.umich.edu/hoomd-blue/). Full documentation
 can be found at
-[lammps-python](chrisostrouchov.com/projects/lammps-python).
+[lammps-python](http://chrisostrouchov.com/projects/lammps-python).
 
 # Features
 
@@ -69,4 +69,4 @@ Honestly this make configuration should work for most systems.
 # Documentation 
 
 For a full reference of the
-[lammps-python](chrisostrouchov.com/projects/lammps-python) api.
+[lammps-python](http://chrisostrouchov.com/projects/lammps-python) api.
