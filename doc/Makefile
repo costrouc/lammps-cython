@@ -24,6 +24,8 @@ I18NSPHINXOPTS  = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
 	@echo "  html       to make standalone HTML files"
+	@echo "  cython     to create cython library"
+	@echo "  deploy     to deploy html to google cloud bucket"
 	@echo "  dirhtml    to make HTML files named index.html in directories"
 	@echo "  singlehtml to make a single large HTML file"
 	@echo "  pickle     to make pickle files"
@@ -51,10 +53,16 @@ help:
 clean:
 	rm -rf $(BUILDDIR)/*
 
-html:
+html: cython
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
+
+cython:
+	cd .. && python setup.py build_ext -i && cd doc
+
+deploy: html
+	gsutil rsync -R _build/html "gs://chrisostrouchov.com/projects/lammps-python"
 
 dirhtml:
 	$(SPHINXBUILD) -b dirhtml $(ALLSPHINXOPTS) $(BUILDDIR)/dirhtml
