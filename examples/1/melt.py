@@ -1,6 +1,6 @@
 #!/usr/bin/python3.4
 
-from lammps import Lammps
+from lammps.core import Lammps
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -27,23 +27,29 @@ print(("Total number of atoms: {}\n"
            lmp.system.total,
            lmp.system.local))
 
-temps = []
-for i in range(100):
-    print(i)
-    lmp.run(1)
-    if lmp.thermo.temperature.scalar < 7.0:
-        print("ERROR: temp too low!!!")
-        exit()
+print(lmp.system.tags)
+print(lmp.system.positions.shape)
 
-    temps.append(lmp.thermo.temperature.scalar)
+for atom in lmp.system:
+    print(atom.position)
 
-json.dump(temps, open("temp.dump", "w"))
+# temps = []
+# for i in range(100):
+#     print(i)
+#     lmp.run(1)
+#     if lmp.thermo.temperature.scalar < 7.0:
+#         print("ERROR: temp too low!!!")
+#         exit()
 
-plt.plot(temps)
-plt.savefig("temp.png")
+#     temps.append(lmp.thermo.temperature.scalar)
 
-# Do some interesting plotting
-vel = lmp.system.velocities
+# json.dump(temps, open("temp.dump", "w"))
 
-plt.hist(np.linalg.norm(vel, axis=1), bins=40)
-plt.savefig("vel.png")
+# plt.plot(temps)
+# plt.savefig("temp.png")
+
+# # Do some interesting plotting
+# vel = lmp.system.velocities
+
+# plt.hist(np.linalg.norm(vel, axis=1), bins=40)
+# plt.savefig("vel.png")

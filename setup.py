@@ -1,7 +1,6 @@
-from Cython.Build import cythonize
-
 import mpi4py
 import numpy
+from Cython.Build import cythonize
 
 from distutils.core import setup
 from distutils.extension import Extension
@@ -21,14 +20,12 @@ include_dirs.append(lammps_config.get('mpi', 'mpi_include_dir'))
 libraries = [lammps_config.get('lammps', 'lammps_library')]
 library_dirs = [lammps_config.get('lammps', 'lammps_library_dir')]
 
-source_files = ['lammps/lammps.pyx']
-
-extensions =  Extension('lammps',
-                        sources=source_files,
-                        include_dirs=include_dirs,
-                        libraries=libraries,
-                        library_dirs=['/home/costrouc/.local/lib'],
-                        language='c++')
+extension = Extension('lammps.core',
+                      sources=['lammps/core.pyx'],
+                      include_dirs=include_dirs,
+                      libraries=libraries,
+                      library_dirs=['/home/costrouc/.local/lib'],
+                      language='c++')
 
 setup(
     name='lammps',
@@ -40,5 +37,5 @@ setup(
     url='https://github.com/costrouc/lammps-python',
     download_url='https://github.com/costrouc/lammps-python/tarball/master',
     keywords=['lammps', 'molecular dynamics', 'cython', 'wrapper'],
-    ext_modules=cythonize(extensions, compiler_directives={'embedsignature': True}),
+    ext_modules=cythonize(extension)
 )

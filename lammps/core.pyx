@@ -13,7 +13,7 @@ there only be ONE way to do something).
 
 """
 
-include "lammps.pyd"
+include "core.pyd"
 
 from libc.stdlib cimport malloc, free
 cimport numpy as np
@@ -306,6 +306,77 @@ cdef class Compute:
         cdef int N = self._compute.size_vector
         cdef double[::1] vector = <double[:N]>self._compute.vector
         return np.asarray(vector)
+
+
+cdef class Atom:
+    """ Represents a single atom in the LAMMPS simulation
+
+    Since LAMMPS is a distributed system each atom only exists on 
+    one of the processors.
+
+..  py:function:: __init__(self, System)
+
+    Initialize an System object
+    """
+    cdef ATOM* _atom
+    cdef readonly long tag
+    cdef long local_index
+    def __cinit__(self, System system, tagint tag, lindex=None):
+        """ Docstring in System base class (sphinx can find doc when compiled) """
+        self._atom = system._atom
+
+        if lindex is not None:
+            if lindex < 0 or lindex >= system.local:
+                raise IndexError("index not withing local atoms index")
+            self.local_index = lindex
+            self.tag = self._atom.tag[self.local_index]
+        else:
+            raise NotImplementedError("currently need the local index")
+            # self.tag = tag
+            # self.index = self._atom.map(self.tag)
+
+    @property
+    def position(self):
+        # Check if atom is on this processor
+        if (self.local_index == -1) or (self._atom.x == NULL):
+            return None
+
+        cdef double[::1] array = <double[:3]>&self._atom.x[0][self.local_index * 3]
+        return np.asarray(array)
+
+    @property
+    def velocity(self):
+        # Check if atom is on this processor
+        if (self.local_index == -1) or (self._atom.v == NULL):
+            return None
+
+        cdef double[::1] array = <double[:3]>&self._atom.v[0][self.local_index * 3]
+        return np.asarray(array)
+
+    @property
+    def force(self):
+        # Check if atom is on this processor or property is set
+        if (self.local_index == -1) or (self._atom.f == NULL):
+            return None
+
+        cdef double[::1] array = <double[:3]>&self._atom.f[0][self.local_index * 3]
+        return np.asarray(array)
+
+    @property
+    def charge(self):
+        # Check if atom is on this processor or property is set
+        if (self.local_index == -1) or (self._atom.q == NULL):
+            return None
+
+        return self._atom.q[self.local_index]
+
+    @charge.setter
+    def charge(self, value):
+        # Check if atom is on this processor or property is set
+        if (self.local_index == -1) or (self._atom.q == NULL):
+            return None
+
+        self._atom.q[self.local_index] = value
          
 
 cdef class System:
@@ -321,9 +392,11 @@ cdef class System:
     :param lammps: Lammps object
     """
     cdef ATOM* _atom
+    cdef unsigned int local_index # used by iter
     def __cinit__(self, Lammps lammps):
         """ Docstring in System base class (sphinx can find doc when compiled) """
         self._atom = lammps._lammps.atom
+        self.local_index = 0
 
     @property
     def total(self):
@@ -343,6 +416,17 @@ cdef class System:
 
     def __len__(self):
         return self.local
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self.local_index >= len(self):
+            raise StopIteration()
+        
+        atom = Atom(self, self._atom.tag[self.local_index], lindex=self.local_index)
+        self.local_index += 1
+        return atom
 
     @property
     def tags(self):
