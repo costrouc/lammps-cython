@@ -57,15 +57,18 @@ cdef class Lammps:
     cdef public Box box
     cdef public System system
     cdef public Thermo thermo
-    def __cinit__(self, args, comm=None):
+    def __cinit__(self, args=None, comm=None):
         """ Docstring in Lammps base class (sphinx can find doc when compiled) """
-        cdef int argc = len(args)
-        cdef char** argv = <char**>args_to_cargv(args)
-
         if comm is None:
             self._comm = mpi.MPI_COMM_WORLD
         else:
             raise NotImplementedError()
+
+        if args is None:
+            args = ['python']
+        
+        cdef int argc = len(args)
+        cdef char** argv = <char**>args_to_cargv(args)
 
         self._lammps = new LAMMPS(argc, argv, self._comm)
         # don't free char** becuase used by lammps (they don't copy their strings!)
@@ -132,11 +135,11 @@ cdef class Lammps:
         :getter: Returns the timestep size
         :setter: Sets the timestep size
         """
-        return self._update.dt
+        return self._lammp.update.dt
 
     @dt.setter
     def dt(self, double value):
-        self._update.dt = value
+        self._lammps.update.dt = value
 
     @property
     def time_step(self):
@@ -145,11 +148,11 @@ cdef class Lammps:
         :getter: Returns the timestep
         :setter: Sets the timestep
         """
-        return self._update.ntimestep
+        return self._lammps.update.ntimestep
 
     @time_step.setter
     def time_step(self, bigint value):
-        self._update.reset_timestep(value)
+        self._lammps.update.reset_timestep(value)
     
     @property
     def time(self):
@@ -158,7 +161,7 @@ cdef class Lammps:
         :getter: Returns the total time
         :setter: Sets the total time
         """
-        return self._update.atime
+        return self._lammps.update.atime
 
 
 cdef class Thermo:
