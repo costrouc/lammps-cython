@@ -13,7 +13,6 @@ there only be ONE way to do something).
 
 """
 
-
 include "lammps.pyd"
 
 from libc.stdlib cimport malloc, free
@@ -128,6 +127,11 @@ cdef class Lammps:
 
     @property
     def dt(self):
+        """ timestep size for run step in simulation time units
+
+        :getter: Returns the timestep size
+        :setter: Sets the timestep size
+        """
         return self._update.dt
 
     @dt.setter
@@ -136,6 +140,11 @@ cdef class Lammps:
 
     @property
     def time_step(self):
+        """ current number of timesteps that have been run
+    
+        :getter: Returns the timestep
+        :setter: Sets the timestep
+        """
         return self._update.ntimestep
 
     @time_step.setter
@@ -144,6 +153,11 @@ cdef class Lammps:
     
     @property
     def time(self):
+        """ total time that has elapsed from lammps runs in simulation time units
+    
+        :getter: Returns the total time
+        :setter: Sets the total time
+        """
         return self._update.atime
 
 
@@ -299,7 +313,7 @@ cdef class System:
 
 ..  py:function:: __init__(self, Lammps)
     
-    Initialize a Compute object.
+    Initialize a System object.
 
     :param lammps: Lammps object
     """
@@ -394,6 +408,14 @@ cdef class System:
 
 
 cdef class Box:
+    """ Represents the shape of the simulation cell.
+
+..  py:function:: __init__(self, Lammps)
+    
+    Initialize a Box object.
+
+    :param lammps: Lammps object
+    """
     cdef DOMAIN* _domain
     def __cinit__(self, Lammps lammps):
         """ Docstring in Box base class (sphinx can find doc when compiled) """
@@ -401,11 +423,29 @@ cdef class Box:
 
     @property
     def dimension(self):
-        """ The dimension of the lammps run """
+        """ The dimension of the lammps run either 2D or 3D
+
+        :returns: dimension of lammps simulation
+        :rtype: int
+        """
         return self._domain.dimension
 
     @property
     def lohi(self):
+        """ LAMMPS box description of boxhi and boxlo
+
+        :return: dictionary of lower and upper in each dimension
+        :rtype: dict
+
+        For example one example return dictionary would be
+
+..      code-block:: python
+        
+        lohi = {
+            'boxlo': np.array([0.0, 0.0, 0.0]),
+            'boxhi': np.array([10.0, 10.0, 10.0])
+        }
+        """
         cdef int dim = self.dimension
         cdef double[::1] boxlo = <double[:dim]>self._domain.boxlo
         cdef double[::1] boxhi = <double[:dim]>self._domain.boxhi
