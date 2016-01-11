@@ -4,8 +4,10 @@ A cython wrapper around lammps. Lammps is a great molecular dynamics
 package that currently does not have a convenient way to run. The goal
 of this project is to put an opinionated wrapper around LAMMPS (the
 good parts) and allow the user to easily extend it's functionality in
-python. The api should feel very similar to 
-[HOOMD](https://codeblue.umich.edu/hoomd-blue/)  
+python. The api should feel very similar to
+[HOOMD](https://codeblue.umich.edu/hoomd-blue/). Full documentation
+can be found at
+[lammps-python](chrisostrouchov.com/projects/lammps-python).
 
 # Features
 
@@ -26,7 +28,10 @@ implementation separately.
 
 Edit the lammps.cfg to have the correct directories and
 filenames. Often times the lammps.cfg does not require much editing.  
-> `python setup.py install`
+> `python setup.py install`  
+
+Soon I will make the package available on PIPY so that it can be
+installed via `pip install lammps`.
 
 ## Installing LAMMPS Ubuntu
 I will attempt to keep this current (1/10/2016) on how to install in
@@ -60,3 +65,8 @@ Honestly this make configuration should work for most systems.
 - [mpi4py](https://bitbucket.org/mpi4py/mpi4py/)  
 - [numpy](http://www.numpy.org/)  
 - [cython](http://cython.org/)  
+
+# Documentation 
+
+For a full reference of the
+[lammps-python](chrisostrouchov.com/projects/lammps-python) api.
