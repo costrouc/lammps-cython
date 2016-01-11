@@ -32,8 +32,13 @@ extensions =  Extension('lammps',
 
 setup(
     name='lammps',
+    packages=['lammps'],
     version='0.0.1',
-    author='Christopher Ostrouchov',
     description='Pythonic Wrapper to LAMMPS',
+    author='Christopher Ostrouchov',
+    author_email='chris.ostrouchov+lammps@gmail.com',
+    url='https://github.com/costrouc/lammps-python',
+    download_url='https://github.com/costrouc/lammps-python/tarball/master',
+    keywords=['lammps', 'molecular dynamics', 'cython', 'wrapper'],
     ext_modules=cythonize(extensions, compiler_directives={'embedsignature': True}),
 )
