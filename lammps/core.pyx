@@ -9,14 +9,15 @@ there only be ONE way to do something).
 .. todo:: Features
  - Group support
  - integrator support
- - finish not implemented functions
-
+ - lammps units support (maybe integrate with units package)
+ - lammps construct box from lengths and angles
 """
 
 include "core.pyd"
 
 from libc.stdlib cimport malloc, free
 cimport numpy as np
+from libc.math cimport sqrt, acos
 
 # Import the Python-level symbols
 from mpi4py import MPI
@@ -337,6 +338,10 @@ cdef class Atom:
 
     @property
     def position(self):
+        """ position of local atom
+        
+        :getter: returns the position of the local atom
+        """
         # Check if atom is on this processor
         if (self.local_index == -1) or (self._atom.x == NULL):
             return None
@@ -346,6 +351,10 @@ cdef class Atom:
 
     @property
     def velocity(self):
+        """ velocity of local atom
+        
+        :getter: returns the velocity of the local atom
+        """
         # Check if atom is on this processor
         if (self.local_index == -1) or (self._atom.v == NULL):
             return None
@@ -355,6 +364,10 @@ cdef class Atom:
 
     @property
     def force(self):
+        """ force of local atom
+        
+        :getter: returns the force of the local atom
+        """
         # Check if atom is on this processor or property is set
         if (self.local_index == -1) or (self._atom.f == NULL):
             return None
@@ -364,6 +377,11 @@ cdef class Atom:
 
     @property
     def charge(self):
+        """ charge of local atom
+        
+        :getter: returns the charge of the local atom
+        :setter: sets the chage of the local atom
+        """
         # Check if atom is on this processor or property is set
         if (self.local_index == -1) or (self._atom.q == NULL):
             return None
@@ -519,12 +537,12 @@ cdef class Box:
 
     @property
     def lohi(self):
-        """ LAMMPS box description of boxhi and boxlo
+        r""" LAMMPS box description of boxhi and boxlo
 
         :return: dictionary of lower and upper in each dimension
         :rtype: dict
 
-        For example one example return dictionary would be
+        For example a return dictionary would be
 
 ..      code-block:: python
         
@@ -532,6 +550,14 @@ cdef class Box:
             'boxlo': np.array([0.0, 0.0, 0.0]),
             'boxhi': np.array([10.0, 10.0, 10.0])
         }
+
+..      math::
+        lx &= boxhi[0] - boxlo[0] = a \\
+        ly &= boxhi[1] - boxlo[1] = \sqrt{b^2 - xy^2} \\
+        lz &= boxhi[2] - boxlo[2] = \sqrt{c^2 - xz^2 - yz^2}
+
+
+Additional documentation can be found at `lammps <http://lammps.sandia.gov/doc/Section_howto.html?highlight=prism#howto-12>`_.
         """
         cdef int dim = self.dimension
         cdef double[::1] boxlo = <double[:dim]>self._domain.boxlo
@@ -539,23 +565,97 @@ cdef class Box:
         return {'boxlo': np.array(boxlo), 'boxhi': np.array(boxhi)} # We copy arrays
 
     @property
-    def tilts(self): #TODO how to handle 2d?
+    def tilts(self):
+        r""" LAMMPS box description of xy xz yz
+
+        :return: dictionary of xy xz yz
+        :rtype: dict
+
+        For example a return dictionary would be
+
+..      code-block:: python
+
+        tilts = {
+           'xy': 0.0,
+           'xz': 0.0,
+           'yz': 0.0
+        }
+
+..      math::
+        xy &= b \cos{\gamma} \\
+        xz &= c \cos{\beta}  \\
+        yz &= \frac{b c \cos{\alpha} - xy xz}{ly}
+
+
+Additional documentation can be found at `lammps <http://lammps.sandia.gov/doc/Section_howto.html?highlight=prism#howto-12>`_.
+
+..      todo::
+         how to handle 2d? Needs to be addressed throughout
+        """
         cdef double xy = self._domain.xy
         cdef double xz = self._domain.xz
         cdef double yz = self._domain.yz
         return {'xy': xy, 'xz': xz, 'yz': yz}
-    
-    # See http://lammps.sandia.gov/doc/Section_howto.html#4_12
+
+    @property
+    def lengths_angles(self):
+        r""" Calculates the lengths and angles from lammps box
+
+        :getter: return lengths (a, b, c) and angles (alpha, beta, gamma)
+
+        For some reason lammps decided to use a non standard box
+        definition
+
+..      math::
+
+        a &= lx \\
+        b &= \sqrt{ly^2 + xy^2} \\
+        c &= \sqrt{lz^2 + xz^2 + yz^2} \\
+        \cos{\alpha} &= \frac{xy xz + ly yz}{b c} \\
+        \cos{\beta} &= \frac{xz}{c} \\
+        \cos{\gamma} &= \frac{xy}{b}
+
+Additional documentation can be found at `lammps <http://lammps.sandia.gov/doc/Section_howto.html?highlight=prism#howto-12>`_.
+        """
+        cdef int dim = self.dimension
+        cdef double[::1] boxlo = <double[:dim]>self._domain.boxlo
+        cdef double[::1] boxhi = <double[:dim]>self._domain.boxhi
+        cdef double lx = boxhi[0] - boxlo[0]
+        cdef double ly = boxhi[1] - boxlo[1]
+        cdef double lz = boxhi[2] - boxlo[2]
+        cdef double xy = self._domain.xy
+        cdef double xz = self._domain.xz
+        cdef double yz = self._domain.yz
+        cdef double a = lx
+        cdef double b = sqrt(ly**2 + xy**2)
+        cdef double c = sqrt(lz**2 + xz**2 + yz**2)
+        cdef double alpha = acos((xy*xz + ly*yz) / (b*c))
+        cdef double beta = acos(xz / c)
+        cdef double gamma = acos(xy / b)
+        return (a, b, c), (alpha, beta, gamma)
+
     @property
     def lengths(self):
-        raise NotImplementedError()
+        """ See :py:func:`lengths_angles`
+
+        :getter: return lengths (a, b, c)
+        """
+        return self.lengths_angles[0]
 
     @property
     def angles(self):
-        raise NotImplementedError()
+        """ See :py:func:`lengths_angles`
+
+        :getter: returns angles (alpha, beta, gamma)
+        """
+        return self.lengths_angles[1]
 
     @property
     def volume(self):
+        """ Volume of box given in lammps units 
+
+        :getter: Returns volume of box given in lammps units 
+        """
         cdef double vol = self._domain.xprd * self._domain.yprd
         if self.dimension == 2:
             return vol
