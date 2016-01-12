@@ -61,10 +61,19 @@ cdef class Lammps:
     def __cinit__(self, args=None, comm=None):
         """ Docstring in Lammps base class (sphinx can find doc when compiled) """
         if comm is None:
-            self._comm = mpi.MPI_COMM_WORLD
-        else:
-            raise NotImplementedError()
+            comm = MPI.COMM_WORLD
 
+        if not isinstance(comm, MPI.Comm):
+            raise TypeError("comm arg must be of type MPI.Comm")
+
+        # From discussion (todo: possible bug here)
+        # https://groups.google.com/forum/#!topic/mpi4py/jPqNrr_8UWY
+        # https://bitbucket.org/mpi4py/mpi4py/issues/13/import-failure-on-cython-extensions-that
+        # https://bitbucket.org/mpi4py/mpi4py/commits/93804f5609ceac5e42aad58e998ebb1f213296c8
+        cdef size_t comm_addr= MPI._addressof(comm)
+        cdef mpi.MPI_Comm* comm_ptr = <mpi.MPI_Comm*>comm_addr
+        self._comm = comm_ptr[0]
+        
         if args is None:
             args = ['python']
         
