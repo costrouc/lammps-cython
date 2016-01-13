@@ -156,7 +156,7 @@ cdef class Lammps:
 
         # Set the units
         if units in Lammps.available_units:
-            cmd = "unit {}".format(units)
+            cmd = "units {}".format(units)
             self.command(cmd.encode('utf-8'))
         else:
             raise TypeError('units {} unknown units'.format(units))
