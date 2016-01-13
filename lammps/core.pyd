@@ -42,6 +42,10 @@ cdef extern from "atom.h" namespace "LAMMPS_NS":
           double **v
           double **f
           double *q
+          # AtomTypes
+          int ntypes
+          double *mass;
+          void set_mass(int, double)
 
 
 # Atom vector class

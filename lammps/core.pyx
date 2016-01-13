@@ -334,6 +334,43 @@ cdef class Compute:
         return np.asarray(vector)
 
 
+cdef class AtomType:
+    """ Represents an atom type in Lammps 
+
+    Provides a wrapper over atom types
+
+..  py:function:: __init__(self, System, int type)
+
+    :param int tag: tag number of particle 
+    :param int lindex: the local index of the atom
+
+    Initialize an AtomType object.
+    """
+    cdef ATOM* _atom
+    cdef readonly int index
+    def __cinit__(self, System system, int index):
+        """ Docstring in AtomType base class (sphinx can find doc when compiled) """
+        self._atom = system._atom
+
+        if index < 0 or index > self. _atom.ntypes:
+            raise ValueError("atom type index wrong {}".format(index))
+
+        self.index = index
+
+    @property
+    def mass(self):
+        """ Mass of the atom type
+
+        :getter: returns the mass of the atom type
+        :setter: sets the mass of the atom type
+        """
+        return self._atom.mass[self.index]
+
+    @mass.setter
+    def mass(self, double value):
+        self._atom.set_mass(self.index, value)
+
+
 cdef class Atom:
     """ Represents a single atom in the LAMMPS simulation
 
@@ -367,15 +404,18 @@ cdef class Atom:
     @property
     def type(self):
         """ type of local atom
-        
-        :getter: returns the type of the local atom
+
+        :getter: returns AtomType of the local atom
         :setter: sets the type of the local atom
         """
-        return self._atom.type[self.local_index]
+        return AtomType(self, self._atom.type[self.local_index])
 
     @type.setter
     def type(self, value):
-        self._atom.type[self.local_index] = value
+        if not isinstance(value, AtomType):
+            raise TypeError("setter must be AtomType")
+
+        self._atom.type[self.local_index] = value.index
 
     @property
     def position(self):
@@ -436,7 +476,7 @@ cdef class Atom:
             return None
 
         self._atom.q[self.local_index] = value
-         
+
 
 cdef class System:
     """ Represents all the atoms in the LAMMPS simulation
@@ -508,9 +548,9 @@ cdef class System:
 
     @property
     def types(self):
-        """ Tags associated with local atoms stored on core in numpy.ndarray
+        """ Types associated with local atoms stored on core in numpy.ndarray
 
-        :getter: Returns the local tags of atoms specific to core
+        :getter: Returns the local int types of atoms specific to core
         """
         if self._atom.x == NULL:
             return None
@@ -518,6 +558,17 @@ cdef class System:
         cdef size_t N = self.local
         cdef int[::1] array = <int[:N]>self._atom.type
         return np.asarray(array)
+
+    @property
+    def atom_types(self):
+        """ Atom Types that are currently defined
+        
+        :getter: Returns AtomTypes of system 
+        """
+        atomtypes = []
+        for i in range(self._atom.ntypes):
+            atomtypes.append(AtomType(self, i))
+        return atomtypes
 
     @property
     def positions(self):
