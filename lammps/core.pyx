@@ -34,11 +34,57 @@ include "core.pyd"
 
 from libc.stdlib cimport malloc, free
 cimport numpy as np
-from libc.math cimport sqrt, acos
+from libc.math cimport sqrt, acos, cos
 
 # Import the Python-level symbols
 from mpi4py import MPI
 import numpy as np
+from math import pi
+
+def lattice_const_to_lammps_box(lengths, angles):
+    """ Converts lattice constants to lammps box coorinates(angles in radians) 
+
+..  math::
+
+    lx &= boxhi[0] - boxlo[0] = a \\
+    ly &= boxhi[1] - boxlo[1] = \sqrt{b^2 - xy^2} \\
+    lz &= boxhi[2] - boxlo[2] = \sqrt{c^2 - xz^2 - yz^2}
+    xy &= b \cos{\gamma} \\
+    xz &= c \cos{\beta}  \\
+    yz &= \frac{b c \cos{\alpha} - xy xz}{ly}
+    """
+    a, b, c = lengths
+    alpha, beta, gamma = angles
+    cdef lx = a
+    cdef xy = b * cos(gamma)
+    cdef xz = c * cos(beta)
+    cdef ly = sqrt(b**2 - xy**2)
+    cdef yz = (b*c*cos(alpha) - xy*xz)/ly
+    cdef lz = sqrt(c**2 - xz**2 - yz**2)
+    return (lx, ly, lz), (xy, xz, yz)
+
+
+def lammps_box_to_lattice_const(lengths, tilts):
+    """ Converts lammps box coordinates to lattice constants
+
+..  math::
+
+    a &= lx \\
+    b &= \sqrt{ly^2 + xy^2} \\
+    c &= \sqrt{lz^2 + xz^2 + yz^2} \\
+    \cos{\alpha} &= \frac{xy xz + ly yz}{b c} \\
+    \cos{\beta} &= \frac{xz}{c} \\
+    \cos{\gamma} &= \frac{xy}{b}
+    """
+    lx, ly, lz = lengths
+    xy, xz, yz = tilts
+    cdef double a = lx
+    cdef double b = sqrt(ly**2 + xy**2)
+    cdef double c = sqrt(lz**2 + xz**2 + yz**2)
+    cdef double alpha = acos((xy*xz + ly*yz) / (b*c))
+    cdef double beta = acos(xz / c)
+    cdef double gamma = acos(xy / b)
+    return (a, b, c), (alpha, beta, gamma)
 
 # helper functions char**
 cdef char** args_to_cargv(args):
@@ -679,6 +725,32 @@ cdef class Box:
         """ Docstring in Box base class (sphinx can find doc when compiled) """
         self.lammps = lammps
 
+    def from_lattice_const(self, atom_types, lengths, angles=None, region_id='lammps-box'):
+        """ Create Unit cell (can only be run once)
+
+        :param int atom_types: number of atom types for simulation
+        :param list lengths: lattice constants of unit cell
+        :param list angles: angles of unit cell in radians
+        :param str region_id: name of region for lammps simulation
+
+        Essentially runs:
+        region region-id prism xlo xhi ylo yhi zlo zhi xy xz yz
+        create_box N region-ID keyword value ...
+        """
+        if angles == None:
+            angles = [pi/2., pi/2., pi/2.]
+
+        (lx, ly, lz), (xy, xz, yz) = lattice_const_to_lammps_box(lengths, angles)
+        cmd = (
+            "region {} prism 0.0 {} 0.0 {} 0.0 {} {} {} {}"
+        ).format(region_id, lx, ly, lz, xy, xz, yz)
+        self.lammps.command(cmd.encode('utf-8'))
+
+        cmd = (
+            "create_box {} {}"
+        ).format(atom_types, region_id)
+        self.lammps.command(cmd.encode('utf-8'))
+
     @property
     def dimension(self):
         """ The dimension of the lammps run either 2D or 3D
@@ -695,7 +767,9 @@ cdef class Box:
         :return: dictionary of lower and upper in each dimension
         :rtype: dict
 
-        For example a return dictionary would be
+        Additional documentation can be found at `lammps
+        <http://lammps.sandia.gov/doc/Section_howto.html?highlight=prism#howto-12>`_. For
+        example a return dictionary would be
 
 ..      code-block:: python
 
@@ -704,13 +778,7 @@ cdef class Box:
             'boxhi': np.array([10.0, 10.0, 10.0])
         }
 
-..      math::
-        lx &= boxhi[0] - boxlo[0] = a \\
-        ly &= boxhi[1] - boxlo[1] = \sqrt{b^2 - xy^2} \\
-        lz &= boxhi[2] - boxlo[2] = \sqrt{c^2 - xz^2 - yz^2}
 
-
-Additional documentation can be found at `lammps <http://lammps.sandia.gov/doc/Section_howto.html?highlight=prism#howto-12>`_.
         """
         cdef int dim = self.dimension
         cdef double[::1] boxlo = <double[:dim]>self.lammps._lammps.domain.boxlo
@@ -727,6 +795,8 @@ Additional documentation can be found at `lammps <http://lammps.sandia.gov/doc/S
         :return: dictionary of xy xz yz
         :rtype: dict
 
+        Additional documentation can be found at `lammps
+        <http://lammps.sandia.gov/doc/Section_howto.html?highlight=prism#howto-12>`_.
         For example a return dictionary would be
 
 ..      code-block:: python
@@ -736,14 +806,6 @@ Additional documentation can be found at `lammps <http://lammps.sandia.gov/doc/S
            'xz': 0.0,
            'yz': 0.0
         }
-
-..      math::
-        xy &= b \cos{\gamma} \\
-        xz &= c \cos{\beta}  \\
-        yz &= \frac{b c \cos{\alpha} - xy xz}{ly}
-
-
-Additional documentation can be found at `lammps <http://lammps.sandia.gov/doc/Section_howto.html?highlight=prism#howto-12>`_.
 
 ..      todo::
          how to handle 2d? Needs to be addressed throughout
@@ -763,19 +825,9 @@ Additional documentation can be found at `lammps <http://lammps.sandia.gov/doc/S
 
         :getter: return lengths (a, b, c) and angles (alpha, beta, gamma)
 
-        For some reason lammps decided to use a non standard box
-        definition
-
-..      math::
-
-        a &= lx \\
-        b &= \sqrt{ly^2 + xy^2} \\
-        c &= \sqrt{lz^2 + xz^2 + yz^2} \\
-        \cos{\alpha} &= \frac{xy xz + ly yz}{b c} \\
-        \cos{\beta} &= \frac{xz}{c} \\
-        \cos{\gamma} &= \frac{xy}{b}
-
-Additional documentation can be found at `lammps <http://lammps.sandia.gov/doc/Section_howto.html?highlight=prism#howto-12>`_.
+        Additional documentation can be found at `lammps
+        <http://lammps.sandia.gov/doc/Section_howto.html?highlight=prism#howto-12>`_. See
+        implementation :py:func:`lammps_box_to_lattice_const`.
         """
         cdef int dim = self.dimension
         cdef double[::1] boxlo = <double[:dim]>self.lammps._lammps.domain.boxlo
@@ -786,13 +838,7 @@ Additional documentation can be found at `lammps <http://lammps.sandia.gov/doc/S
         cdef double xy = self.lammps._lammps.domain.xy
         cdef double xz = self.lammps._lammps.domain.xz
         cdef double yz = self.lammps._lammps.domain.yz
-        cdef double a = lx
-        cdef double b = sqrt(ly**2 + xy**2)
-        cdef double c = sqrt(lz**2 + xz**2 + yz**2)
-        cdef double alpha = acos((xy*xz + ly*yz) / (b*c))
-        cdef double beta = acos(xz / c)
-        cdef double gamma = acos(xy / b)
-        return (a, b, c), (alpha, beta, gamma)
+        return lammps_box_to_lattice_const((lx, ly, lz), (xy, xz, yz))
 
     @property
     def lengths(self):
@@ -806,7 +852,7 @@ Additional documentation can be found at `lammps <http://lammps.sandia.gov/doc/S
     def angles(self):
         """ See :py:func:`lengths_angles`
 
-        :getter: returns angles (alpha, beta, gamma)
+        :getter: returns angles in radians (alpha, beta, gamma)
         """
         return self.lengths_angles[1]
 
