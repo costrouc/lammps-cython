@@ -1,10 +1,9 @@
 #!/usr/bin/python3.4
 
-from lammps.core import Lammps
+from lammps import Lammps
 
 import matplotlib.pyplot as plt
 import numpy as np
-import json
 
 # lammps command list option'-sc', 'none' used so 
 # lammps doesn't print tons of information

@@ -11,6 +11,23 @@ there only be ONE way to do something).
  - integrator support
  - lammps units support (maybe integrate with units package)
  - lammps construct box from lengths and angles
+
+
+Notes:
+Creating from atoms and unit cell
+
+atom_style (atomic or charge)
+
+region lammps-python prism xlo xhi ylo yhi zlo zhi xy xz yz
+create_box <number of atom types> <region-id>
+
+# create_atoms <atom_type> single <x> <y> <z> 
+#  - use remap to put atoms outside cell inside
+#  - units [box or lattice] - fractional or real
+
+No we use the atom_vec.create_atom(int, double*) call!!
+called by atom->avec->create_atom
+only create atom if it is in subbox of processor
 """
 
 include "core.pyd"
@@ -145,7 +162,7 @@ cdef class Lammps:
         :getter: Returns the timestep size
         :setter: Sets the timestep size
         """
-        return self._lammp.update.dt
+        return self._lammps.update.dt
 
     @dt.setter
     def dt(self, double value):

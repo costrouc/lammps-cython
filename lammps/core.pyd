@@ -15,10 +15,10 @@ cimport mpi4py.libmpi as mpi
 
 # Assumed #DEFINE LAMMPS_SMALLBIG
 # TODO do we need the constructors (excluding LAMMPS)?
-ctypedef int smallint;
-ctypedef int imageint;
-ctypedef int tagint;
-ctypedef int64_t bigint;
+ctypedef int smallint
+ctypedef int imageint
+ctypedef int tagint
+ctypedef int64_t bigint
 
 
 
