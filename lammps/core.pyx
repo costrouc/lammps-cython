@@ -352,7 +352,7 @@ cdef class AtomType:
         """ Docstring in AtomType base class (sphinx can find doc when compiled) """
         self._atom = system._atom
 
-        if index < 0 or index > self. _atom.ntypes:
+        if index < 1  or index > self. _atom.ntypes:
             raise ValueError("atom type index wrong {}".format(index))
 
         self.index = index
@@ -566,7 +566,8 @@ cdef class System:
         :getter: Returns AtomTypes of system 
         """
         atomtypes = []
-        for i in range(self._atom.ntypes):
+        # AtomType int begins at 1 not 0.
+        for i in range(1, self._atom.ntypes + 1):
             atomtypes.append(AtomType(self, i))
         return atomtypes
 
