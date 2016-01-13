@@ -107,20 +107,29 @@ cdef class Lammps:
     
     Initialize a Lammps object. 
 
-    :param list args: list of command line args that would be supplied to normal lammps executable
+    :param str units: units to use for simulation
+    :param str style: atomic style to use for simulation
     :param comm: mpi4py comm object default value is MPI_COMM_WORLD
+    :param list args: list of command line args that would be supplied to normal lammps executable
+
 
     To see a list of possible lammps args (e.g. `command line
     arguments
     <http://lammps.sandia.gov/doc/Section_start.html#command-line-options>`_). These
-    must be provided as a list of strings.
+    must be provided as a list of strings. To see a list of possible
+    units see `units <http://lammps.sandia.gov/doc/units.html>`_. To
+    see a list of possible atom_styles see 'atom_style
+    <http://lammps.sandia.gov/doc/atom_style.html>`_.
     """
     cdef LAMMPS *_lammps
     cdef mpi.MPI_Comm _comm
     cdef public Box box
     cdef public System system
     cdef public Thermo thermo
-    def __cinit__(self, args=None, comm=None):
+
+    available_units = ['real', 'metal', 'si', 'cgs', 'electron', 'micro', 'nano', 'lj']
+    
+    def __cinit__(self, units='lj', style='atomic', comm=None, args=None):
         """ Docstring in Lammps base class (sphinx can find doc when compiled) """
         if comm is None:
             comm = MPI.COMM_WORLD
@@ -145,8 +154,15 @@ cdef class Lammps:
         self._lammps = new LAMMPS(argc, argv, self._comm)
         # don't free char** becuase used by lammps (they don't copy their strings!)
 
+        # Set the units
+        if units in Lammps.available_units:
+            cmd = "unit {}".format(units)
+            self.command(cmd.encode('utf-8'))
+        else:
+            raise TypeError('units {} unknown units'.format(units))
+
         self.box = Box(self)
-        self.system = System(self)
+        self.system = System(self, style=style)
         self.thermo = Thermo(self)
 
     def __dealloc__(self):
@@ -159,6 +175,10 @@ cdef class Lammps:
         Format is <day><month><year> e.g. 7Dec15
         """
         return self._lammps.universe.version
+
+    @property
+    def units(self):
+        return self._lammps.update.unit_style
 
     def command(self, cmd):
         """Runs any single LAMMPS command
@@ -553,10 +573,31 @@ cdef class System:
     cdef ATOM* _atom
     cdef Lammps lammps
     cdef unsigned int local_index # used by iter
-    def __cinit__(self, Lammps lammps):
+
+    # Available styles (but not all properties are accessible)
+    # More will be added in the future
+    styles = [
+        'angle', 'atomic', 'body', 'bond', 'charge'
+        'dipole', 'electron', 'ellipsoid', 'full',
+        'line', 'meso', 'molecular', 'peri', 'smd',
+        'sphere', 'template', 'tri', 'wavepacket'
+    ]
+
+    def __cinit__(self, Lammps lammps, style='atomic'):
         """ Docstring in System base class (sphinx can find doc when compiled) """
         self.lammps = lammps
         self.local_index = 0
+
+        # Set the atomic style
+        if style in System.styles:
+            cmd = "atom_style {}".format(style)
+            self.lammps.command(cmd.encode('utf-8'))
+        else:
+            raise ValueError('style {} is an invalid style'.format(style))
+
+    @property
+    def style(self):
+        return self.lammps._lammps.atom.atom_style
 
     @property
     def total(self):

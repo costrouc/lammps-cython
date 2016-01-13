@@ -33,6 +33,7 @@ cdef extern from "input.h" namespace "LAMMPS_NS":
 # Atom class          
 cdef extern from "atom.h" namespace "LAMMPS_NS":
      cdef cppclass ATOM "LAMMPS_NS::Atom":
+          char* atom_style
           bigint natoms
           int nlocal
           ATOMVEC *avec;
@@ -77,6 +78,7 @@ cdef extern from "update.h" namespace "LAMMPS_NS":
           double dt             # timestep
           bigint ntimestep      # current step
           double atime          # simultation time at atimestep
+          char* unit_style
           void reset_timestep(bigint)
 
 
