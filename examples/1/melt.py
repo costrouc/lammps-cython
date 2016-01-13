@@ -7,8 +7,8 @@ import numpy as np
 
 # lammps command list option'-sc', 'none' used so 
 # lammps doesn't print tons of information
-lmp = Lammps(args=['lmp', '-sc', 'none'])
-# lmp = Lammps()
+# lmp = Lammps(args=['lmp', '-sc', 'none'])
+lmp = Lammps()
 
 # print important initial lammps information
 print(("Version of Lammps: {}\n"
@@ -29,8 +29,6 @@ print(("Total number of atoms: {}\n"
 print(lmp.system.tags)
 print(lmp.system.positions.shape)
 
-for atom in lmp.system:
-    print(atom.position)
 
 # temps = []
 # for i in range(100):
