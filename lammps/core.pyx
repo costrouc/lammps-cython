@@ -343,12 +343,15 @@ cdef class Atom:
 
 ..  py:function:: __init__(self, System)
 
-    Initialize an System object
+    :param int tag: tag number of particle 
+    :param int lindex: the local index of the atom
+
+    Initialize an System object. Must supply either a tag number or index
     """
     cdef ATOM* _atom
     cdef readonly long tag
     cdef long local_index
-    def __cinit__(self, System system, tagint tag, lindex=None):
+    def __cinit__(self, System system, tagint tag=0, lindex=None):
         """ Docstring in System base class (sphinx can find doc when compiled) """
         self._atom = system._atom
 
@@ -436,10 +439,12 @@ cdef class System:
     :param lammps: Lammps object
     """
     cdef ATOM* _atom
+    cdef Lammps lammps
     cdef unsigned int local_index # used by iter
     def __cinit__(self, Lammps lammps):
         """ Docstring in System base class (sphinx can find doc when compiled) """
         self._atom = lammps._lammps.atom
+        self.lammps = lammps
         self.local_index = 0
 
     @property
@@ -461,7 +466,11 @@ cdef class System:
     def __len__(self):
         return self.local
 
+    def __getitem__(self, lindex):
+        return Atom(self, lindex=lindex)
+
     def __iter__(self):
+        self.local_index = 0
         return self
 
     def __next__(self):
@@ -536,6 +545,30 @@ cdef class System:
         cdef size_t N = self.local
         cdef double[::1] vector = <double[:N]>self._atom.q
         return np.asarray(vector)
+
+    def add(self, atom_type, position, remap=False, units='box'):
+        """Create atom in system 
+
+        :param int atom_type: atom type id
+        :param np.array[3] position: position of atom
+        :param boolean remap: whether to remap atoms in box or not
+        :param str units: units to use for positions
+
+        essentially runs command:
+        create_atoms <atom_type> single <x> <y> <z>
+
+        The lammps internals are hard to use. Yes there are some
+        expensive mpi calls becuase of this (so this is slow for large
+        systems). HACK
+        """
+        if len(position) != 3:
+            raise ValueError('position array must be 3 values')
+
+        cmd = (
+            'create_atoms {!s} single {!s} {!s} {!s} units {!s} remap {!s}'
+        ).format(atom_type, position[0], position[1], position[2], units,
+                 'yes' if remap else 'no')
+        self.lammps.command(cmd.encode('utf-8'))
 
 
 cdef class Box:

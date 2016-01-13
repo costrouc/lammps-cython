@@ -35,12 +35,20 @@ cdef extern from "atom.h" namespace "LAMMPS_NS":
      cdef cppclass ATOM "LAMMPS_NS::Atom":
           bigint natoms
           int nlocal
+          ATOMVEC *avec;
           tagint *tag
           double *q
           double **x
           double **v
           double **f
           int map(tagint)
+
+
+# Atom vector class
+cdef extern from "atom_vec.h" namespace "LAMMPS_NS":
+     cdef cppclass ATOMVEC "LAMMPS_NS::AtomVec":
+         void create_atom(int, double *)
+         
 
 # Compute class (and extended classes eg. ComputeTemp)
 cdef extern from "compute.h" namespace "LAMMPS_NS":
