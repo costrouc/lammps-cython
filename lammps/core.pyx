@@ -40,7 +40,6 @@ from libc.math cimport sqrt, acos
 from mpi4py import MPI
 import numpy as np
 
-
 # helper functions char**
 cdef char** args_to_cargv(args):
     """ Convert list of args[str] to char** 
@@ -366,6 +365,19 @@ cdef class Atom:
             # self.index = self._atom.map(self.tag)
 
     @property
+    def type(self):
+        """ type of local atom
+        
+        :getter: returns the type of the local atom
+        :setter: sets the type of the local atom
+        """
+        return self._atom.type[self.local_index]
+
+    @type.setter
+    def type(self, value):
+        self._atom.type[self.local_index] = value
+
+    @property
     def position(self):
         """ position of local atom
         
@@ -495,6 +507,19 @@ cdef class System:
         return np.asarray(array)
 
     @property
+    def types(self):
+        """ Tags associated with local atoms stored on core in numpy.ndarray
+
+        :getter: Returns the local tags of atoms specific to core
+        """
+        if self._atom.x == NULL:
+            return None
+        
+        cdef size_t N = self.local
+        cdef int[::1] array = <int[:N]>self._atom.type
+        return np.asarray(array)
+
+    @property
     def positions(self):
         """ Positions associated with local atoms stored on core in numpy.ndarray
 
@@ -541,13 +566,13 @@ cdef class System:
         """
         if self._atom.q == NULL:
             return None
-        
+
         cdef size_t N = self.local
         cdef double[::1] vector = <double[:N]>self._atom.q
         return np.asarray(vector)
 
     def add(self, atom_type, position, remap=False, units='box'):
-        """Create atom in system 
+        """Create atom in system
 
         :param int atom_type: atom type id
         :param np.array[3] position: position of atom
@@ -560,6 +585,9 @@ cdef class System:
         The lammps internals are hard to use. Yes there are some
         expensive mpi calls becuase of this (so this is slow for large
         systems). HACK
+
+        See lammps `create_atoms
+        <http://lammps.sandia.gov/doc/create_atoms>`_. documentation.
         """
         if len(position) != 3:
             raise ValueError('position array must be 3 values')

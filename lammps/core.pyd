@@ -37,11 +37,11 @@ cdef extern from "atom.h" namespace "LAMMPS_NS":
           int nlocal
           ATOMVEC *avec;
           tagint *tag
-          double *q
+          int *type
           double **x
           double **v
           double **f
-          int map(tagint)
+          double *q
 
 
 # Atom vector class
