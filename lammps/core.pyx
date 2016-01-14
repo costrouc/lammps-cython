@@ -152,8 +152,7 @@ cdef class Lammps:
 
         # Set the units
         if units in Lammps.available_units:
-            cmd = "units {}".format(units)
-            self.command(cmd.encode('utf-8'))
+            self.command("units {}".format(units))
         else:
             raise TypeError('units {} unknown units'.format(units))
 
@@ -564,7 +563,7 @@ cdef class Atom:
         """ Charge of local atom
         
         :getter: Returns the charge of the local atom
-        :setter: Sets the chage of the local atom
+        :setter: Sets the charge of the local atom
         """
         def __get__(self):
             if self.lammps._lammps.atom.q == NULL:
@@ -585,11 +584,12 @@ cdef class System:
     Since LAMMPS is a distributed system each processor has a local
     view of its Atoms.
 
-..  py:function:: __init__(self, Lammps)
+..  py:function:: __init__(self, Lammps, style='atomic')
     
     Initialize a System object.
 
-    :param lammps: Lammps object
+    :param :py:class:`Lammps` lammps: Lammps object
+    :param str style: one the `atom_styles <http://lammps.sandia.gov/doc/atom_style.html>`_
     """
     cdef ATOM* _atom
     cdef Lammps lammps
@@ -597,7 +597,7 @@ cdef class System:
 
     # Available styles (but not all properties are accessible)
     # More will be added in the future
-    styles = [
+    available_styles = [
         'angle', 'atomic', 'body', 'bond', 'charge'
         'dipole', 'electron', 'ellipsoid', 'full',
         'line', 'meso', 'molecular', 'peri', 'smd',
@@ -610,31 +610,40 @@ cdef class System:
         self.local_index = 0
 
         # Set the atomic style
-        if style in System.styles:
-            cmd = "atom_style {}".format(style)
-            self.lammps.command(cmd.encode('utf-8'))
+        if style in System.available_styles:
+            self.lammps.command("atom_style {}".format(style))
         else:
             raise ValueError('style {} is an invalid style'.format(style))
 
-    @property
-    def style(self):
-        return self.lammps._lammps.atom.atom_style
+    property style:
+        """ The LAMMPS `atom_style <http://lammps.sandia.gov/doc/atom_style.html>`_ used in simulation
 
-    @property
-    def total(self):
+        :getter: Returns the `atom_style <http://lammps.sandia.gov/doc/atom_style.html>`_ used in simulation
+        :type: str
+        """
+        def __get__(self):
+            return (self.lammps._lammps.atom.atom_style).decode('utf-8')
+
+    property total:
         """ Total number of atoms in LAMMPS simulation
 
         :getter: Returns the total number of atoms in LAMMPS simulation
+        :type: int
         """
-        return self.lammps._lammps.atom.natoms
+        def __get__(self):
+            return self.lammps._lammps.atom.natoms
 
-    @property
-    def local(self):
-        """ Local number of atoms stored in core
+    property local:
+        """ Local number of atoms stored on processor.
 
         :getter: Returns the local number of atoms specific to core
+        :type: int
+
+        An important concept in LAMMPS parallal calculations is that
+        the atoms are distributed between all the processors.
         """
-        return self.lammps._lammps.atom.nlocal
+        def __get__(self):
+            return self.lammps._lammps.atom.nlocal
 
     def __len__(self):
         return self.local
@@ -654,113 +663,123 @@ cdef class System:
         self.local_index += 1
         return atom
 
-    @property
-    def tags(self):
-        """ Tags associated with local atoms stored on core in numpy.ndarray
+    property tags:
+        """ Tags associated with local atoms stored on processor
 
         :getter: Returns the local tags of atoms specific to core
+        :type: nd.array[int](local)
         """
-        if self.lammps._lammps.atom.x == NULL:
-            return None
+        def __get__(self):
+            if self.lammps._lammps.atom.x == NULL:
+                return None
+            
+            cdef size_t N = self.local
+            cdef tagint[::1] array = <tagint[:N]>self.lammps._lammps.atom.tag
+            return np.asarray(array)
 
-        cdef size_t N = self.local
-        cdef tagint[::1] array = <tagint[:N]>self.lammps._lammps.atom.tag
-        return np.asarray(array)
-
-    @property
-    def types(self):
-        """ Types associated with local atoms stored on core in numpy.ndarray
+    property types:
+        """ Types associated with local atoms stored on processor
 
         :getter: Returns the local int types of atoms specific to core
+        :type: nd.array[int](local)
         """
-        if self.lammps._lammps.atom.x == NULL:
-            return None
+        def __get__(self):
+            if self.lammps._lammps.atom.x == NULL:
+                return None
+            
+            cdef size_t N = self.local
+            cdef int[::1] array = <int[:N]>self.lammps._lammps.atom.type
+            return np.asarray(array)
 
-        cdef size_t N = self.local
-        cdef int[::1] array = <int[:N]>self.lammps._lammps.atom.type
-        return np.asarray(array)
+    property atom_types:
+        """ Atom Types that are currently defined in LAMMPS simulation.
 
-    @property
-    def atom_types(self):
-        """ Atom Types that are currently defined
+        :getter: Returns AtomTypes of system
+        :type: list[AtomTypes]
 
-        :getter: Returns AtomTypes of system 
+..      note::
+        
+        Atom Types in LAMMPS start at an index of 1.
         """
-        atomtypes = []
-        # AtomType int begins at 1 not 0.
-        for i in range(1, self.lammps._lammps.atom.ntypes + 1):
-            atomtypes.append(AtomType(self.lammps, i))
-        return atomtypes
+        def __get__(self):
+            atomtypes = []
+            # AtomType int begins at 1 not 0.
+            for i in range(1, self.lammps._lammps.atom.ntypes + 1):
+                atomtypes.append(AtomType(self.lammps, i))
+            return atomtypes
 
-    @property
-    def positions(self):
-        """ Positions associated with local atoms stored on core in numpy.ndarray
+    property positions:
+        """ Positions associated with local atoms stored on processor
 
-        :getter: Returns the local positions of atoms specific to core
+        :getter: Returns the local positions of atoms specific to processor
+        :type: np.array[double](local, 3)
         """
-        if self.lammps._lammps.atom.x == NULL:
-            return None
+        def __get__(self):
+            if self.lammps._lammps.atom.x == NULL:
+                return None
 
-        cdef size_t N = self.local
-        cdef double[:, ::1] array = <double[:N, :3]>self.lammps._lammps.atom.x[0]
-        return np.asarray(array)
+            cdef size_t N = self.local
+            cdef double[:, ::1] array = <double[:N, :3]>self.lammps._lammps.atom.x[0]
+            return np.asarray(array)
 
-    @property
-    def velocities(self):
-        """ Velocities associated with local atoms stored on core in numpy.ndarray
+    property velocities:
+        """ Velocities associated with local atoms stored on processor
 
-        :getter: Returns the local velocities of atoms specific to core
+        :getter: Returns the local velocities of atoms specific to processor
+        :type: np.array[double](local, 3)
         """
-        if self.lammps._lammps.atom.v == NULL:
-            return None
+        def __get__(self):
+            if self.lammps._lammps.atom.v == NULL:
+                return None
+            
+            cdef size_t N = self.local
+            cdef double[:, ::1] array = <double[:N, :3]>self.lammps._lammps.atom.v[0]
+            return np.asarray(array)
 
-        cdef size_t N = self.local
-        cdef double[:, ::1] array = <double[:N, :3]>self.lammps._lammps.atom.v[0]
-        return np.asarray(array)
+    property forces:
+        """ Forces associated with local atoms stored on processor
 
-    @property
-    def forces(self):
-        """ Forces associated with local atoms stored on core
-
-        :getter: Returns the local forces of atoms specific to core
+        :getter: Returns the local forces of atoms specific to processor
+        :type: np.array[double](local, 3)
         """
-        if self.lammps._lammps.atom.f == NULL:
-            return None
+        def __get__(self):
+            if self.lammps._lammps.atom.f == NULL:
+                return None
+            
+            cdef size_t N = self.local
+            cdef double[:, ::1] arr = <double[:N, :3]>self.lammps._lammps.atom.f[0]
+            return np.asarray(arr)
 
-        cdef size_t N = self.local
-        cdef double[:, ::1] arr = <double[:N, :3]>self.lammps._lammps.atom.f[0]
-        return np.asarray(arr)
+    property charges:
+        """ Charges associated with local atoms stored on processor
 
-    @property
-    def charges(self):
-        """ Charges associated with local atoms stored on core
-
-        :getter: Returns the local charges of atoms specific to core
+        :getter: Returns the local charges of atoms specific to processor
+        :type: np.array[double](local, 3)
         """
-        if self.lammps._lammps.atom.q == NULL:
-            return None
+        def __get__(self):
+            if self.lammps._lammps.atom.q == NULL:
+                return None
 
-        cdef size_t N = self.local
-        cdef double[::1] vector = <double[:N]>self.lammps._lammps.atom.q
-        return np.asarray(vector)
+            cdef size_t N = self.local
+            cdef double[::1] vector = <double[:N]>self.lammps._lammps.atom.q
+            return np.asarray(vector)
 
     def add(self, atom_type, position, remap=False, units='box'):
-        """Create atom in system
+        """Create atom in LAMMPS system
 
         :param int atom_type: atom type id
         :param np.array[3] position: position of atom
         :param boolean remap: whether to remap atoms in box or not
         :param str units: units to use for positions
 
-        essentially runs command:
-        create_atoms <atom_type> single <x> <y> <z>
+        essentially runs command: ``create_atoms <atom_type> single <x> <y> <z>``
 
         The lammps internals are hard to use. Yes there are some
         expensive mpi calls becuase of this (so this is slow for large
         systems). HACK
 
         See lammps `create_atoms
-        <http://lammps.sandia.gov/doc/create_atoms>`_. documentation.
+        <http://lammps.sandia.gov/doc/create_atoms>`_. for documentation.
         """
         if len(position) != 3:
             raise ValueError('position array must be 3 values')
@@ -769,17 +788,17 @@ cdef class System:
             'create_atoms {!s} single {!s} {!s} {!s} units {!s} remap {!s}'
         ).format(atom_type, position[0], position[1], position[2], units,
                  'yes' if remap else 'no')
-        self.lammps.command(cmd.encode('utf-8'))
+        self.lammps.command(cmd)
 
 
 cdef class Box:
     """ Represents the shape of the simulation cell.
 
-..  py:function:: __init__(self, Lammps)
+..  py:function:: __init__(self, :py:class:`Lammps` lammps)
 
     Initialize a Box object.
 
-    :param lammps: Lammps object
+    :param :py:class:`Lammps` lammps: Lammps object
     """
     cdef Lammps lammps
 
@@ -790,7 +809,7 @@ cdef class Box:
     def from_lattice_const(self, atom_types, lengths, angles=None, region_id='lammps-box'):
         """ Create Unit cell (can only be run once)
 
-        :param int atom_types: number of atom types for simulation
+        :param int atom_types: number of atom types for simulation (I know weird place to require)
         :param list lengths: lattice constants of unit cell
         :param list angles: angles of unit cell in radians
         :param str region_id: name of region for lammps simulation
@@ -798,33 +817,34 @@ cdef class Box:
         Essentially runs:
         region region-id prism xlo xhi ylo yhi zlo zhi xy xz yz
         create_box N region-ID keyword value ...
+
+..      todo::
+        This functions needs more thought. It does too much but within
+        the LAMMPS C++ function calls I can't see a nice way to do it.
         """
         if angles == None:
             angles = [pi/2., pi/2., pi/2.]
 
         (lx, ly, lz), (xy, xz, yz) = lattice_const_to_lammps_box(lengths, angles)
-        cmd = (
+        self.lammps.command((
             "region {} prism 0.0 {} 0.0 {} 0.0 {} {} {} {}"
-        ).format(region_id, lx, ly, lz, xy, xz, yz)
-        self.lammps.command(cmd.encode('utf-8'))
+        ).format(region_id, lx, ly, lz, xy, xz, yz))
 
-        cmd = (
+        self.lammps.command((
             "create_box {} {}"
-        ).format(atom_types, region_id)
-        self.lammps.command(cmd.encode('utf-8'))
+        ).format(atom_types, region_id))
 
-    @property
-    def dimension(self):
+    property dimension:
         """ The dimension of the lammps run either 2D or 3D
 
-        :returns: dimension of lammps simulation
-        :rtype: int
+        :getter: Returns the dimension of lammps simulation (2 or 3)
+        :type: int
         """
-        return self.lammps._lammps.domain.dimension
+        def __get__(self):
+            return self.lammps._lammps.domain.dimension
 
-    @property
-    def lohi(self):
-        r""" LAMMPS box description of boxhi and boxlo
+    property lohi:
+        """ LAMMPS box description of boxhi and boxlo
 
         :return: dictionary of lower and upper in each dimension
         :rtype: dict
@@ -839,20 +859,18 @@ cdef class Box:
             'boxlo': np.array([0.0, 0.0, 0.0]),
             'boxhi': np.array([10.0, 10.0, 10.0])
         }
-
-
         """
-        cdef int dim = self.dimension
-        cdef double[::1] boxlo = <double[:dim]>self.lammps._lammps.domain.boxlo
-        cdef double[::1] boxhi = <double[:dim]>self.lammps._lammps.domain.boxhi
-        return {
-            'boxlo': np.array(boxlo),
-            'boxhi': np.array(boxhi)
-        }
+        def __get__(self):
+            cdef int dim = self.dimension
+            cdef double[::1] boxlo = <double[:dim]>self.lammps._lammps.domain.boxlo
+            cdef double[::1] boxhi = <double[:dim]>self.lammps._lammps.domain.boxhi
+            return {
+                'boxlo': np.array(boxlo),
+                'boxhi': np.array(boxhi)
+            }
 
-    @property
-    def tilts(self):
-        r""" LAMMPS box description of xy xz yz
+    property tilts:
+        """ LAMMPS box description of xy xz yz
 
         :return: dictionary of xy xz yz
         :rtype: dict
@@ -870,64 +888,70 @@ cdef class Box:
         }
 
 ..      todo::
-         how to handle 2d? Needs to be addressed throughout
+        
+        how to handle 2d? Needs to be addressed throughout
         """
-        cdef double xy = self.lammps._lammps.domain.xy
-        cdef double xz = self.lammps._lammps.domain.xz
-        cdef double yz = self.lammps._lammps.domain.yz
-        return {
-            'xy': xy, 
-            'xz': xz, 
-            'yz': yz
-        }
+        def __get__(self):
+            cdef double xy = self.lammps._lammps.domain.xy
+            cdef double xz = self.lammps._lammps.domain.xz
+            cdef double yz = self.lammps._lammps.domain.yz
+            return {
+                'xy': xy, 
+                'xz': xz, 
+                'yz': yz
+            }
 
-    @property
-    def lengths_angles(self):
-        r""" Calculates the lengths and angles from lammps box
+    property lengths_angles:
+        """ Calculates the lengths and angles from lammps box
 
         :getter: return lengths (a, b, c) and angles (alpha, beta, gamma)
+        :type: tuple[double](3), tuple[double](3)
 
         Additional documentation can be found at `lammps
         <http://lammps.sandia.gov/doc/Section_howto.html?highlight=prism#howto-12>`_. See
         implementation :py:func:`lammps_box_to_lattice_const`.
         """
-        cdef int dim = self.dimension
-        cdef double[::1] boxlo = <double[:dim]>self.lammps._lammps.domain.boxlo
-        cdef double[::1] boxhi = <double[:dim]>self.lammps._lammps.domain.boxhi
-        cdef double lx = boxhi[0] - boxlo[0]
-        cdef double ly = boxhi[1] - boxlo[1]
-        cdef double lz = boxhi[2] - boxlo[2]
-        cdef double xy = self.lammps._lammps.domain.xy
-        cdef double xz = self.lammps._lammps.domain.xz
-        cdef double yz = self.lammps._lammps.domain.yz
-        return lammps_box_to_lattice_const((lx, ly, lz), (xy, xz, yz))
+        def __get__(self):
+            cdef int dim = self.dimension
+            cdef double[::1] boxlo = <double[:dim]>self.lammps._lammps.domain.boxlo
+            cdef double[::1] boxhi = <double[:dim]>self.lammps._lammps.domain.boxhi
+            cdef double lx = boxhi[0] - boxlo[0]
+            cdef double ly = boxhi[1] - boxlo[1]
+            cdef double lz = boxhi[2] - boxlo[2]
+            cdef double xy = self.lammps._lammps.domain.xy
+            cdef double xz = self.lammps._lammps.domain.xz
+            cdef double yz = self.lammps._lammps.domain.yz
+            return lammps_box_to_lattice_const((lx, ly, lz), (xy, xz, yz))
 
-    @property
-    def lengths(self):
+    property lengths:
         """ See :py:func:`lengths_angles`
 
         :getter: return lengths (a, b, c)
+        :type: tuple[float](3)
         """
-        return self.lengths_angles[0]
+        def __get__(self):
+            return self.lengths_angles[0]
 
-    @property
-    def angles(self):
+    property angles:
         """ See :py:func:`lengths_angles`
 
         :getter: returns angles in radians (alpha, beta, gamma)
+        :type: tuple[float](3)
         """
-        return self.lengths_angles[1]
+        def __get__(self):
+            return self.lengths_angles[1]
 
-    @property
-    def volume(self):
+    property volume:
         """ Volume of box given in lammps units 
 
         :getter: Returns volume of box given in lammps units 
+        :type: float
         """
-        cdef double xprd = self.lammps._lammps.domain.xprd
-        cdef double yprd = self.lammps._lammps.domain.yprd
-        cdef double vol = xprd * yprd
-        if self.dimension == 2:
-            return vol
-        else:
-            return vol * self.lammps._lammps.domain.zprd
+        def __get__(self):
+            cdef double xprd = self.lammps._lammps.domain.xprd
+            cdef double yprd = self.lammps._lammps.domain.yprd
+            cdef double vol = xprd * yprd
+            if self.dimension == 2:
+                return vol
+            else:
+                return vol * self.lammps._lammps.domain.zprd
