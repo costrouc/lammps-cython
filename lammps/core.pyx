@@ -113,7 +113,7 @@ cdef class Lammps:
     :param listargs: list of command line args that would be supplied to normal lammps executable
 
     Possible values for the following arguments: 
-     * args: `command line arguments <http://lammps.sandia.gov/doc/Section_start.html#command-line-options>`_ 
+     * args: `command-line arguments <http://lammps.sandia.gov/doc/Section_start.html#command-line-options>`_ 
      * units: `units <http://lammps.sandia.gov/doc/units.html>`_
      * style: `atom_style <http://lammps.sandia.gov/doc/atom_style.html>`_
     """
@@ -278,7 +278,7 @@ cdef class Thermo:
     
     Initialize a Thermo object.
 
-    :param lammps: Lammps object
+    :param :py:class:`Lammps` lammps: Lammps object
 
 ..  py:attribute:: computes
     
@@ -442,6 +442,13 @@ cdef class AtomType:
     :param int index: the index of the atom
 
     Initialize an AtomType object.
+
+..  py:attribute:: index
+    
+    (Read Only) Index of atom type within lammps
+
+    :getter: Returns index of atom type
+    :type: int
     """
     cdef Lammps lammps
     cdef readonly int index
@@ -482,10 +489,17 @@ cdef class Atom:
     :param int lindex: the local index of the atom
 
     Initialize an System object. Must supply either a tag number or index
+
+..  py:attribute:: tag
+
+    Unique tag of atom within LAMMPS simulation
+
+    :getter: Returns unqiue tag of atom
+    :type: int
     """
     cdef Lammps lammps
-    cdef readonly long tag
     cdef long local_index
+    cdef readonly long tag
 
     def __cinit__(self, Lammps lammps, tag=None, lindex=None):
         """ Docstring in System base class (sphinx can find doc when compiled) """

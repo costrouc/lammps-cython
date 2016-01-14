@@ -26,10 +26,25 @@ Compute Object
    :members:
    :inherited-members:
 
+
 System Object
 -------------
 
 .. autoclass:: System
+   :members:
+   :inherited-members:
+
+Atom
+----
+
+.. autoclass:: Atom
+   :members:
+   :inherited-members:
+
+AtomType
+--------
+
+.. autoclass:: AtomType
    :members:
    :inherited-members:
 
