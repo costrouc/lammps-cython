@@ -32,73 +32,15 @@ only create atom if it is in subbox of processor
 
 include "core.pyd"
 
-from libc.stdlib cimport malloc, free
+# Imports C-level symbols
 cimport numpy as np
+from libc.stdlib cimport malloc, free
 from libc.math cimport sqrt, acos, cos
 
-# Import the Python-level symbols
+# Import Python-level symbols
 from mpi4py import MPI
 import numpy as np
 from math import pi
-
-def lattice_const_to_lammps_box(lengths, angles):
-    """ Converts lattice constants to lammps box coorinates(angles in radians) 
-
-..  math::
-
-    lx &= boxhi[0] - boxlo[0] = a \\
-    ly &= boxhi[1] - boxlo[1] = \sqrt{b^2 - xy^2} \\
-    lz &= boxhi[2] - boxlo[2] = \sqrt{c^2 - xz^2 - yz^2}
-    xy &= b \cos{\gamma} \\
-    xz &= c \cos{\beta}  \\
-    yz &= \frac{b c \cos{\alpha} - xy xz}{ly}
-    """
-    a, b, c = lengths
-    alpha, beta, gamma = angles
-    cdef lx = a
-    cdef xy = b * cos(gamma)
-    cdef xz = c * cos(beta)
-    cdef ly = sqrt(b**2 - xy**2)
-    cdef yz = (b*c*cos(alpha) - xy*xz)/ly
-    cdef lz = sqrt(c**2 - xz**2 - yz**2)
-    return (lx, ly, lz), (xy, xz, yz)
-
-
-def lammps_box_to_lattice_const(lengths, tilts):
-    """ Converts lammps box coordinates to lattice constants
-
-..  math::
-
-    a &= lx \\
-    b &= \sqrt{ly^2 + xy^2} \\
-    c &= \sqrt{lz^2 + xz^2 + yz^2} \\
-    \cos{\alpha} &= \frac{xy xz + ly yz}{b c} \\
-    \cos{\beta} &= \frac{xz}{c} \\
-    \cos{\gamma} &= \frac{xy}{b}
-    """
-    lx, ly, lz = lengths
-    xy, xz, yz = tilts
-    cdef double a = lx
-    cdef double b = sqrt(ly**2 + xy**2)
-    cdef double c = sqrt(lz**2 + xz**2 + yz**2)
-    cdef double alpha = acos((xy*xz + ly*yz) / (b*c))
-    cdef double beta = acos(xz / c)
-    cdef double gamma = acos(xy / b)
-    return (a, b, c), (alpha, beta, gamma)
-
-# helper functions char**
-cdef char** args_to_cargv(args):
-    """ Convert list of args[str] to char** 
-    
-..  todo:: determine if I need to free char* strings
-    """
-    cdef char** argv = <char**>malloc(len(args) * sizeof(char*))
-    cdef int i
-    for i in range(len(args)):
-        temp = args[i].encode('UTF-8')
-        argv[i] = temp
-    return argv
-
 
 cdef class Lammps:
     """LAMMPS base class represents the entire library.
@@ -141,9 +83,11 @@ cdef class Lammps:
         cdef mpi.MPI_Comm* comm_ptr = <mpi.MPI_Comm*>comm_addr
         self._comm = comm_ptr[0]
         
-        if args is None:
+        if args == None:
             args = ['python']
-        
+        else:
+            args = ['python'] + args
+            
         cdef int argc = len(args)
         cdef char** argv = <char**>args_to_cargv(args)
 
@@ -154,7 +98,7 @@ cdef class Lammps:
         if units in Lammps.available_units:
             self.command("units {}".format(units))
         else:
-            raise TypeError('units {} unknown units'.format(units))
+            raise ValueError('units {} unknown units'.format(units))
 
         self.box = Box(self)
         self.system = System(self, style=style)
@@ -226,7 +170,7 @@ cdef class Lammps:
         """
         def __get__(self):
             
-            return self._lammps.update.unit_style
+            return (self._lammps.update.unit_style).decode('utf-8')
 
     property dt:
         """ timestep size for run step in simulation **time units**
@@ -338,6 +282,7 @@ cdef class Compute:
     def __cinit__(self, Lammps lammps, id, style=None, group='all', args=None):
         """Docstring in Compute base class (sphinx can find doc when compiled)"""
         self.lammps = lammps
+        id = id.encode('utf-8')
 
         cdef int index = self.lammps._lammps.modify.find_compute(id)
 
@@ -969,3 +914,61 @@ cdef class Box:
                 return vol
             else:
                 return vol * self.lammps._lammps.domain.zprd
+
+def lattice_const_to_lammps_box(lengths, angles):
+    """ Converts lattice constants to lammps box coorinates(angles in radians) 
+
+..  math::
+
+    lx &= boxhi[0] - boxlo[0] = a \\
+    ly &= boxhi[1] - boxlo[1] = \sqrt{b^2 - xy^2} \\
+    lz &= boxhi[2] - boxlo[2] = \sqrt{c^2 - xz^2 - yz^2}
+    xy &= b \cos{\gamma} \\
+    xz &= c \cos{\beta}  \\
+    yz &= \frac{b c \cos{\alpha} - xy xz}{ly}
+    """
+    a, b, c = lengths
+    alpha, beta, gamma = angles
+    cdef lx = a
+    cdef xy = b * cos(gamma)
+    cdef xz = c * cos(beta)
+    cdef ly = sqrt(b**2 - xy**2)
+    cdef yz = (b*c*cos(alpha) - xy*xz)/ly
+    cdef lz = sqrt(c**2 - xz**2 - yz**2)
+    return (lx, ly, lz), (xy, xz, yz)
+
+
+def lammps_box_to_lattice_const(lengths, tilts):
+    """ Converts lammps box coordinates to lattice constants
+
+..  math::
+
+    a &= lx \\
+    b &= \sqrt{ly^2 + xy^2} \\
+    c &= \sqrt{lz^2 + xz^2 + yz^2} \\
+    \cos{\alpha} &= \frac{xy xz + ly yz}{b c} \\
+    \cos{\beta} &= \frac{xz}{c} \\
+    \cos{\gamma} &= \frac{xy}{b}
+    """
+    lx, ly, lz = lengths
+    xy, xz, yz = tilts
+    cdef double a = lx
+    cdef double b = sqrt(ly**2 + xy**2)
+    cdef double c = sqrt(lz**2 + xz**2 + yz**2)
+    cdef double alpha = acos((xy*xz + ly*yz) / (b*c))
+    cdef double beta = acos(xz / c)
+    cdef double gamma = acos(xy / b)
+    return (a, b, c), (alpha, beta, gamma)
+
+
+cdef char** args_to_cargv(args):
+    """ Convert list of args[str] to char** 
+    
+..  todo:: determine if I need to free char* strings
+    """
+    cdef char** argv = <char**>malloc(len(args) * sizeof(char*))
+    cdef int i
+    for i in range(len(args)):
+        temp = args[i].encode('UTF-8')
+        argv[i] = temp
+    return argv
