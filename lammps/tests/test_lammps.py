@@ -5,6 +5,12 @@ from lammps.core import Lammps
 
 import functools
 
+# TODO
+#   file
+#   run(int)
+#   time_step
+#   time
+
 # Redefine Lammps command-line args so no annoying 
 # logs or stdout
 Lammps_partial = functools.partial(Lammps, args=[
@@ -55,7 +61,20 @@ class LammpsBaseTest(unittest.TestCase):
         lmp.command('timestep 2.0')
         self.assertEqual(lmp.dt, 2.0)
 
-    # file TODO: not sure how to test file
+    # file
+    def test_file(self):
+        lmp = Lammps_partial()
+        lmp.file('in.test')
+        self.assertEqual(lmp.dt, 0.006)
+        self.assertEqual(lmp.units, 'metal')
+        self.assertEqual(lmp.system.style, 'charge')
+
+    # def test_run(self):
+    #     lmp = Lammps_partial()
+    #     lmp.file('in.test')
+    #     lmp.run(100)
+    #     self.assertEqual(lmp.time_step, 100)
+    #     self.assertEqual(lmp.time, 100 * 0.006)
 
     # dt
     def test_default_dt(self):
@@ -74,6 +93,8 @@ class LammpsBaseTest(unittest.TestCase):
         lmp.reset()
         self.assertEqual(lmp.dt, 0.005)
 
+
+    
     
 if __name__ == '__main__':
     unittest.main()
