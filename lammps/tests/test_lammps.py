@@ -44,6 +44,19 @@ class LammpsBaseTest(unittest.TestCase):
     def test_bad_style(self):
         self.assertRaises(ValueError, Lammps_partial, style='bad_style')
 
+    # version
+    def test_version(self):
+        lmp = Lammps_partial()
+        self.assertIsInstance(lmp.__version__, str)
+
+    # command
+    def test_command(self):
+        lmp = Lammps_partial()
+        lmp.command('timestep 2.0')
+        self.assertEqual(lmp.dt, 2.0)
+
+    # file TODO: not sure how to test file
+
     # dt
     def test_default_dt(self):
         lmp = Lammps_partial()
@@ -53,6 +66,13 @@ class LammpsBaseTest(unittest.TestCase):
         lmp = Lammps_partial()
         lmp.dt = 13.0
         self.assertEqual(lmp.dt, 13.0)
+
+    # reset
+    def test_reset(self):
+        lmp = Lammps_partial()
+        lmp.dt = 13.0
+        lmp.reset()
+        self.assertEqual(lmp.dt, 0.005)
 
     
 if __name__ == '__main__':

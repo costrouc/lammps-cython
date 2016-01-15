@@ -107,12 +107,13 @@ cdef class Lammps:
     def __dealloc__(self):
         del self._lammps
 
-    def __version__(self):
+    property __version__:
         """ Prints the version of LAMMPS 
 
         Format is <day><month><year> e.g. 7Dec15
         """
-        return self._lammps.universe.version
+        def __get__(self):
+            return (self._lammps.universe.version).decode('utf-8')
 
     def __repr__(self):
         rep = "<Lammps Style:{} Atoms:{:.2g} Lattice:[{:.1f}, {:.1f}, {:.1f}]>" 
