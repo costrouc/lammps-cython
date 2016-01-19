@@ -36,7 +36,7 @@ cdef extern from "atom.h" namespace "LAMMPS_NS":
           char* atom_style
           bigint natoms
           int nlocal
-          ATOMVEC *avec;
+          ATOMVEC *avec
           tagint *tag
           int *type
           double **x
@@ -45,7 +45,7 @@ cdef extern from "atom.h" namespace "LAMMPS_NS":
           double *q
           # AtomTypes
           int ntypes
-          double *mass;
+          double *mass
           void set_mass(int, double)
 
 
