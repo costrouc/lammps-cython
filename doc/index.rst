@@ -13,9 +13,8 @@ dynamics.
  - Full MPI support  
  - Pythonic API inspired by `HOOMD <https://codeblue.umich.edu/hoomd-blue/>`_
  - Supports Python 2 and 3
- - Unit testing and integration testing
- - Heavily documented
- - Run lammps regularly (use "-i" instead of stdin)  
+ - Heavily documented and tested
+ - Elimination of unnecessary file I/O
 
 .. code-block:: python 
    from lammps import Lammps

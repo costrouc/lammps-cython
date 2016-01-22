@@ -1,8 +1,9 @@
 Installation
 ============
 
-Installing lammpy-python is an easy process. But from my experience
-**easy** is always relative. lammps-python is Python 2 and 3 compatible!
+Installing lammps-python is an easy process. But from my experience
+**easy** is always relative. Additionally lammps-python is Python 2
+and 3 compatible!
 
 Dependencies
 ------------
@@ -54,9 +55,9 @@ Remember two important paths.
    symbols. To check the shared library file run :command:`ldd -r
    <lammps_library>`. You should not see any undefined symbols. One
    reported issue is that the gfortran library is not included by
-   default with LAMMPS when installing additional packages. To fix
-   this issue simply build the LAMMPS library with the gfortran shared
-   library included :commmand:`-lgfortran`.
+   default with LAMMPS when installing additional add-on packages. To
+   fix this issue simply build the LAMMPS library with the gfortran
+   shared library included :commmand:`-lgfortran`.
 
 
 Installing lammps-python
@@ -95,10 +96,14 @@ You now have lammps-python installed! You can easily check
 
 Next see how to use lammps-python in the :doc:`tutorial`.
 
-There are some common errors that should be checked before looking
-at the mailing list.
+Common Installation Errors
+--------------------------
 
-.. code-block::
+There are some common errors that should be checked before submitting
+an issue on the github repository.
+
+.. code-block:: python
+
    >>> import lammps
    from .core import Lammps
 
@@ -113,12 +118,13 @@ to have the LAMMPS library in another directory not in the standard
 path you must modify the environment variable
 :command:`LD_LIBRARY_PATH`.
 
-.. code-block::
+.. code-block:: python
+
    >>> import lammps
    
    ImportError: core.cpython.so undefined symbol *****
 
-This error is my fault for improperly writting the setup.py install
+This error is my fault for improperly writing the setup.py install
 file. First check that the <lammps_library> has no undefined symbols
 (see warning above). Next run :command:`ldd -r core.cpython.so`. You
 can easily find this library in the lammps directory when you build

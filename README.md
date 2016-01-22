@@ -15,8 +15,8 @@ can be found at
  - Pythonic API inspired by
  [HOOMD](https://codeblue.umich.edu/hoomd-blue/)
  - Supports Python 2 and 3
- - Unit testing and integration testing
- - Heavily documented
+ - Heavily documented and tested
+ - Elimination of unnecessary file I/O
  - Run lammps regularly (use "-i" instead of stdin)  
 ```python 
 from lammps import Lammps
