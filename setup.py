@@ -18,6 +18,7 @@ include_dirs = [
     lammps_config.get('mpi', 'mpi_include_dir')
 ]
 
+# TODO: Should maybe include mpi_cxx, mpi, python3.4m
 libraries = [lammps_config.get('lammps', 'lammps_library')]
 library_dirs = [lammps_config.get('lammps', 'lammps_library_dir')]
 

@@ -10,6 +10,18 @@ heavily borrows from `HOOMD <https://codeblue.umich.edu/hoomd-blue/>`_
 but hopefully the community settles on a universal api for molecular
 dynamics.
 
+ - Full MPI support  
+ - Pythonic API inspired by `HOOMD <https://codeblue.umich.edu/hoomd-blue/>`_
+ - Supports Python 2 and 3
+ - Unit testing and integration testing
+ - Heavily documented
+ - Run lammps regularly (use "-i" instead of stdin)  
+
+.. code-block:: python 
+   from lammps import Lammps
+   import sys
+   Lammps(args=sys.args)
+
 Contents
 --------
 

@@ -59,7 +59,7 @@ html: cython
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
 
 cython:
-	cd .. && python setup.py build_ext -i && cd doc
+	cd .. && python3 setup.py build_ext -i && cd doc
 
 deploy: html
 	gsutil rsync -R _build/html "gs://chrisostrouchov.com/projects/lammps-python"

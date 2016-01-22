@@ -48,6 +48,17 @@ Remember two important paths.
  - path to lammps src directory <lammps_include_dir>
  - name of the lammps shared library <lammps_library>
 
+.. note::
+
+   Ensure that the LAMMPS library is installed without any undefined
+   symbols. To check the shared library file run :command:`ldd -r
+   <lammps_library>`. You should not see any undefined symbols. One
+   reported issue is that the gfortran library is not included by
+   default with LAMMPS when installing additional packages. To fix
+   this issue simply build the LAMMPS library with the gfortran shared
+   library included :commmand:`-lgfortran`.
+
+
 Installing lammps-python
 ------------------------
 
@@ -83,3 +94,40 @@ You now have lammps-python installed! You can easily check
    >>> import lammps
 
 Next see how to use lammps-python in the :doc:`tutorial`.
+
+There are some common errors that should be checked before looking
+at the mailing list.
+
+.. code-block::
+   >>> import lammps
+   from .core import Lammps
+
+   ImportError: liblammps.so: cannot open shared object file: No such file or directory
+
+
+This error results because python cannot find the LAMMPS
+library. Meaning that the lammps library is the not in the standard
+library search path. On a typical linux system these paths are
+:command:`/usr/lib` and :command:`/usr/local/lib`. If you would like
+to have the LAMMPS library in another directory not in the standard
+path you must modify the environment variable
+:command:`LD_LIBRARY_PATH`.
+
+.. code-block::
+   >>> import lammps
+   
+   ImportError: core.cpython.so undefined symbol *****
+
+This error is my fault for improperly writting the setup.py install
+file. First check that the <lammps_library> has no undefined symbols
+(see warning above). Next run :command:`ldd -r core.cpython.so`. You
+can easily find this library in the lammps directory when you build
+lammps-python with the command :command:`python setup.py build_ext
+-i`. There should be no undefined symbols. For a quick fix simply
+modify the setup.py file such that it includes a shared library where
+the symbol is defined (variable libraries). If you do not have the
+expertise please submit an issue on the github page.
+
+For any other errors PLEASE add an issue to the github page. I check
+github often and really want to make this a long-term supported
+addition to the LAMMPS community!

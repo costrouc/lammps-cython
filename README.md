@@ -12,9 +12,12 @@ can be found at
 # Features
 
  - Full MPI support  
- - Pythonic MD api inspired by
-[HOOMD](https://codeblue.umich.edu/hoomd-blue/)  
- - Run lammps regularly (use "-i" instead of stdin) 
+ - Pythonic API inspired by
+ [HOOMD](https://codeblue.umich.edu/hoomd-blue/)
+ - Supports Python 2 and 3
+ - Unit testing and integration testing
+ - Heavily documented
+ - Run lammps regularly (use "-i" instead of stdin)  
 ```python 
 from lammps import Lammps
 import sys
