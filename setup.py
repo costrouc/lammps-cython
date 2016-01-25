@@ -1,12 +1,13 @@
+from configparser import ConfigParser
+import glob
+import os
+
 import mpi4py
 import numpy
 
+from setuptools import setup, find_packages
+from setuptools.extension import Extension
 from Cython.Build import cythonize
-
-from distutils.core import setup
-from distutils.extension import Extension
-
-from configparser import ConfigParser
 
 lammps_config = ConfigParser()
 lammps_config.read('lammps.cfg')
@@ -22,24 +23,32 @@ include_dirs = [
 libraries = [lammps_config.get('lammps', 'lammps_library')]
 library_dirs = [lammps_config.get('lammps', 'lammps_library_dir')]
 
-extension = Extension(
-    'lammps.core',
-    sources=['lammps/core.pyx'],
-    include_dirs=include_dirs,
-    libraries=libraries,
-    library_dirs=library_dirs,
-    language='c++'
-)
+
+extensions = [
+    Extension(
+        'lammps.core',
+        sources=['lammps/core.pyx'],
+        include_dirs=include_dirs,
+        libraries=libraries,
+        library_dirs=library_dirs,
+        language='c++'
+    )
+]
 
 setup(
     name='lammps',
-    packages=['lammps'],
-    version='0.0.1',
+    version='0.1.0',
+    packages=find_packages(),
+    package_data={
+        'lammps': ['data/*.in']
+    },
     description='Pythonic Wrapper to LAMMPS',
+    long_description='Pythonic Wrapper to LAMMPS (LONG)',
     author='Christopher Ostrouchov',
     author_email='chris.ostrouchov+lammps@gmail.com',
     url='https://github.com/costrouc/lammps-python',
     download_url='https://github.com/costrouc/lammps-python/tarball/master',
     keywords=['lammps', 'molecular dynamics', 'cython', 'wrapper'],
-    ext_modules=cythonize(extension)
+    ext_modules=cythonize(extensions),
+    scripts=['scripts/pylammps']
 )

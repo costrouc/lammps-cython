@@ -62,12 +62,12 @@ class LammpsBaseTest(unittest.TestCase):
         self.assertEqual(lmp.dt, 2.0)
 
     # file
-    def test_file(self):
-        lmp = Lammps_partial()
-        lmp.file('in.test')
-        self.assertEqual(lmp.dt, 0.006)
-        self.assertEqual(lmp.units, 'metal')
-        self.assertEqual(lmp.system.style, 'charge')
+    # def test_file(self):
+    #     lmp = Lammps_partial()
+    #     lmp.file('in.test')
+    #     self.assertEqual(lmp.dt, 0.006)
+    #     self.assertEqual(lmp.units, 'metal')
+    #     self.assertEqual(lmp.system.style, 'charge')
 
     # def test_run(self):
     #     lmp = Lammps_partial()

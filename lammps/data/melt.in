@@ -1,7 +1,4 @@
-# 3d Lennard-Jones melt
-
-units		lj
-atom_style	atomic
+print "hello world!"
 
 lattice		fcc 0.8442
 region		box block 0 10 0 10 0 10
