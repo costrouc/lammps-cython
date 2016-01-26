@@ -141,9 +141,7 @@ cdef class Lammps:
 
         :param string filename: filename of input file for LAMMPS
 
-        This is equivalent to setting the -i command line flag.
-
-..      todo:: learn how file() behaves with multiple invocations
+        Can be invoked more than once.
         """
         self._lammps.input.file(filename.encode('utf-8'))
 
@@ -168,7 +166,7 @@ cdef class Lammps:
         self.command('clear')
 
     property units:
-        """ Units used in lammps simulation 
+        """ Units used in lammps simulation
 
         :getter: Returns unit style used
         :type: string
@@ -177,12 +175,11 @@ cdef class Lammps:
         more information.
         """
         def __get__(self):
-            
             return (self._lammps.update.unit_style).decode('utf-8')
 
     property dt:
         """ timestep size for run step in simulation **time units**
-        
+
         :getter: Returns the timestep size
         :setter: Sets the timestep size
         :type: float
@@ -195,7 +192,7 @@ cdef class Lammps:
 
     property time_step:
         """ current number of timesteps that have been run
-        
+
         :getter: Returns the timestep number 
         :setter: Sets the timestep number
         :type: int
@@ -205,10 +202,10 @@ cdef class Lammps:
 
         def __set__(self, bigint value):
             self._lammps.update.reset_timestep(value)
-    
+
     property time:
         """ total time that has elapsed from lammps runs in lammps **time units**
-    
+
         :getter: Returns the total time
         :type: float
         """
@@ -227,13 +224,13 @@ cdef class Thermo:
     can be accessed via the comptutes dictionary.
 
 ..  py:function:: __init__(self, Lammps)
-    
+
     Initialize a Thermo object.
 
     :param :py:class:`Lammps` lammps: Lammps object
 
 ..  py:attribute:: computes
-    
+
     A dictionary of Computes. {id: :py:class:`Compute`}.
     """
     cdef Lammps lammps
@@ -301,7 +298,7 @@ cdef class Compute:
             cmd = (
                 "compute {} {} {}"
             ).format(id, group, style)
-            
+
             for arg in args:
                 cmd += " {}".format(arg)
 
@@ -334,7 +331,7 @@ cdef class Compute:
 
     property name:
         """ Name of compute id
-    
+
         :getter: Returns compute id
         :type: str  
         """
@@ -367,7 +364,7 @@ cdef class Compute:
 
     property vector:
         """ vector value of compute
-    
+
         :getter: Returns vector value of compute
         :type: numpy.ndarray
         :raises NotImplementedError: no vector function for this compute defined
@@ -397,7 +394,7 @@ cdef class AtomType:
     Initialize an AtomType object.
 
 ..  py:attribute:: index
-    
+
     (Read Only) Index of atom type within lammps
 
     :getter: Returns index of atom type
@@ -489,7 +486,7 @@ cdef class Atom:
 
     property position:
         """ Position of local Atom
-        
+
         :getter: Returns the position of the local atom
         :type: np.ndarray[3]
         """
@@ -509,13 +506,13 @@ cdef class Atom:
         def __get__(self):
             if self.lammps._lammps.atom.v == NULL:
                 return None
-            
+
             cdef double[::1] array = <double[:3]>&self.lammps._lammps.atom.v[0][self.local_index * 3]
             return np.asarray(array)
 
     property force:
         """ Force on local atom
-        
+
         :getter: Returns the force of the local atom
         :type: np.ndarray[3]
         """
@@ -528,7 +525,7 @@ cdef class Atom:
 
     property charge:
         """ Charge of local atom
-        
+
         :getter: Returns the charge of the local atom
         :setter: Sets the charge of the local atom
         """
@@ -552,7 +549,7 @@ cdef class System:
     view of its Atoms.
 
 ..  py:function:: __init__(self, Lammps, style='atomic')
-    
+
     Initialize a System object.
 
     :param :py:class:`Lammps` lammps: Lammps object
@@ -639,7 +636,7 @@ cdef class System:
         def __get__(self):
             if self.lammps._lammps.atom.x == NULL:
                 return None
-            
+
             cdef size_t N = self.local
             cdef tagint[::1] array = <tagint[:N]>self.lammps._lammps.atom.tag
             return np.asarray(array)
@@ -653,7 +650,7 @@ cdef class System:
         def __get__(self):
             if self.lammps._lammps.atom.x == NULL:
                 return None
-            
+
             cdef size_t N = self.local
             cdef int[::1] array = <int[:N]>self.lammps._lammps.atom.type
             return np.asarray(array)
@@ -665,7 +662,7 @@ cdef class System:
         :type: list[AtomTypes]
 
 ..      note::
-        
+
         Atom Types in LAMMPS start at an index of 1.
         """
         def __get__(self):
@@ -698,7 +695,7 @@ cdef class System:
         def __get__(self):
             if self.lammps._lammps.atom.v == NULL:
                 return None
-            
+
             cdef size_t N = self.local
             cdef double[:, ::1] array = <double[:N, :3]>self.lammps._lammps.atom.v[0]
             return np.asarray(array)
@@ -712,7 +709,7 @@ cdef class System:
         def __get__(self):
             if self.lammps._lammps.atom.f == NULL:
                 return None
-            
+
             cdef size_t N = self.local
             cdef double[:, ::1] arr = <double[:N, :3]>self.lammps._lammps.atom.f[0]
             return np.asarray(arr)
@@ -855,7 +852,7 @@ cdef class Box:
         }
 
 ..      todo::
-        
+
         how to handle 2d? Needs to be addressed throughout
         """
         def __get__(self):
@@ -863,8 +860,8 @@ cdef class Box:
             cdef double xz = self.lammps._lammps.domain.xz
             cdef double yz = self.lammps._lammps.domain.yz
             return {
-                'xy': xy, 
-                'xz': xz, 
+                'xy': xy,
+                'xz': xz,
                 'yz': yz
             }
 
@@ -923,6 +920,7 @@ cdef class Box:
             else:
                 return vol * self.lammps._lammps.domain.zprd
 
+
 def lattice_const_to_lammps_box(lengths, angles):
     """ Converts lattice constants to lammps box coorinates(angles in radians) 
 
@@ -971,7 +969,7 @@ def lammps_box_to_lattice_const(lengths, tilts):
 
 cdef char** args_to_cargv(args):
     """ Convert list of args[str] to char** 
-    
+
 ..  todo:: determine if I need to free char* strings
     """
     cdef char **argv = <char**>malloc(len(args) * sizeof(char*))
@@ -983,5 +981,3 @@ cdef char** args_to_cargv(args):
         argv[i] = <char*>malloc(strlen(temp) + 1)
         strcpy(argv[i], temp)
     return argv
-
-

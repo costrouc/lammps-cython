@@ -17,7 +17,7 @@ Lammps_partial = functools.partial(Lammps, args=[
     '-screen', 'none'
 ])
 
-
+# Lammps command line arguments
 def test_lammps_init_default_units():
     lmp = Lammps_partial()
     assert lmp.units == 'lj'
@@ -69,13 +69,31 @@ def test_lammps_command():
 
 
 # file
-def test_file(tmpdir):
+def test_lammps_file(tmpdir):
     tmpfile = tmpdir.join("test_file.in")
     tmpfile.write("timestep 1.0\n")
 
     lmp = Lammps_partial()
     lmp.file(str(tmpfile))
     assert lmp.dt == 1.0
+
+
+def test_lammps_file_twice(tmpdir):
+    tmpfile1 = tmpdir.join("test_file1.in")
+    tmpfile1.write("timestep 1.0\n")
+
+    tmpfile2 = tmpdir.join("test_file2.in")
+    tmpfile2.write("units full")
+
+    lmp = Lammps_partial()
+
+    lmp.file(str(tmpfile1))
+    assert lmp.dt == 1.0
+    assert lmp.units == 'lj'
+
+    lmp.file(str(tmpfile2))
+    assert lmp.dt == 1.0
+    assert lmp.units == 'full'
 
 # def test_run():
 #     lmp = Lammps_partial()
