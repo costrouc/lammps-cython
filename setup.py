@@ -1,6 +1,4 @@
 from configparser import ConfigParser
-import glob
-import os
 
 import mpi4py
 import numpy
@@ -22,7 +20,6 @@ include_dirs = [
 # TODO: Should maybe include mpi_cxx, mpi, python3.4m
 libraries = [lammps_config.get('lammps', 'lammps_library')]
 library_dirs = [lammps_config.get('lammps', 'lammps_library_dir')]
-
 
 extensions = [
     Extension(
@@ -50,5 +47,7 @@ setup(
     download_url='https://github.com/costrouc/lammps-python/tarball/master',
     keywords=['lammps', 'molecular dynamics', 'cython', 'wrapper'],
     ext_modules=cythonize(extensions),
-    scripts=['scripts/pylammps']
+    scripts=['scripts/pylammps'],
+    setup_requires=['pytest-runner'],
+    tests_require=['pytest'],
 )

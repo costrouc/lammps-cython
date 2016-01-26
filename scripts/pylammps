@@ -3,4 +3,3 @@ from lammps import Lammps
 import sys
 
 lmp = Lammps(args=sys.argv[1:])
-print(lmp.time_step)

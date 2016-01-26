@@ -35,6 +35,7 @@ include "core.pyd"
 # Imports C-level symbols
 cimport numpy as np
 from libc.stdlib cimport malloc, free
+from libc.string cimport strcpy, strlen
 from libc.math cimport sqrt, acos, cos
 
 # Import Python-level symbols
@@ -103,6 +104,12 @@ cdef class Lammps:
         self.box = Box(self)
         self.system = System(self, style=style)
         self.thermo = Thermo(self)
+
+        # TODO hack run file if -i flag provided.
+        # Eventually abstract away command line arguments
+        # main.cpp calls input->file() automatically
+        if '-in' in args or '-i' in args:
+            self._lammps.input.file()
 
     def __dealloc__(self):
         del self._lammps
@@ -967,9 +974,14 @@ cdef char** args_to_cargv(args):
     
 ..  todo:: determine if I need to free char* strings
     """
-    cdef char** argv = <char**>malloc(len(args) * sizeof(char*))
+    cdef char **argv = <char**>malloc(len(args) * sizeof(char*))
+    cdef char* temp
     cdef int i
     for i in range(len(args)):
-        temp = args[i].encode('UTF-8')
-        argv[i] = temp
+        byte_string = args[i].encode('UTF-8')
+        temp = byte_string
+        argv[i] = <char*>malloc(strlen(temp) + 1)
+        strcpy(argv[i], temp)
     return argv
+
+
