@@ -287,25 +287,32 @@ cdef class Compute:
     def __cinit__(self, Lammps lammps, id, style=None, group='all', args=None):
         """Docstring in Compute base class (sphinx can find doc when compiled)"""
         self.lammps = lammps
+
         id = id.encode('utf-8')
+        
+        if args is None:
+            args = []
 
         cdef int index = self.lammps._lammps.modify.find_compute(id)
-
-        if index == -1:
+        
+        if index == -1: # Compute Id does not currently exist
             if style == None:
                 raise ValueError("New computes require a style")
 
             cmd = (
                 "compute {} {} {}"
-            ).format(id, group, style)
+            ).format(id.decode('utf-8'), group, style)
 
             for arg in args:
                 cmd += " {}".format(arg)
+
+            print(cmd)
 
             self.lammps.command(cmd)
             index = self.lammps._lammps.modify.find_compute(id)
 
             if index == -1:
+                # TODO: Make Lammps exceptions and errors
                 raise Exception("Compute should have been created but wasn't")
 
         self._compute = self.lammps._lammps.modify.compute[index]

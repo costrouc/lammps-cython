@@ -11,42 +11,24 @@ import numpy as np
 lmp = Lammps()
 
 # print important initial lammps information
-print(("Version of Lammps: {}\n"
-       "Total number of atoms in simulation: {}\n"
-       "Local number of atoms: {}\n").format(
-           lmp.__version__,
-           lmp.system.total,
-           lmp.system.local))
+print((
+    "Version of Lammps: {}\n"
+    "Total number of atoms in simulation: {}\n"
+    "Local number of atoms: {}\n"
+).format(lmp.__version__, lmp.system.total, lmp.system.local))
 
 # Read in lammps input file
-lmp.file(b'in.melt')
+lmp.file('in.melt')
 
-print(("Total number of atoms: {}\n"
-       "Local number of atoms: {}\n").format(
-           lmp.system.total,
-           lmp.system.local))
+print((
+    "Total number of atoms: {}\n"
+    "Local number of atoms: {}\n"
+    "Time step:             {}\n"
+).format(lmp.system.total, lmp.system.local, lmp.dt))
 
-print(lmp.system.tags)
-print(lmp.system.positions.shape)
+# Run LAMMPS simluation for 1000 steps
+lmp.run(1000)
 
-
-# temps = []
-# for i in range(100):
-#     print(i)
-#     lmp.run(1)
-#     if lmp.thermo.temperature.scalar < 7.0:
-#         print("ERROR: temp too low!!!")
-#         exit()
-
-#     temps.append(lmp.thermo.temperature.scalar)
-
-# json.dump(temps, open("temp.dump", "w"))
-
-# plt.plot(temps)
-# plt.savefig("temp.png")
-
-# # Do some interesting plotting
-# vel = lmp.system.velocities
-
-# plt.hist(np.linalg.norm(vel, axis=1), bins=40)
-# plt.savefig("vel.png")
+vel = lmp.system.velocities
+plt.hist(np.linalg.norm(vel, axis=1), bins=40)
+plt.savefig("vel.png")
