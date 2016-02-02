@@ -63,3 +63,6 @@ target/
 
 # lammps
 log.lammps
+
+# Ignore user config
+lammps.cfg

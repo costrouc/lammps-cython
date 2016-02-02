@@ -6,3 +6,4 @@ lammps_library = lammps
 
 [mpi]
 mpi_include_dir = /usr/include/mpich
+mpi_library     = mpi

@@ -145,7 +145,7 @@ cdef class Lammps:
         """
         self._lammps.input.file(filename.encode('utf-8'))
 
-    def run(self, long steps):
+    def run(self, long steps, pre=False, post=False):
         """ Runs the lammps simulation for N steps
 
         :param int steps: number of steps to run simulation equivalent to "run <steps>" command
@@ -153,7 +153,9 @@ cdef class Lammps:
         See lammps documentation for description of `run command
         <http://lammps.sandia.gov/doc/run.html>`_
         """
-        self.command('run {}'.format(steps))
+        self.command('run {} pre {} post {}'.format(steps, 
+                                     "yes" if pre  else "no", 
+                                     "yes" if post else "no"))
 
     def reset(self):
         """ Resets the lammps simulation

@@ -18,7 +18,8 @@ include_dirs = [
 ]
 
 # TODO: Should maybe include mpi_cxx, mpi, python3.4m
-libraries = [lammps_config.get('lammps', 'lammps_library')]
+libraries = [lammps_config.get('lammps', 'lammps_library'), 
+             lammps_config.get('mpi', 'mpi_library')]
 library_dirs = [lammps_config.get('lammps', 'lammps_library_dir')]
 
 extensions = [
