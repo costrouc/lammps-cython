@@ -153,7 +153,6 @@ cdef class Lammps:
         See lammps documentation for description of `run command
         <http://lammps.sandia.gov/doc/run.html>`_
         """
-        cmd = 'run {}'.format(steps)
         self.command('run {} pre {} post {}'.format(steps, 
                                      "yes" if pre  else "no", 
                                      "yes" if post else "no"))
