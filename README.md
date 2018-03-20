@@ -1,4 +1,4 @@
-# lammps-python
+# lammps-cython
 
 A cython wrapper around lammps. Lammps is a great molecular dynamics
 package that currently does not have a convenient way to run. The goal
@@ -11,14 +11,14 @@ can be found at
 
 # Features
 
- - Full MPI support  
+ - Full MPI support
  - Pythonic API inspired by
  [HOOMD](https://codeblue.umich.edu/hoomd-blue/)
  - Supports Python 2 and 3
  - Heavily documented and tested
  - Elimination of unnecessary file I/O
- - Run lammps regularly (use "-i" instead of stdin)  
-```python 
+ - Run lammps regularly (use "-i" instead of stdin)
+```python
 from lammps import Lammps
 import sys
 Lammps(args=sys.args)
@@ -26,12 +26,12 @@ Lammps(args=sys.args)
 
 # Install
 First install all the dependencies. You must install an MPI
-implementation separately.  
-> `pip install -r requirements.txt`  
+implementation separately.
+> `pip install -r requirements.txt`
 
 Edit the lammps.cfg to have the correct directories and
-filenames. Often times the lammps.cfg does not require much editing.  
-> `python setup.py install`  
+filenames. Often times the lammps.cfg does not require much editing.
+> `python setup.py install`
 
 Soon I will make the package available on PIPY so that it can be
 installed via `pip install lammps`.
@@ -64,12 +64,12 @@ Honestly this make configuration should work for most systems.
 
 # Dependencies
 
-- Some MPI implementation (preferably implementing the MPI3 api)  
-- [mpi4py](https://bitbucket.org/mpi4py/mpi4py/)  
-- [numpy](http://www.numpy.org/)  
-- [cython](http://cython.org/)  
+- Some MPI implementation (preferably implementing the MPI3 api)
+- [mpi4py](https://bitbucket.org/mpi4py/mpi4py/)
+- [numpy](http://www.numpy.org/)
+- [cython](http://cython.org/)
 
-# Documentation 
+# Documentation
 
 For a full reference of the
 [lammps-python](http://chrisostrouchov.com/projects/lammps-python) api.
