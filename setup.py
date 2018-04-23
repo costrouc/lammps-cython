@@ -6,19 +6,19 @@ from os import path
 
 # https://stackoverflow.com/questions/2379898/make-distutils-look-for-numpy-header-files-in-the-correct-place
 try:
-    from Cython.setuptools import build_ext
+    from Cython.Distutils import build_ext as _build_ext
 except:
     # If we couldn't import Cython, use the normal setuptools
     # and look for a pre-compiled .c file instead of a .pyx file
-    from setuptools.command.build_ext import build_ext
+    from setuptools.command.build_ext import build_ext as _build_ext
     ext_modules = [Extension("lammps.core", sources=['lammps/core.cpp'], language='c++')]
 else:
     # If we successfully imported Cython, look for a .pyx file
     ext_modules = [Extension("lammps.core", sources=['lammps/core.pyx'], language='c++')]
 
 # https://stackoverflow.com/questions/2379898/make-distutils-look-for-numpy-header-files-in-the-correct-place
-class CustomBuildExtCommand(build_ext):
-    """build_ext command for use when numpy and mpi4py headers are needed."""
+class build_ext(_build_ext):
+    """needed to import numpy and mpi4py includes"""
     def run(self):
         import numpy
         import mpi4py
@@ -39,9 +39,7 @@ class CustomBuildExtCommand(build_ext):
             lammps_config.get('mpi', 'mpi_library'),
         ]
 
-        self.library_dirs = [
-            lammps_config.get('lammps', 'lammps_library_dir')
-        ]
+        self.library_dirs = [lammps_config.get('lammps', 'lammps_library_dir')]
 
         # Call original build_ext command
         build_ext.run(self)
@@ -75,7 +73,7 @@ setup(
     url='https://gitlab.com/costrouc/lammps-cython',
     download_url='https://gitlab.com/costrouc/lammps-cython/-/archive/master/lammps-cython-master.zip',
     keywords=['lammps', 'molecular dynamics', 'cython', 'wrapper', 'mpi'],
-    cmdclass={'build_ext': CustomBuildExtCommand},
+    cmdclass={'build_ext': build_ext},
     ext_modules=ext_modules,
     packages=find_packages(exclude=['docs', 'tests']),
     package_data={
