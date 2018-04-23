@@ -42,7 +42,7 @@ class build_ext(_build_ext):
         self.library_dirs = [lammps_config.get('lammps', 'lammps_library_dir')]
 
         # Call original build_ext command
-        build_ext.run(self)
+        _build_ext.run(self)
 
 
 here = path.abspath(path.dirname(__file__))
