@@ -1,6 +1,6 @@
 #!python
 #cython: embedsignature=True
-"""LAMMPS Python interface (the GOOD parts) 
+"""LAMMPS Python interface (the GOOD parts)
 
 This interface is inspired by HOOMD and tries its best to look
 similar. I try to include only orthogonal functions (e.g. make
@@ -21,7 +21,7 @@ atom_style (atomic or charge)
 region lammps-python prism xlo xhi ylo yhi zlo zhi xy xz yz
 create_box <number of atom types> <region-id>
 
-# create_atoms <atom_type> single <x> <y> <z> 
+# create_atoms <atom_type> single <x> <y> <z>
 #  - use remap to put atoms outside cell inside
 #  - units [box or lattice] - fractional or real
 
@@ -47,16 +47,16 @@ cdef class Lammps:
     """LAMMPS base class represents the entire library.
 
 ..  py:function:: __init__(self, units='lj', style='atomic', comm=None, args=None)
-    
-    Initialize a Lammps object. 
+
+    Initialize a Lammps object.
 
     :param str units: units to use for simulation
     :param str style: atomic style to use for simulation
     :param comm: mpi4py comm object default value is MPI_COMM_WORLD
     :param listargs: list of command line args that would be supplied to normal lammps executable
 
-    Possible values for the following arguments: 
-     * args: `command-line arguments <http://lammps.sandia.gov/doc/Section_start.html#command-line-options>`_ 
+    Possible values for the following arguments:
+     * args: `command-line arguments <http://lammps.sandia.gov/doc/Section_start.html#command-line-options>`_
      * units: `units <http://lammps.sandia.gov/doc/units.html>`_
      * style: `atom_style <http://lammps.sandia.gov/doc/atom_style.html>`_
     """
@@ -67,7 +67,7 @@ cdef class Lammps:
     cdef public Thermo thermo
 
     available_units = ['real', 'metal', 'si', 'cgs', 'electron', 'micro', 'nano', 'lj']
-    
+
     def __cinit__(self, units='lj', style='atomic', comm=None, args=None):
         """ Docstring in Lammps base class (sphinx can find doc when compiled) """
         if comm is None:
@@ -83,12 +83,12 @@ cdef class Lammps:
         cdef size_t comm_addr= MPI._addressof(comm)
         cdef mpi.MPI_Comm* comm_ptr = <mpi.MPI_Comm*>comm_addr
         self._comm = comm_ptr[0]
-        
+
         if args == None:
             args = ['python']
         else:
             args = ['python'] + args
-            
+
         cdef int argc = len(args)
         cdef char** argv = <char**>args_to_cargv(args)
 
@@ -115,7 +115,7 @@ cdef class Lammps:
         del self._lammps
 
     property __version__:
-        """ Prints the version of LAMMPS 
+        """ Prints the version of LAMMPS
 
         Format is <day><month><year> e.g. 7Dec15
         """
@@ -123,7 +123,7 @@ cdef class Lammps:
             return (self._lammps.universe.version).decode('utf-8')
 
     def __repr__(self):
-        rep = "<Lammps Style:{} Atoms:{:.2g} Lattice:[{:.1f}, {:.1f}, {:.1f}]>" 
+        rep = "<Lammps Style:{} Atoms:{:.2g} Lattice:[{:.1f}, {:.1f}, {:.1f}]>"
         return rep.format(self.system.style, self.system.total, *self.box.lengths)
 
     def command(self, cmd):
@@ -153,8 +153,8 @@ cdef class Lammps:
         See lammps documentation for description of `run command
         <http://lammps.sandia.gov/doc/run.html>`_
         """
-        self.command('run {} pre {} post {}'.format(steps, 
-                                     "yes" if pre  else "no", 
+        self.command('run {} pre {} post {}'.format(steps,
+                                     "yes" if pre  else "no",
                                      "yes" if post else "no"))
 
     def reset(self):
@@ -195,7 +195,7 @@ cdef class Lammps:
     property time_step:
         """ current number of timesteps that have been run
 
-        :getter: Returns the timestep number 
+        :getter: Returns the timestep number
         :setter: Sets the timestep number
         :type: int
         """
@@ -291,12 +291,12 @@ cdef class Compute:
         self.lammps = lammps
 
         id = id.encode('utf-8')
-        
+
         if args is None:
             args = []
 
         cdef int index = self.lammps._lammps.modify.find_compute(id)
-        
+
         if index == -1: # Compute Id does not currently exist
             if style == None:
                 raise ValueError("New computes require a style")
@@ -342,13 +342,13 @@ cdef class Compute:
         """ Name of compute id
 
         :getter: Returns compute id
-        :type: str  
+        :type: str
         """
         def __get__(self):
             return (self._compute.id).decode("utf-8")
 
     property style:
-        """ style of compute id 
+        """ style of compute id
 
         :getter: Returns compute style
         :type: str
@@ -397,7 +397,7 @@ cdef class AtomType:
 
 ..  py:function:: __init__(self, Lammps lammps, int index)
 
-    :param :py:class:`Lammps` lammps: lammps object 
+    :param :py:class:`Lammps` lammps: lammps object
     :param int index: the index of the atom
 
     Initialize an AtomType object.
@@ -432,7 +432,7 @@ cdef class AtomType:
             return self.lammps._lammps.atom.mass[self.index]
 
         def __set__(self, double value):
-            self.lammps._lammps.atom.set_mass(self.index, value)
+            self.lammps._lammps.atom.set_mass("python", 1, self.index, value)
 
 
 cdef class Atom:
@@ -443,8 +443,8 @@ cdef class Atom:
 
 ..  py:function:: __init__(self, Lammps lammps, tag=None, lindex=None)
 
-    :param :py:class:`Lammps` lammps: lammps object 
-    :param int tag: tag number of particle 
+    :param :py:class:`Lammps` lammps: lammps object
+    :param int tag: tag number of particle
     :param int lindex: the local index of the atom
 
     Initialize an System object. Must supply either a tag number or index
@@ -915,9 +915,9 @@ cdef class Box:
             return self.lengths_angles[1]
 
     property volume:
-        """ Volume of box given in lammps units 
+        """ Volume of box given in lammps units
 
-        :getter: Returns volume of box given in lammps units 
+        :getter: Returns volume of box given in lammps units
         :type: float
         """
         def __get__(self):
@@ -931,7 +931,7 @@ cdef class Box:
 
 
 def lattice_const_to_lammps_box(lengths, angles):
-    """ Converts lattice constants to lammps box coorinates(angles in radians) 
+    """ Converts lattice constants to lammps box coorinates(angles in radians)
 
 ..  math::
 
@@ -977,7 +977,7 @@ def lammps_box_to_lattice_const(lengths, tilts):
 
 
 cdef char** args_to_cargv(args):
-    """ Convert list of args[str] to char** 
+    """ Convert list of args[str] to char**
 
 ..  todo:: determine if I need to free char* strings
     """
