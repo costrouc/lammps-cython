@@ -76,7 +76,7 @@ setup(
     download_url='https://gitlab.com/costrouc/lammps-cython/-/archive/master/lammps-cython-master.zip',
     keywords=['lammps', 'molecular dynamics', 'cython', 'wrapper', 'mpi'],
     cmdclass={'build_ext': CustomBuildExtCommand},
-    ext_modules=Extension("lammps.core", sources=['lammps/core.pyx'], language='c++'),
+    ext_modules=ext_modules,
     packages=find_packages(exclude=['docs', 'tests']),
     package_data={
         'lammps': ['data/*.in']
