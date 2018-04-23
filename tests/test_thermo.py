@@ -19,7 +19,7 @@ def test_thermo_init_computes():
     assert lmp.thermo.computes['thermo_temp'].style == 'temp'
     assert lmp.thermo.temperature.style == 'temp'
     assert lmp.thermo.temperature.name == 'thermo_temp'
-    
+
     assert lmp.thermo.computes['thermo_press'].style == 'pressure'
     assert lmp.thermo.pressure.style == 'pressure'
     assert lmp.thermo.pressure.name == 'thermo_press'
@@ -39,7 +39,3 @@ def test_thermo_add_compute():
 
     assert lmp.thermo.computes[thermo_id].name == thermo_id
     assert lmp.thermo.computes[thermo_id].style == thermo_style
-
-
-if __name__ == "__main__":
-    pytest.main()

@@ -142,7 +142,3 @@ def test_lammps_reset():
     lmp.dt = 13.0
     lmp.reset()
     assert lmp.dt == 0.005
-
-
-if __name__ == '__main__':
-    pytest.main()

@@ -1,8 +1,7 @@
-import os
 import functools
 
-import pytest
 import lammps
+
 
 # Redefine Lammps command-line args so no annoying logs or stdout
 Lammps = functools.partial(lammps.Lammps, args=[
@@ -11,9 +10,5 @@ Lammps = functools.partial(lammps.Lammps, args=[
 ])
 
 
-def test_system():
+def test_compute():
     pass
-
-
-if __name__ == "__main__":
-    pytest.main()

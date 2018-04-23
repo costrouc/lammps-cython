@@ -1,6 +1,6 @@
 [lammps]
-lammps_include_dir = /home/costrouc/software/lammps-7Dec15/src
-lammps_library_dir = /home/costrouc/.local/lib
+lammps_include_dir = /usr/local/include/lammps/
+lammps_library_dir = /usr/local/lib/
 # true library filename is liblammps.so notice lib and .so are removed
 lammps_library = lammps
 

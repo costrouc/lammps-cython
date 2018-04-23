@@ -11,5 +11,5 @@ Lammps = functools.partial(lammps.Lammps, args=[
 ])
 
 
-def test_compute():
+def test_system():
     pass
