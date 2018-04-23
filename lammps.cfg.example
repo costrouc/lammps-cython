@@ -1,9 +1,0 @@
-[lammps]
-lammps_include_dir = /usr/local/include/lammps/
-lammps_library_dir = /usr/local/lib/
-# true library filename is liblammps.so notice lib and .so are removed
-lammps_library = lammps
-
-[mpi]
-mpi_include_dir = /usr/include/mpich
-mpi_library     = mpi
