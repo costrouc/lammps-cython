@@ -6,8 +6,5 @@ build_docker:
   stage: build
   script:
     - apt update; apt install python3.5 python3-pip -y
-    - wget https://gitlab.com/costrouc/lammps-cython/-/archive/master/lammps-cython-master.tar.gz
-    - tar -xf lammps-cython-master.tar.gz
-    - cd lammps-cython-master
     - pip3 install cython numpy mpi4py
     - pip3 install .
