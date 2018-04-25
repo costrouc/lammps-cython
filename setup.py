@@ -23,23 +23,30 @@ class build_ext(_build_ext):
         import numpy
         import mpi4py
 
-        # Add mpi4py, numpy, and custom headers to include_dirs
-        self.include_dirs.append(numpy.get_include())
-        self.include_dirs.append(mpi4py.get_include())
-
         # not sure if necissary
         from configparser import ConfigParser
         lammps_config = ConfigParser()
         lammps_config.read('lammps.cfg')
-        self.include_dirs.append(lammps_config.get('lammps', 'lammps_include_dir'))
-        self.include_dirs.append(lammps_config.get('mpi', 'mpi_include_dir'))
 
-        self.libraries = [
+        # Add mpi4py, numpy, and custom headers to include_dirs
+        self.include_dirs.extend([
+            numpy.get_include(),
+            mpi4py.get_include(),
+            lammps_config.get('lammps', 'lammps_include_dir'),
+            lammps_config.get('mpi', 'mpi_include_dir')
+        ])
+
+        self.library_dirs.extend([
+            lammps_config.get('lammps', 'lammps_library_dir'),
+            lammps_config.get('mpi', 'mpi_library_dir')
+        ])
+
+        self.libraries.extend([
             lammps_config.get('lammps', 'lammps_library'),
             lammps_config.get('mpi', 'mpi_library'),
-        ]
-
-        self.library_dirs = [lammps_config.get('lammps', 'lammps_library_dir')]
+            'mpi',
+            'mpi_cxx'
+        ])
 
         # Call original build_ext command
         _build_ext.run(self)

@@ -8,11 +8,13 @@ name = "pypi"
 [packages]
 
 "mpi4py" = "*"
-cython = "*"
 numpy = "*"
 
 
 [dev-packages]
 
+cython = "*"
 sphinx = "*"
 pytest = "*"
+sphinxcontrib-napoleon = "*"
+sphinx-rtd-theme = "*"

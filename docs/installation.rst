@@ -1,100 +1,165 @@
 Installation
 ============
 
-Installing lammps-python is an easy process. But from my experience
-**easy** is always relative. Additionally lammps-python is Python 2
-and 3 compatible!
+Installing lammps-cython can be a complex process. But from my
+experience not too hard on most standard linux distributions. If
+installation is hard for you I would recommend using the docker images
+or conda (not done yet) which do not require manual installation of
+`LAMMPS <http://lammps.sandia.gov/>`_.
 
-Dependencies
-------------
+Docker
+------
 
- - Some MPI implementation (preferably implementing the MPI3 api)  
- - `mpi4py <https://bitbucket.org/mpi4py/mpi4py/>`_
- - `numpy <http://www.numpy.org/>`_
- - `cython <http://cython.org/>`_
+This method should work for Linux, OSX, and windows. The docker image
+includes the lammps shared library, python3.5, and lammps
+binary. Everything you need to start experimenting with the package.
 
-Creating LAMMPS Library
------------------------
+.. code-block:: bash
 
-I will attempt to keep this current (1/10/2016) on how to install in
+   docker pull costrouc/lammps-cython
+
+Conda
+-----
+
+**Does Not Work Yet**
+
+`Conda <https://github.com/conda/conda>`_ is an OS agnostic package
+manager. It is developed by `contiuum analytics
+<https://anaconda.io>`_. `Conda installation
+<https://docs.anaconda.com/anaconda/install/>`_ is by far the easier
+way to get started with python and installing complex scientific
+codes. Once you have conda installed it will be as simple as
+
+.. code-block:: bash
+
+   conda install lammps-cython
+
+Pip
+---
+
+Installation via pip requires building the LAMMPS shared library. This
+is because pypi does not handle binaries in wheels well. Hopefully
+this changes with `manylinux <https://github.com/pypa/manylinux>`_.
+
+Building LAMMPS Shared Library (Linux and OSX)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+I will attempt to keep this current on how to install in
 Ubuntu. Should work similarly for all Linux distributions. I am not
 knowledgeable on how to install on OSX or Windows (maybe this will
 change). Before installing lammps make sure that you have all the
 necessary dependencies. If you are working on a cluster there is a
 good chance that you will not need to install the dependencies.
 
+Linux Dependencies
+""""""""""""""""""
+
+For linux derivatives you should have packages very similarly named to
+the ones below. I have installed on both debian and ubuntu and these
+packages should work.
+
 .. code-block:: bash
 
-   $ sudo apt install mpich libfftw3-dev libpng-dev libjpeg-dev
+   apt install build-essential libopenblas-dev libfftw3-dev libopenmpi-dev
+
+OSX Dependecies
+"""""""""""""""
+
+`Homebrew <http://brewformulas.org/>`_ is the choice of developer for
+the package manager of OSX. See `homebrew installation instructions
+<https://brew.sh/>`_ if you do not already have the package
+manager. While I have minimal experience using homebrew these
+instructions should work.
+
+.. code-block:: bash
+
+   brew install openblas mpich fftw
+
+To install the equivalent of ``build-essential`` in linux you will
+need to have xcode installed. This can be done in the terminal via
+``xcode-select --install``. Not sure if necessary and probably already
+installed on your machine.
+
+Installation
+^^^^^^^^^^^^
 
 Make sure that your mpi implementation is MPI3. Next download the
 latest LAMMPS `release <http://lammps.sandia.gov/download.html>`_ and
-untar the download.
+untar the download. I would actually recommend using the `LAMMPS
+github repo <https://github.com/lammps/lammps/releases>`_ the archives
+are smaller, download faster, and are easier to find. Replace
+``<version>`` with your version you are downloading. ``wget`` is used
+for downloading the archive from the terminal but there are of course
+other ways.
 
 .. code-block:: bash
 
-   $ tar -xf <lammps-download>.tar.gz
+   wget https://github.com/lammps/lammps/archive/<version>.tar.gz
+   cd lammps-<version>/src
 
 Inside of the lammps directory you will see a directory called
-**src**. :command:`cd` to the src directory. Next make the lammps
+**src**. :command:`cd` to the src directory. Next make the LAMMPS
 shared library. Building the shared library should take around 5
-minutes.
+minutes without adding on packages. If you need to add packages to
+LAMMPS this can easily be done. ``make package-status`` will list the
+available packages and if they are activated. You can activate any
+package by typing ``make yes-<package>``. To deactivate a package type
+``make no-<package>``. As an example if you need to use the `manybody
+<http://lammps.sandia.gov/doc/Section_packages.html#manybody-package>`_
+package this can be installed via ``make yes-manybody``. Note that
+some of the packages require additional complex dependencies.
 
 .. code-block:: bash
 
-   $ cd <lammps_download>/src
-   $ make mode=shlib ubuntu
+   make mode=shlib mpi -j4
+   cp liblammps_mpi.so /usr/local/lib/liblammps.so
+   mkdir /usr/local/include/lammps/; cp *.h /usr/local/include/lammps/
 
-Remember two important paths.
- - path to lammps src directory <lammps_include_dir>
- - name of the lammps shared library <lammps_library>
+
+Now all include files has been coppied to
+``/usr/local/include/lammps/`` and the shared library has been coppied
+to ``/usr/local/lib``. This will require root permissions. Another
+great location that does not require root is ``$HOME/.local/lib/`` and
+``$HOME/.local/include/``.
 
 .. note::
 
    Ensure that the LAMMPS library is installed without any undefined
    symbols. To check the shared library file run :command:`ldd -r
-   <lammps_library>`. You should not see any undefined symbols. One
+   liblammps_mpi.so`. You should not see any undefined symbols. One
    reported issue is that the gfortran library is not included by
    default with LAMMPS when installing additional add-on packages. To
    fix this issue simply build the LAMMPS library with the gfortran
    shared library included :commmand:`-lgfortran`.
 
+Installating lammps-cython
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Installing lammps-python
-------------------------
+lammps-cython installation should be easy if you have exactly followed
+the steps above. If the LAMMPS shared library is located in
+``/usr/local/lib``, the include files are located in
+``/usr/local/include/lammps`` your installation should just work with
+pip. Soon I will move to PyPi but it is not packaged well enough right
+now.
+
+.. code-block:: bash
+
+   pip install numpy mpi4py cython
+   pip install lammps-cython
+
+
+If it does not you can do the simple manual installation.
+
+.. code-block:: bash
+
+   pip install numpy mpi4py
+   pip download lammps-cython
+   <not sure here>
 
 I hope to soon support easy installation via the pip install
 lammps. Download the lammps-python `source
 <http://github.com/costrouc/lammps-python/tarbal/stable>`_. Untar
 folder and cd into folder. Next install all the dependencies.
-
-.. code-block:: bash
-
-   $ pip install -r requirements.txt
-
-If :command:`pip install` does not work simply make sure that mpi4py,
-numpy, and cython are installed and available to python.
-
-Edit the lammps.cfg to have the correct directories and
-filenames. Often times the lammps.cfg does not require much
-editing. Note the previously mentioned <lammps_include_dir> and
-<lammps_library>.
-
-.. code-block:: bash
-
-   $ `python setup.py install`  
-
-You now have lammps-python installed! You can easily check
-
-.. code-block:: bash
-
-   $ python
-   Python 3.4.3+ (default, Oct 14 2015, 16:03:50)
-   [GCC 5.2.1 20151010] on linux
-   Type "help", "copyright", "credits" or "license" for more information.
-   >>> import lammps
-
-Next see how to use lammps-python in the :doc:`tutorial`.
 
 Common Installation Errors
 --------------------------
@@ -118,22 +183,7 @@ to have the LAMMPS library in another directory not in the standard
 path you must modify the environment variable
 :command:`LD_LIBRARY_PATH`.
 
-.. code-block:: python
-
-   >>> import lammps
-   
-   ImportError: core.cpython.so undefined symbol *****
-
-This error is my fault for improperly writing the setup.py install
-file. First check that the <lammps_library> has no undefined symbols
-(see warning above). Next run :command:`ldd -r core.cpython.so`. You
-can easily find this library in the lammps directory when you build
-lammps-python with the command :command:`python setup.py build_ext
--i`. There should be no undefined symbols. For a quick fix simply
-modify the setup.py file such that it includes a shared library where
-the symbol is defined (variable libraries). If you do not have the
-expertise please submit an issue on the github page.
-
-For any other errors PLEASE add an issue to the github page. I check
-github often and really want to make this a long-term supported
-addition to the LAMMPS community!
+For any other errors PLEASE add an `issue to the gitlab page
+<https://gitlab.com/costrouc/lammps-cython>`_. I check gitlab often
+and really want to make this a long-term supported addition to the
+LAMMPS community!
