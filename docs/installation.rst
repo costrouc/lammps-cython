@@ -136,30 +136,38 @@ Installating lammps-cython
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 lammps-cython installation should be easy if you have exactly followed
-the steps above. If the LAMMPS shared library is located in
-``/usr/local/lib``, the include files are located in
-``/usr/local/include/lammps`` your installation should just work with
-pip. Soon I will move to PyPi but it is not packaged well enough right
-now.
+the steps above. The following step should work.
 
 .. code-block:: bash
 
    pip install numpy mpi4py cython
    pip install lammps-cython
 
+If it does not you will manually need to specify the location of the
+lammps and mpi include files. This is similar to the approach that
+`numpy takes
+<https://github.com/numpy/numpy/blob/master/site.cfg.example>`_. You
+will need to specify the locations in a file
+``~/.config/lammps-site.cfg`` located in the configuration
+directory. The example input file is included bellow. Change to your
+needs and then run ``pip install lammps-cython``. It will work if you
+get the locations correct.
 
-If it does not you can do the simple manual installation.
+.. code-block:: ini
 
-.. code-block:: bash
+   [lammps]
+   lammps_include_dir = /usr/local/include/lammps/
+   lammps_library_dir = /usr/local/lib/
+   # true library filename is liblammps.so notice lib and .so are removed
+   lammps_library = lammps
 
-   pip install numpy mpi4py
-   pip download lammps-cython
-   <not sure here>
+   # use mpic++ -showme to list libraries and includes
+   [mpi]
+   mpi_include_dir = /usr/lib/x86_64-linux-gnu/openmpi/include
+   mpi_library_dir = /usr/lib/x86_64-linux-gnu/openmpi/lib
+   # no necissarily needed (default are mpi, mpi_cxx)
+   mpi_library     = mpi
 
-I hope to soon support easy installation via the pip install
-lammps. Download the lammps-python `source
-<http://github.com/costrouc/lammps-python/tarbal/stable>`_. Untar
-folder and cd into folder. Next install all the dependencies.
 
 Common Installation Errors
 --------------------------

@@ -25,8 +25,14 @@ class build_ext(_build_ext):
 
         # not sure if necissary
         from configparser import ConfigParser
+        import os
+
         lammps_config = ConfigParser()
-        lammps_config.read('lammps.cfg')
+        # Give precedence to config file in user home config directory
+        if os.path.isfile(os.path.expanduser('~/.config/lammps-site.cfg')):
+            lammps_config.read(os.path.expanduser('~/.config/lammps-site.cfg'))
+        else:
+            lammps_config.read('lammps.cfg')
 
         # Add mpi4py, numpy, and custom headers to include_dirs
         self.include_dirs.extend([
