@@ -1,5 +1,6 @@
 #!python
-#cython: embedsignature=True
+# cython: embedsignature=True
+
 """LAMMPS Python interface (the GOOD parts)
 
 This interface is inspired by HOOMD and tries its best to look

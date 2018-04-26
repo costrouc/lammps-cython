@@ -56,3 +56,21 @@ deploy_docker:
     - docker push $GITLAB_IMAGE:latest
   only:
     - /^v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant version (tags)
+
+
+pages:
+  image: costrouc/lammps:stable_16Mar2018-mpi-none
+  stage: docs
+  script:
+    - pip install sphinx sphinx_rtd_theme
+    - pip install -e .
+    - mkdir public
+    - cd docs
+    - make apidocs
+    - make html
+    - cp -r _build/html/* ../public
+  artifacts:
+    paths:
+      - public
+  only:
+    - master
