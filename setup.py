@@ -67,7 +67,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='lammps-cython',
-    version='0.2.1',
+    version='0.3.0',
     description='Pythonic Wrapper to LAMMPS using cython',
     long_description=long_description,
     long_description_content_type="text/markdown",
