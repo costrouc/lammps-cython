@@ -9,6 +9,7 @@ variables:
 stages:
   - test
   - deploy
+  - docs
 
 test:
   image: costrouc/lammps:stable_16Mar2018-mpi-none
@@ -20,6 +21,7 @@ test:
     - pip3 install .
     - python3.5 setup.py test --addopts "--cov=lammps"
     - echo "============================================"
+
 
 deploy_pypi:
   image: costrouc/lammps:stable_16Mar2018-mpi-none
