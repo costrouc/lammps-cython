@@ -40,6 +40,9 @@ def test_lammps_init_default_style():
     assert lmp.system.style == 'atomic'
 
 
+@pytest.mark.skipif(
+    not pytest.config.getoption('--pkg-molecule'),
+    reason='requires molecule package')
 def test_lammps_init_set_get_style():
     lmp = Lammps(style='full')
     assert lmp.system.style == 'full'

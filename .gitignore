@@ -61,5 +61,8 @@ target/
 # cython builds
 *.cpp
 
+# pytest ignore
+.pytest_cache
+
 # lammps
 log.lammps
