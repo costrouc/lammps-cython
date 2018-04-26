@@ -1,3 +1,11 @@
+variables:
+  TWINE_USERNAME: SECURE
+  TWINE_PASSWORD: SECURE
+  TWINE_REPOSITORY_URL: https://upload.pypi.org/legacy/
+  DOCKER_PASSWORD: SECURE
+  DOCKER_USERNAME: SECURE
+
+
 stages:
   - test
   - deploy
@@ -10,8 +18,22 @@ test:
     - pip3 install cython numpy mpi4py
     - echo "============== Testing Package ============="
     - pip3 install .
-    - python3.5 setup.py test
+    - python3.5 setup.py test --addopts "--cov=lammps"
     - echo "============================================"
+
+deploy_pypi:
+  image: costrouc/lammps:stable_16Mar2018-mpi-none
+  stage: deploy
+  script:
+    - apt update; apt install python3.5 python3-pip -y
+    - pip3 install cython numpy mpi4py
+    - pip3 install .
+    - python setup.py sdist bdist_wheel
+    - twine upload dist/*.tar.gz
+    - twine upload dist/*.whl
+  only:
+    - /^v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant version (tags)
+
 
 deploy_docker:
   image: docker:git
