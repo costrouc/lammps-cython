@@ -67,7 +67,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='lammps-cython',
-    version='0.3.2',
+    version='0.3.3',
     description='Pythonic Wrapper to LAMMPS using cython',
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -78,10 +78,10 @@ setup(
         'Development Status :: 3 - Alpha',
         'Natural Language :: English',
         'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python :: 3.3'
-        'Programming Language :: Python :: 3.4'
-        'Programming Language :: Python :: 3.5'
-        'Programming Language :: Python :: 3.6'
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
     ],
     url='https://gitlab.com/costrouc/lammps-cython',
     download_url='https://gitlab.com/costrouc/lammps-cython/-/archive/master/lammps-cython-master.zip',
