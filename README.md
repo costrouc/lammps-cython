@@ -1,13 +1,20 @@
 # lammps-cython
 
-A cython wrapper around lammps. Lammps is a great molecular dynamics
-package that currently does not have a convenient way to run. The goal
-of this project is to put an opinionated wrapper around LAMMPS (the
-good parts) and allow the user to easily extend it's functionality in
-python. The api should feel very similar to
-[HOOMD](https://codeblue.umich.edu/hoomd-blue/). Full documentation
-can be found at
-[lammps-python](http://chrisostrouchov.com/projects/lammps-python).
+A high-performance cython wrapper around LAMMPS. Lammps is a great
+molecular dynamics package that has an unmatched set of potentials and
+fixes. This package offers unique features such as minimizing I/O by
+allowing direct access to thermostats and atom properties and allowing
+interactive lammps within python interpreters such a `ipython`.  The
+goal of this project is to put an opinionated wrapper around LAMMPS
+(the good parts) and allow the user to easily extend it's
+functionality in python. The api should feel very similar to
+[HOOMD](https://codeblue.umich.edu/hoomd-blue/) and is being actively
+developed.
+
+# Documentation
+
+Full documentation can be found at
+[lammps-cython](https://costrouc.gitlab.io/lammps-cython/).
 
 # Features
 
@@ -16,60 +23,80 @@ can be found at
  [HOOMD](https://codeblue.umich.edu/hoomd-blue/)
  - Supports Python 2 and 3
  - Heavily documented and tested
- - Elimination of unnecessary file I/O
- - Run lammps regularly (use "-i" instead of stdin)
+ - Elimination of unnecessary file I/O for thermostats and atoms properties
+
+A neat feature of the wrapper is that lammps can be run regularly
+using the following script (use "-i" instead of stdin). This is the
+command `pylammps` when the package is installed.
+
 ```python
 from lammps import Lammps
 import sys
 Lammps(args=sys.args)
 ```
 
-# Install
-First install all the dependencies. You must install an MPI
-implementation separately.
-> `pip install -r requirements.txt`
+# Installation
 
-Edit the lammps.cfg to have the correct directories and
-filenames. Often times the lammps.cfg does not require much editing.
-> `python setup.py install`
+`lammps-cython` has several options for installation. The easiest way
+is using the provided docker containter image
+[costrouc/lammps-cython](https://hub.docker.com/r/costrouc/lammps-cython/). There
+are plans to support conda and pip wheels. However currently other
+methods require manual installation of lammps. Detailed installation
+are provieded in the
+[documentation](https://costrouc.gitlab.io/lammps-cython/installation.html). If
+you have any issues with installation be submit an issue at the
+[gitlab repository](https://gitlab.com/costrouc/lammps-cython/).
 
-Soon I will make the package available on PIPY so that it can be
-installed via `pip install lammps`.
+The general path to installation is install [LAMMPS as a shared
+library](http://lammps.sandia.gov/doc/Section_start.html#start-4) then
+edit `~/.config/lammps-site.cfg` to include the paths of necissary
+libraries. See example below.
 
-## Installing LAMMPS Ubuntu
-I will attempt to keep this current (1/10/2016) on how to install in
-Ubuntu. Should work similarly for Linux distributions. I am not
-knowledgeable on how to install on OSX or Windows (maybe this will
-change). Run these commands most likely as a super user. If you are
-working on a cluster it is a good chance that you will not need to
-install the dependencies.
+``` ini
+[lammps]
+lammps_include_dir = /usr/local/include/lammps/
+lammps_library_dir = /usr/local/lib/
+# true library filename is liblammps.so notice lib and .so are removed
+lammps_library = lammps
 
-```bash
-sudo apt install mpich libfftw3-dev libpng-dev libjpeg-dev
+# use mpic++ -showme to list libraries and includes
+[mpi]
+mpi_include_dir = /usr/lib/x86_64-linux-gnu/openmpi/include
+mpi_library_dir = /usr/lib/x86_64-linux-gnu/openmpi/lib
+# no necissarily needed (default are mpi, mpi_cxx)
+mpi_library     = mpi
 ```
 
-Assuming the dependencies are installed lammps should be __very__ easy
-to install.
+Then `pip install lammps-cython` should just work.
 
-### Building Library
-Since we are using python to execute lammps we do not need to make the
-LAMMPS executable.
+## Docker Image
 
-```bash
-cd <lammps_download_folder>/src
-make mode=shlib ubuntu
-```
+The docker image
+[costrouc/lammps-cython](https://hub.docker.com/r/costrouc/lammps-cython/)
+uses `python3.5` and has the library preinstalled with the executables
+`pylammps` and `lammps` available.
 
-Honestly this make configuration should work for most systems.
 
-# Dependencies
+# Tutorials
 
-- Some MPI implementation (preferably implementing the MPI3 api)
-- [mpi4py](https://bitbucket.org/mpi4py/mpi4py/)
-- [numpy](http://www.numpy.org/)
-- [cython](http://cython.org/)
+Work is being done to show how to use the features of `lammps-cython`
+for now just visit the [tutorial page](https://costrouc.gitlab.io/lammps-cython/tutorial.html).
 
-# Documentation
+These will turn to links when the tutorial exists.
 
-For a full reference of the
-[lammps-python](http://chrisostrouchov.com/projects/lammps-python) api.
+  - basic usage
+  - modify atom positions
+  - get forces and velocity for each atom and compute potential energy
+
+# Contributing
+
+All contributions, bug reports, bug fixes, documentation improvements,
+enhancements and ideas are welcome!
+
+Contributors:
+
+  - [Chris Ostrouchov](https://gitlab.com/costrouc) (maintainer)
+
+# License
+
+MIT
