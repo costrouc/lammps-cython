@@ -30,6 +30,7 @@ deploy_pypi:
     - apt update; apt install python3.5 python3-pip -y
     - pip3 install -U cython numpy mpi4py twine setuptools
     - pip3 install .
+    - python3.5 setup.py build_ext
     - python3.5 setup.py sdist bdist_wheel
     - twine upload dist/*.tar.gz
     # for now not including wheel becuase
