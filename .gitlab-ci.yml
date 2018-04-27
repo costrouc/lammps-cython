@@ -12,7 +12,7 @@ stages:
   - docs
 
 test:
-  image: costrouc/lammps:stable_16Mar2018-mpi-none
+  image: costrouc/lammps:stable_16Mar2018-debian-mpi-none
   stage: test
   script:
     - apt update; apt install python3.5 python3-pip -y
@@ -24,7 +24,7 @@ test:
 
 
 deploy_pypi:
-  image: costrouc/lammps:stable_16Mar2018-mpi-none
+  image: costrouc/lammps:stable_16Mar2018-debian-mpi-none
   stage: deploy
   script:
     - apt update; apt install python3.5 python3-pip -y
@@ -32,7 +32,9 @@ deploy_pypi:
     - pip3 install .
     - python3.5 setup.py sdist bdist_wheel
     - twine upload dist/*.tar.gz
-    - twine upload dist/*.whl
+    # for now not including wheel becuase
+    # "an unsupported platform tag 'linux_x86_64'"
+    # - twine upload dist/*.whl
   only:
     - /^v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant version (tags)
 
@@ -61,7 +63,7 @@ deploy_docker:
 
 
 pages:
-  image: costrouc/lammps:stable_16Mar2018-mpi-none
+  image: costrouc/lammps:stable_16Mar2018-debian-mpi-none
   stage: docs
   script:
     - apt update; apt install python3.5 python3-pip -y

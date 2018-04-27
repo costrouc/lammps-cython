@@ -89,9 +89,6 @@ setup(
     cmdclass={'build_ext': build_ext},
     ext_modules=ext_modules,
     packages=find_packages(exclude=['docs', 'tests']),
-    package_data={
-        'lammps': ['data/*.in']
-    },
     entry_points={
         'console_scripts': [
             'pylammps=lammps.__main__:main'
