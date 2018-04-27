@@ -102,7 +102,7 @@ def test_lammps_run():
     # This is hardly a unit test... (a better way?)
 
     lmp = Lammps()
-    lmp.file(os.path.join(lammps.__path__[0], 'data', 'melt.in'))
+    lmp.file(os.path.join('test_files', 'melt.in'))
 
     assert lmp.dt == 0.005
     assert lmp.time_step == 100
