@@ -1,4 +1,4 @@
-FROM costrouc/lammps:stable_16Mar2018-mpi-none
+FROM costrouc/lammps:stable_16Mar2018-debian-mpi-none
 MAINTAINER Chris Ostrouchov
 
 ARG VERSION=v0.2
