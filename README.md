@@ -11,6 +11,28 @@ functionality in python. The api should feel very similar to
 [HOOMD](https://codeblue.umich.edu/hoomd-blue/) and is being actively
 developed.
 
+<table>
+<tr>
+  <td>Latest Release</td>
+  <td><img src="https://img.shields.io/pypi/v/lammps-cython.svg" alt="latest release"/></td>
+</tr>
+<tr>
+  <td>Package Status</td>
+  <td><img src="https://img.shields.io/pypi/status/lammps-cython.svg" alt="status" /></td>
+</tr>
+<tr>
+  <td>License</td>
+  <td><img src="https://img.shields.io/pypi/l/lammps-cython.svg" alt="license" /></td>
+</tr>
+<tr>
+  <td>Build Status</td>
+  <td> <a href="https://gitlab.com/costrouc/lammps-cython/pipelines"> <img
+src="https://gitlab.com/costrouc/lammps-cython/badges/master/pipeline.svg"
+alt="gitlab pipeline status" /> </a> </td>
+</tr>
+</table>
+
+
 # Documentation
 
 Full documentation can be found at
