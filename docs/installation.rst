@@ -155,6 +155,7 @@ get the locations correct.
 
 .. code-block:: ini
 
+   # multiple values can be included seperated by commas
    [lammps]
    lammps_include_dir = /usr/local/include/lammps/
    lammps_library_dir = /usr/local/lib/
@@ -166,7 +167,7 @@ get the locations correct.
    mpi_include_dir = /usr/lib/x86_64-linux-gnu/openmpi/include
    mpi_library_dir = /usr/lib/x86_64-linux-gnu/openmpi/lib
    # no necissarily needed (default are mpi, mpi_cxx)
-   mpi_library     = mpi
+   mpi_library     = mpi, mpi_cxx
 
 
 Common Installation Errors
