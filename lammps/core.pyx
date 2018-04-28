@@ -808,6 +808,23 @@ cdef class Box:
             "create_box {} {}"
         ).format(atom_types, region_id))
 
+    def update_lattice_const(self, lengths, angles=None):
+        """Update Unit cell (must be run after unit cell has been initialized
+
+        :param list lengths: lattice constants of unit cell
+        :param list angles: angles of unit cell in radians
+
+        Does not adjust the atom coordinates. However it does set the
+        global box, set processor grid, and set local box correctly.
+        """
+        if angles == None:
+            angles = [pi/2., pi/2., pi/2.]
+
+        (lx, ly, lz), (xy, xz, yz) = lattice_const_to_lammps_box(lengths, angles)
+        cdef double* boxlo = [0., 0., 0.]
+        cdef double* boxhi = [lx, ly, lz]
+        lammps_reset_box(self.lammps._lammps, boxlo, boxhi, xy, xz, yz)
+
     property dimension:
         """ The dimension of the lammps run either 2D or 3D
 

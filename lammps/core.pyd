@@ -136,3 +136,11 @@ cdef extern from "lammps.h" namespace "LAMMPS_NS":
          OUTPUT* output
          UPDATE* update
          MODIFY* modify
+
+# Library class
+cdef extern from "library.h":
+     void lammps_reset_box(void *, double *, double *, double, double, double)
+     lammps_scatter_atoms(void *, char *, int, int, void *)
+     lammps_scatter_atoms_subset(void *, char *, int, int, int, int *, void *)
+     lammps_create_atoms(void *, int, bigint *, int *,
+                         double *, double *, bigint *, int)
