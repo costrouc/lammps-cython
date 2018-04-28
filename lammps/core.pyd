@@ -144,5 +144,5 @@ cdef extern from "library.h":
      lammps_gather_atoms_concat(void *, char *, int, int, void *)
      lammps_scatter_atoms(void *, char *, int, int, void *)
      lammps_scatter_atoms_subset(void *, char *, int, int, int, int *, void *)
-     lammps_create_atoms(void *, int, bigint *, int *,
-                         double *, double *, bigint *, int)
+     void lammps_create_atoms(void *, int, int *, int *,
+                              double *, double *, int *, int)

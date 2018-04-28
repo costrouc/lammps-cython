@@ -764,6 +764,13 @@ cdef class System:
                  'yes' if remap else 'no')
         self.lammps.command(cmd)
 
+    def create_atoms(self, int[:] atom_types, double[:, :] positions not None, double[:, :] velocities):
+        cdef int num_atoms = len(atom_types)
+        cdef int[:] atom_ids = np.arange(len(atom_types), dtype=np.intc)
+        lammps_create_atoms(self.lammps._lammps, num_atoms,
+                            &atom_ids[0], &atom_types[0],
+                            &positions[0, 0], &velocities[0, 0], NULL, 1)
+
 
 cdef class Box:
     """ Represents the shape of the simulation cell.
