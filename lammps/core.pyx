@@ -837,34 +837,31 @@ cdef class Box:
     property lohi:
         """ LAMMPS box description of boxhi and boxlo
 
-        :return: dictionary of lower and upper in each dimension
-        :rtype: dict
+        :return: list of lower and upper in each dimension
+        :rtype: np.ndarray
 
         Additional documentation can be found at `lammps
         <http://lammps.sandia.gov/doc/Section_howto.html?highlight=prism#howto-12>`_. For
-        example a return dictionary would be
+        example return numpy array would be
 
 ..      code-block:: python
 
-        lohi = {
-            'boxlo': np.array([0.0, 0.0, 0.0]),
-            'boxhi': np.array([10.0, 10.0, 10.0])
-        }
+        lohi = np.array([
+            [0.0, 0.0, 0.0],
+            [10.0, 10.0, 10.0]
+        ])
         """
         def __get__(self):
             cdef int dim = self.dimension
             cdef double[::1] boxlo = <double[:dim]>self.lammps._lammps.domain.boxlo
             cdef double[::1] boxhi = <double[:dim]>self.lammps._lammps.domain.boxhi
-            return {
-                'boxlo': np.array(boxlo),
-                'boxhi': np.array(boxhi)
-            }
+            return np.array([boxlo, boxhi])
 
     property tilts:
         """ LAMMPS box description of xy xz yz
 
-        :return: dictionary of xy xz yz
-        :rtype: dict
+        :return: numpy array of [xy, xz, yz]
+        :rtype: np.ndarray
 
         Additional documentation can be found at `lammps
         <http://lammps.sandia.gov/doc/Section_howto.html?highlight=prism#howto-12>`_.
@@ -872,11 +869,7 @@ cdef class Box:
 
 ..      code-block:: python
 
-        tilts = {
-           'xy': 0.0,
-           'xz': 0.0,
-           'yz': 0.0
-        }
+        tilts = np.array([0.0, 0.0, 0.0])
 
 ..      todo::
 
@@ -886,11 +879,7 @@ cdef class Box:
             cdef double xy = self.lammps._lammps.domain.xy
             cdef double xz = self.lammps._lammps.domain.xz
             cdef double yz = self.lammps._lammps.domain.yz
-            return {
-                'xy': xy,
-                'xz': xz,
-                'yz': yz
-            }
+            return np.array([xy, xz, yz])
 
     property lengths_angles:
         """ Calculates the lengths and angles from lammps box
