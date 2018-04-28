@@ -5,7 +5,7 @@ from lammps import Lammps
 import matplotlib.pyplot as plt
 import numpy as np
 
-# lammps command list option'-sc', 'none' used so 
+# lammps command list option'-sc', 'none' used so
 # lammps doesn't print tons of information
 # lmp = Lammps(args=['lmp', '-sc', 'none'])
 lmp = Lammps()
