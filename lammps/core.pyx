@@ -799,6 +799,23 @@ cdef class System:
     #                         1, property_count[name], &data[0][0])
     #     return data
 
+    def global_scatter_property_ordered(self, name, data):
+        # only handle floats for now
+        # For now only float data
+        property_count = {
+            'x': 3,
+            'f': 3,
+        }
+        property_type = {
+            'x': np.float,
+        }
+        cdef double[:, :] data_f = data
+        lammps_scatter_atoms(self.lammps._lammps, name,
+                             1, property_count[name], &data_f[0][0])
+
+
+
+
 
 
 cdef class Box:
