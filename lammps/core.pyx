@@ -771,6 +771,35 @@ cdef class System:
                             &atom_ids[0], &atom_types[0],
                             &positions[0, 0], &velocities[0, 0], NULL, 1)
 
+    def global_gather_property_ordered(self, name):
+        # For now only float data
+        property_count = {
+            'x': 3,
+            'f': 3,
+        }
+        property_type = {
+            'x': np.float,
+        }
+        cdef double[:, :] data = np.zeros((len(self.total), property_count[name]), dtype=np.float)
+        lammps_gather_atoms(self.lammps._lammps, name,
+                            1, property_count[name], &data[0][0])
+        return data
+
+    # def global_gather_property_unordered(self, name):
+    #     # For now only float data
+    #     property_count = {
+    #         'x': 3,
+    #         'f': 3,
+    #     }
+    #     property_type = {
+    #         'x': np.float,
+    #     }
+    #     cdef double[:, :] data = np.zeros((len(self.total), property_count[name]), dtype=np.float)
+    #     lammps_gather_atoms_concat(self.lammps._lammps, name,
+    #                         1, property_count[name], &data[0][0])
+    #     return data
+
+
 
 cdef class Box:
     """ Represents the shape of the simulation cell.
