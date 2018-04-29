@@ -571,12 +571,67 @@ cdef class System:
 
     # Available styles (but not all properties are accessible)
     # More will be added in the future
-    available_styles = [
+    AVAILABLE_ATOM_STYLES = [
         'angle', 'atomic', 'body', 'bond', 'charge'
         'dipole', 'electron', 'ellipsoid', 'full',
         'line', 'meso', 'molecular', 'peri', 'smd',
         'sphere', 'template', 'tri', 'wavepacket'
     ]
+
+    # from atom.cpp extract(name)
+    ATOM_STYLE_PROPERTIES = {
+        'mass': (np.float, 1), # mass of particle (mass units)
+        'id': (np.int, 1), # integer ID of atom
+        'type': (np.int, 1), # type of atom (1-Ntype)
+        'mask': (np.int, 1),
+        'image': (np.int, 1),
+        'x': (np.float, 3), # atom position (position units)
+        'v': (np.float, 3), # atom velocity (velocity units)
+        'f': (np.float, 3), # atom force (force units)
+        'molecule': (np.int, 1), # integer ID of molecule the atom belongs to
+        'q': (np.float, 1), # charge on atom (charge units)
+        'mu': (np.float, 3), # x,y,z components of dipole moment of atom (dipole units)
+        'omega': (np.float, 3),
+        'angmom': (np.float, 3),
+        'torque': (np.float, 3),
+        'radius': (np.float, 1),
+        'rmass': (np.float, 1),
+        'ellipsoid': (np.float, 1),
+        'line': (np.float, 1),
+        'tri': (np.float, 1),
+        # Peri Package
+        'vfrac': (np.float, 3),
+        's0': (np.float, 1),
+        'x0': (np.float, 3),
+        # USER-EFF & USER-AWPMD
+        'spin': (np.int, 1),
+        'eradius': (np.float, 1), # electron radius (or fixed-core radius)
+        'ervel': (np.float, 1),
+        'erforce': (np.float, 1),
+        'ervelforce': (np.float, 1),
+        'cs': (np.float, 1),
+        'csforce': (np.float, 1),
+        'vforce': (np.float, 1),
+        'etag': (np.int),
+        # USER-SPH
+        'rho': (np.float, 1), # density (need units) for SPH particles
+        'drho': (np.float, 1),
+        'e': (np.float, 1),
+        'de': (np.float, 1),
+        'cv': (np.float, 1),
+        'vest': (np.float, 3),
+        # USER-SMD
+        'contact_radius': (np.float, 1),
+        'smd_data_9': (np.float, 3),
+        'smd_stress': (np.float, 3),
+        'eff_plastic_strain': (np.float, 1),
+        'eff_plastic_strain_rate': (np.float, 1),
+        'damage': (np.float, 1),
+        # USER-DPD
+        'dpdTheta': (np.float, 1),
+        # USER-MESO
+        'edpd_temp': (np.float, 1)
+    }
 
     def __cinit__(self, Lammps lammps, style='atomic'):
         """ Docstring in System base class (sphinx can find doc when compiled) """
@@ -584,7 +639,7 @@ cdef class System:
         self.local_index = 0
 
         # Set the atomic style
-        if style in System.available_styles:
+        if style in System.AVAILABLE_ATOM_STYLES:
             self.lammps.command("atom_style {}".format(style))
         else:
             raise ValueError('style {} is an invalid style'.format(style))
