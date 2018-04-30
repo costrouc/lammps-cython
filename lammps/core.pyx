@@ -44,6 +44,7 @@ from mpi4py import MPI
 import numpy as np
 from math import pi
 
+
 cdef class Lammps:
     """LAMMPS base class represents the entire library.
 
@@ -839,6 +840,8 @@ cdef class System:
             self._global_gather_property_ordered_int(name.encode('utf-8'), atom_style_count, data)
         elif atom_style_type == np.float:
             self._global_gather_property_ordered_double(name.encode('utf-8'), atom_style_count, data)
+        else:
+            raise TypeError('property %s type %s not recognized' % (name, atom_style_type))
         return data
 
     def _global_gather_property_ordered_int(self, char *name, int atom_style_count, int[:, :] data):
@@ -864,6 +867,8 @@ cdef class System:
             self._global_scatter_property_ordered_int(name.encode('utf-8'), atom_style_count, data)
         elif atom_style_type == np.float:
             self._global_scatter_property_ordered_double(name.encode('utf-8'), atom_style_count, data)
+        else:
+            raise TypeError('property %s type %s not recognized' % (name, atom_style_type))
 
     def _global_scatter_property_ordered_int(self, char *name, int atom_style_count, int[:, :] data):
         lammps_scatter_atoms(self.lammps._lammps, name, 0, atom_style_count, &data[0][0])
