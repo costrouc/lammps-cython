@@ -826,50 +826,47 @@ cdef class System:
                             &atom_ids[0], &atom_types[0],
                             &positions[0, 0], &velocities[0, 0], NULL, 1)
 
-    def global_gather_property_ordered(self, name):
-        # For now only float data
-        property_count = {
-            'x': 3,
-            'f': 3,
-        }
-        property_type = {
-            'x': np.float,
-        }
-        cdef double[:, :] data = np.zeros((len(self.total), property_count[name]), dtype=np.float)
-        lammps_gather_atoms(self.lammps._lammps, name,
-                            1, property_count[name], &data[0][0])
+    def global_gather_property_ordered(self, str name):
+        """Gather globally system property to single processor. Sorted by atom id.
+
+        Available properties are in :var:`System.ATOM_STYLE_PROPERTIES`
+        """
+        if name not in self.ATOM_STYLE_PROPERTIES:
+            raise ValueError('atom system property %s does not exist' % name)
+        atom_style_type, atom_style_count = self.ATOM_STYLE_PROPERTIES[name]
+        data = np.zeros((self.total, atom_style_count), dtype=atom_style_type)
+        if atom_style_type == np.int:
+            self._global_gather_property_ordered_int(name.encode('utf-8'), atom_style_count, data)
+        elif atom_style_type == np.float:
+            self._global_gather_property_ordered_double(name.encode('utf-8'), atom_style_count, data)
         return data
 
-    # def global_gather_property_unordered(self, name):
-    #     # For now only float data
-    #     property_count = {
-    #         'x': 3,
-    #         'f': 3,
-    #     }
-    #     property_type = {
-    #         'x': np.float,
-    #     }
-    #     cdef double[:, :] data = np.zeros((len(self.total), property_count[name]), dtype=np.float)
-    #     lammps_gather_atoms_concat(self.lammps._lammps, name,
-    #                         1, property_count[name], &data[0][0])
-    #     return data
+    def _global_gather_property_ordered_int(self, char *name, int atom_style_count, int[:, :] data):
+        lammps_gather_atoms(self.lammps._lammps, name, 0, atom_style_count, &data[0][0])
 
-    def global_scatter_property_ordered(self, name, data):
-        # only handle floats for now
-        # For now only float data
-        property_count = {
-            'x': 3,
-            'f': 3,
-        }
-        property_type = {
-            'x': np.float,
-        }
-        cdef double[:, :] data_f = data
-        lammps_scatter_atoms(self.lammps._lammps, name,
-                             1, property_count[name], &data_f[0][0])
+    def _global_gather_property_ordered_double(self, char *name, int atom_style_count, double[:, :] data):
+        lammps_gather_atoms(self.lammps._lammps, name, 1, atom_style_count, &data[0][0])
 
+    def global_scatter_property_ordered(self, str name, data):
+        """Scatter globally system property to all processors. Sorted by atom id.
 
+        Available properties are in :var:`System.ATOM_STYLE_PROPERTIES`
+        """
+        if name not in self.ATOM_STYLE_PROPERTIES:
+            raise ValueError('atom system property %s does not exist' % name)
+        atom_style_type, atom_style_count = self.ATOM_STYLE_PROPERTIES[name]
+        if len(data) != self.total:
+            raise ValueError('number of atoms must match data first dimmension')
+        if atom_style_type == np.int:
+            self._global_scatter_property_ordered_int(name.encode('utf-8'), atom_style_count, data)
+        elif atom_style_type == np.float:
+            self._global_scatter_property_ordered_double(name.encode('utf-8'), atom_style_count, data)
 
+    def _global_scatter_property_ordered_int(self, char *name, int atom_style_count, int[:, :] data):
+        lammps_scatter_atoms(self.lammps._lammps, name, 0, atom_style_count, &data[0][0])
+
+    def _global_scatter_property_ordered_int(self, char *name, int atom_style_count, double[:, :] data):
+        lammps_scatter_atoms(self.lammps._lammps, name, 1, atom_style_count, &data[0][0])
 
 
 
