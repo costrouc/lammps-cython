@@ -588,7 +588,7 @@ cdef class System:
         'x': (np.float, 3), # atom position (position units)
         'v': (np.float, 3), # atom velocity (velocity units)
         'f': (np.float, 3), # atom force (force units)
-        'molecule': (np.int, 1), # integer ID of molecule the atom belongs to
+        'molecule': (np.int_, 1), # integer ID of molecule the atom belongs to
         'q': (np.float, 1), # charge on atom (charge units)
         'mu': (np.float, 3), # x,y,z components of dipole moment of atom (dipole units)
         'omega': (np.float, 3),
@@ -851,6 +851,9 @@ cdef class System:
         """Scatter globally system property to all processors. Sorted by atom id.
 
         Available properties are in :var:`System.ATOM_STYLE_PROPERTIES`
+
+        DO NOT set atom positions with this method. It will result in lost atoms instead use atom_create
+         - https://sourceforge.net/p/lammps/mailman/message/35842978/
         """
         if name not in self.ATOM_STYLE_PROPERTIES:
             raise ValueError('atom system property %s does not exist' % name)
@@ -865,7 +868,7 @@ cdef class System:
     def _global_scatter_property_ordered_int(self, char *name, int atom_style_count, int[:, :] data):
         lammps_scatter_atoms(self.lammps._lammps, name, 0, atom_style_count, &data[0][0])
 
-    def _global_scatter_property_ordered_int(self, char *name, int atom_style_count, double[:, :] data):
+    def _global_scatter_property_ordered_double(self, char *name, int atom_style_count, double[:, :] data):
         lammps_scatter_atoms(self.lammps._lammps, name, 1, atom_style_count, &data[0][0])
 
 
