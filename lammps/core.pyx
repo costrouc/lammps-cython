@@ -116,6 +116,13 @@ cdef class Lammps:
     def __dealloc__(self):
         del self._lammps
 
+    def check_error(self):
+        """Check for error from lammps"""
+        cdef char* error_message = self._lammps.error.get_last_error()
+        if error_message == NULL:
+            return None
+        return error_message.decode('utf-8')
+
     property __version__:
         """ Prints the version of LAMMPS
 
@@ -136,7 +143,12 @@ cdef class Lammps:
         See lammps documentation for available `commands
         <http://lammps.sandia.gov/doc/Section_commands.html#individual-commands>`_.
         """
-        self._lammps.input.one(cmd.encode('utf-8'))
+        cdef char* result = lammps_command(self._lammps, cmd.encode('utf-8'))
+        if result == NULL:
+            return None
+        cdef size_t result_size = strlen(result)
+        cdef bytes result_bytes = result[:result_size]
+        return result_bytes.decode('utf-8')
 
     def file(self, filename):
         """ Run a LAMMPS input file

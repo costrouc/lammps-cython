@@ -13,7 +13,14 @@ from libcpp.string cimport string
 
 cimport mpi4py.libmpi as mpi
 
-# Assumed #DEFINE LAMMPS_SMALLBIG
+# Define statements assumed for lammps
+cdef extern from *:
+    """
+    #define LAMMPS_SMALLBIG
+    #define LAMMPS_EXCEPTIONS
+    #define LAMMPS_GZIP
+    """
+
 # TODO do we need the constructors (excluding LAMMPS)?
 ctypedef int smallint
 ctypedef int imageint
@@ -23,16 +30,8 @@ ctypedef int64_t bigint
 
 # Error class
 cdef extern from "error.h" namespace "LAMMPS_NS":
-     cdef enum ErrorType "LAMMPS_NS:ErrorType"
-          ERROR_NONE   = 0,
-          ERROR_NORMAL = 1,
-          ERROR_ABORT  = 2
-
-
      cdef cppclass ERROR "LAMMPS_NS:Error":
-          # if get_last_error returns NULL then no error
           char* get_last_error()
-          ErrorType get_last_error_type()
 
 
 # Input class
@@ -145,6 +144,7 @@ cdef extern from "lammps.h" namespace "LAMMPS_NS":
          INPUT* input
          UNIVERSE* universe
          ATOM* atom
+         ERROR* error
          DOMAIN* domain
          OUTPUT* output
          UPDATE* update
@@ -152,6 +152,7 @@ cdef extern from "lammps.h" namespace "LAMMPS_NS":
 
 # Library class
 cdef extern from "library.h":
+     char* lammps_command(void *, char *)
      void lammps_reset_box(void *, double *, double *, double, double, double)
      void lammps_gather_atoms(void *, char *, int, int, void *)
      void lammps_gather_atoms_concat(void *, char *, int, int, void *)

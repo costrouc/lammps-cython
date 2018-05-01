@@ -111,9 +111,15 @@ some of the packages require additional complex dependencies.
 
 .. code-block:: bash
 
-   make mode=shlib mpi -j4
+   make mode=shlib mpi -j4 LMP_INC="-DLAMMPS_EXCEPTIONS -DLAMMPS_GZIP -DLAMMPS_MEMALIGN=64"
    cp liblammps_mpi.so /usr/local/lib/liblammps.so
    mkdir /usr/local/include/lammps/; cp *.h /usr/local/include/lammps/
+
+.. attention::
+
+   At a minimum the ``-DLAMMPS_EXCEPTION`` definition is needed. This
+   is used so that ``lammps-cython`` can check if an error in
+   execution has happened and the python package will not compile.
 
 
 Now all include files has been coppied to
