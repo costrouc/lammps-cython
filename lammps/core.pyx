@@ -45,6 +45,19 @@ import numpy as np
 from math import pi
 
 
+cdef class LammpsError(Exception):
+    def __cinit__(self, message):
+        self.message = message
+
+
+cdef class LammpsNormalError(LammpsError):
+    pass
+
+
+cdef class LammpsAbortError(LammpsError):
+    pass
+
+
 cdef class Lammps:
     """LAMMPS base class represents the entire library.
 
@@ -121,7 +134,13 @@ cdef class Lammps:
         cdef char* error_message = self._lammps.error.get_last_error()
         if error_message == NULL:
             return None
-        return error_message.decode('utf-8')
+        cdef ErrorType error_type = self._lammps.error.get_last_error_type()
+        cdef str error_message_utf = error_message.decode('utf-8')
+        self._lammps.error.set_last_error(NULL, ErrorType.ERROR_NONE)
+        if error_type == ErrorType.ERROR_NORMAL:
+            raise LammpsNormalError(error_message_utf)
+        elif error_type == ErrorType.ERROR_ABORT:
+            raise LammpsAbortError(error_message_utf)
 
     property __version__:
         """ Prints the version of LAMMPS
@@ -144,6 +163,7 @@ cdef class Lammps:
         <http://lammps.sandia.gov/doc/Section_commands.html#individual-commands>`_.
         """
         cdef char* result = lammps_command(self._lammps, cmd.encode('utf-8'))
+        self.check_error()
         if result == NULL:
             return None
         cdef size_t result_size = strlen(result)
@@ -157,7 +177,8 @@ cdef class Lammps:
 
         Can be invoked more than once.
         """
-        self._lammps.input.file(filename.encode('utf-8'))
+        lammps_file(self._lammps, filename.encode('utf-8'))
+        self.check_error()
 
     def run(self, long steps, pre=False, post=False):
         """ Runs the lammps simulation for N steps
@@ -593,57 +614,57 @@ cdef class System:
 
     # from atom.cpp extract(name)
     ATOM_STYLE_PROPERTIES = {
-        'mass': (np.float, 1), # mass of particle (mass units)
+        'mass': (np.float64, 1), # mass of particle (mass units)
         'id': (np.int, 1), # integer ID of atom
         'type': (np.int, 1), # type of atom (1-Ntype)
         'mask': (np.int, 1),
         'image': (np.int, 1),
-        'x': (np.float, 3), # atom position (position units)
-        'v': (np.float, 3), # atom velocity (velocity units)
-        'f': (np.float, 3), # atom force (force units)
+        'x': (np.float64, 3), # atom position (position units)
+        'v': (np.float64, 3), # atom velocity (velocity units)
+        'f': (np.float64, 3), # atom force (force units)
         'molecule': (np.int_, 1), # integer ID of molecule the atom belongs to
-        'q': (np.float, 1), # charge on atom (charge units)
-        'mu': (np.float, 3), # x,y,z components of dipole moment of atom (dipole units)
-        'omega': (np.float, 3),
-        'angmom': (np.float, 3),
-        'torque': (np.float, 3),
-        'radius': (np.float, 1),
-        'rmass': (np.float, 1),
-        'ellipsoid': (np.float, 1),
-        'line': (np.float, 1),
-        'tri': (np.float, 1),
+        'q': (np.float64, 1), # charge on atom (charge units)
+        'mu': (np.float64, 3), # x,y,z components of dipole moment of atom (dipole units)
+        'omega': (np.float64, 3),
+        'angmom': (np.float64, 3),
+        'torque': (np.float64, 3),
+        'radius': (np.float64, 1),
+        'rmass': (np.float64, 1),
+        'ellipsoid': (np.float64, 1),
+        'line': (np.float64, 1),
+        'tri': (np.float64, 1),
         # Peri Package
-        'vfrac': (np.float, 3),
-        's0': (np.float, 1),
-        'x0': (np.float, 3),
+        'vfrac': (np.float64, 3),
+        's0': (np.float64, 1),
+        'x0': (np.float64, 3),
         # USER-EFF & USER-AWPMD
         'spin': (np.int, 1),
-        'eradius': (np.float, 1), # electron radius (or fixed-core radius)
-        'ervel': (np.float, 1),
-        'erforce': (np.float, 1),
-        'ervelforce': (np.float, 1),
-        'cs': (np.float, 1),
-        'csforce': (np.float, 1),
-        'vforce': (np.float, 1),
+        'eradius': (np.float64, 1), # electron radius (or fixed-core radius)
+        'ervel': (np.float64, 1),
+        'erforce': (np.float64, 1),
+        'ervelforce': (np.float64, 1),
+        'cs': (np.float64, 1),
+        'csforce': (np.float64, 1),
+        'vforce': (np.float64, 1),
         'etag': (np.int),
         # USER-SPH
-        'rho': (np.float, 1), # density (need units) for SPH particles
-        'drho': (np.float, 1),
-        'e': (np.float, 1),
-        'de': (np.float, 1),
-        'cv': (np.float, 1),
-        'vest': (np.float, 3),
+        'rho': (np.float64, 1), # density (need units) for SPH particles
+        'drho': (np.float64, 1),
+        'e': (np.float64, 1),
+        'de': (np.float64, 1),
+        'cv': (np.float64, 1),
+        'vest': (np.float64, 3),
         # USER-SMD
-        'contact_radius': (np.float, 1),
-        'smd_data_9': (np.float, 3),
-        'smd_stress': (np.float, 3),
-        'eff_plastic_strain': (np.float, 1),
-        'eff_plastic_strain_rate': (np.float, 1),
-        'damage': (np.float, 1),
+        'contact_radius': (np.float64, 1),
+        'smd_data_9': (np.float64, 3),
+        'smd_stress': (np.float64, 3),
+        'eff_plastic_strain': (np.float64, 1),
+        'eff_plastic_strain_rate': (np.float64, 1),
+        'damage': (np.float64, 1),
         # USER-DPD
-        'dpdTheta': (np.float, 1),
+        'dpdTheta': (np.float64, 1),
         # USER-MESO
-        'edpd_temp': (np.float, 1)
+        'edpd_temp': (np.float64, 1)
     }
 
     def __cinit__(self, Lammps lammps, style='atomic'):
@@ -850,10 +871,11 @@ cdef class System:
         data = np.zeros((self.total, atom_style_count), dtype=atom_style_type)
         if atom_style_type == np.int:
             self._global_gather_property_ordered_int(name.encode('utf-8'), atom_style_count, data)
-        elif atom_style_type == np.float:
+        elif atom_style_type == np.float64:
             self._global_gather_property_ordered_double(name.encode('utf-8'), atom_style_count, data)
         else:
             raise TypeError('property %s type %s not recognized' % (name, atom_style_type))
+        self.lammps.check_error()
         return data
 
     def _global_gather_property_ordered_int(self, char *name, int atom_style_count, int[:, :] data):
@@ -875,12 +897,21 @@ cdef class System:
         atom_style_type, atom_style_count = self.ATOM_STYLE_PROPERTIES[name]
         if len(data) != self.total:
             raise ValueError('number of atoms must match data first dimmension')
+
+        if self.lammps._lammps.atom.map_style == 0:
+            raise ValueError('cannot set atom properties if map style is None set "atom_modify"')
+        elif self.lammps._lammps.atom.tag_enable == 0:
+            raise ValueError('tags must be enabled?')
+        elif self.lammps._lammps.atom.tag_consecutive() == 0:
+            raise ValueError('tags must be consecutive?')
+
         if atom_style_type == np.int:
             self._global_scatter_property_ordered_int(name.encode('utf-8'), atom_style_count, data)
-        elif atom_style_type == np.float:
+        elif atom_style_type == np.float64:
             self._global_scatter_property_ordered_double(name.encode('utf-8'), atom_style_count, data)
         else:
             raise TypeError('property %s type %s not recognized' % (name, atom_style_type))
+        self.lammps.check_error()
 
     def _global_scatter_property_ordered_int(self, char *name, int atom_style_count, int[:, :] data):
         lammps_scatter_atoms(self.lammps._lammps, name, 0, atom_style_count, &data[0][0])
