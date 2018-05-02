@@ -66,10 +66,13 @@ cdef extern from "atom.h" namespace "LAMMPS_NS":
           int ntypes
           double *mass
           void set_mass(const char *, int, int, double)
+          # Get atom properties
+          void* extract(char*)
           # For debugging
           int map_style
           int tag_enable
           int tag_consecutive()
+
 
 
 # Atom vector class
