@@ -53,6 +53,7 @@ def test_lammps_set_box_from_lattice_const(lmp):
     lmp.box.from_lattice_const(atom_types, lengths, angles)
     assert np.all(np.isclose(lmp.box.lengths, lengths))
     assert np.all(np.isclose(lmp.box.angles, angles))
+    assert lmp.system.total == 0
     assert len(lmp.system.atom_types) == atom_types
     assert np.isclose(lmp.box.volume, 10**3)
 

@@ -18,10 +18,9 @@ def test_system_melt(lmp_melt):
     assert len(lmp_melt.system.atom_types) == 1
     assert np.isclose(lmp_melt.system.atom_types[0].mass, 1.)
     assert lmp_melt.system.atom_types[0].index == 1
-    assert np.all(sorted(lmp_melt.system.tags) == np.arange(num_atoms)+1)
-    # charges haven't been set for system
-    assert lmp_melt.system.charges == None
-
+    assert lmp_melt.system.total == num_atoms
+    assert len(lmp_melt.system.tags) == num_atoms
+    assert np.all(lmp_melt.system.tags.reshape(-1,) == np.arange(num_atoms)+1)
     assert lmp_melt.system.positions.shape == (num_atoms, 3)
     assert lmp_melt.system.velocities.shape == (num_atoms, 3)
     assert lmp_melt.system.forces.shape == (num_atoms, 3)

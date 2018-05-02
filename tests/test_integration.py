@@ -48,7 +48,8 @@ def test_dr_xu_integration(lmp):
     velocities = np.zeros((len(atom_types), 3))
     lmp.system.create_atoms(atom_types, positions, velocities)
     assert lmp.system.total == len(atom_types)
-    assert lmp.system.local == len(atom_types)
+    assert lmp.system.local_total == len(atom_types)
+    assert np.all(lmp.system.types == 1)
     assert np.all(np.isclose(lmp.system.types, atom_types))
     assert np.all(lmp.system.tags == np.arange(len(atom_types), dtype=np.int))
     # sometimes atoms get put on other side of unit cell due to
