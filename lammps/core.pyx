@@ -831,7 +831,7 @@ cdef class System:
     def _global_scatter_property_ordered_double(self, char *name, int atom_style_count, double[:, :] data):
         lammps_scatter_atoms(self.lammps._lammps, name, 1, atom_style_count, &data[0][0])
 
-    def create_atoms(self, int[:] atom_types, double[:, :] positions not None, double[:, :] velocities=None, start_index=0):
+    def create_atoms(self, int[:] atom_types, double[:, :] positions not None, double[:, :] velocities=None, start_index=None, bool wrap_atoms=True):
         """Create atoms for LAMMPS calculation.
 
         If atoms already exist on the system you will need to change
@@ -848,16 +848,20 @@ cdef class System:
         start_index : int
             index to start atom ids
         """
+        start_index = start_index or self.total + 1
+        cdef int wrap_atoms_int = 1 if wrap_atoms else 0
         cdef int num_atoms = len(atom_types)
         cdef int[:] atom_ids = np.arange(start_index, len(atom_types) + start_index, dtype=np.intc)
-        if velocities == None:
+        if velocities is None:
             lammps_create_atoms(self.lammps._lammps, num_atoms,
                                 &atom_ids[0], &atom_types[0],
-                                &positions[0, 0], NULL, NULL, 1)
+                                &positions[0, 0], NULL,
+                                NULL, wrap_atoms_int)
         else:
             lammps_create_atoms(self.lammps._lammps, num_atoms,
                                 &atom_ids[0], &atom_types[0],
-                                &positions[0, 0], &velocities[0, 0], NULL, 1)
+                                &positions[0, 0], &velocities[0, 0],
+                                NULL, wrap_atoms_int)
 
 
 
@@ -897,7 +901,7 @@ cdef class Box:
         This functions needs more thought. It does too much but within
         the LAMMPS C++ function calls I can't see a nice way to do it.
         """
-        if angles == None:
+        if angles is None:
             angles = [pi/2., pi/2., pi/2.]
 
         (lx, ly, lz), (xy, xz, yz) = lattice_const_to_lammps_box(lengths, angles)
