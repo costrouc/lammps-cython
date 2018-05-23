@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 from setuptools.extension import Extension
 # To use a consistent encoding
 from codecs import open
-from os import path
+from os
 
 # https://stackoverflow.com/questions/2379898/make-distutils-look-for-numpy-header-files-in-the-correct-place
 try:
@@ -43,6 +43,12 @@ class build_ext(_build_ext):
         import os
         print(os.environ['PREFIX'])
         print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
+
+        # Check if in conda environment
+        if 'PREFIX' in os.environ:
+            prefix_dir = os.environ['PREFIX']
+            self.include_dirs.append(os.path.join(prefix_dir, 'include'))
+            self.library_dirs.append(os.path.join(prefix_dir, 'lib'))
 
         # Add mpi4py, numpy, and custom headers to include_dirs
         self.include_dirs.extend([
