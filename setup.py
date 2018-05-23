@@ -40,20 +40,16 @@ class build_ext(_build_ext):
         # Add mpi4py, numpy, and custom headers to include_dirs
         self.include_dirs.extend([
             numpy.get_include(),
-            mpi4py.get_include(),
-            *config_to_list('lammps', 'lammps_include_dir'),
-            *config_to_list('mpi', 'mpi_include_dir')
+            mpi4py.get_include()
         ])
+        self.include_dirs.extend(config_to_list('lammps', 'lammps_include_dir'))
+        self.include_dirs.extend(config_to_list('mpi', 'mpi_include_dir'))
 
-        self.library_dirs.extend([
-            *config_to_list('lammps', 'lammps_library_dir'),
-            *config_to_list('mpi', 'mpi_library_dir')
-        ])
+        self.library_dirs.extend(config_to_list('lammps', 'lammps_library_dir'))
+        self.library_dirs.extend(config_to_list('mpi', 'mpi_library_dir'))
 
-        self.libraries.extend([
-            *config_to_list('lammps', 'lammps_library'),
-            *config_to_list('mpi', 'mpi_library')
-        ])
+        self.libraries.extend(config_to_list('lammps', 'lammps_library'))
+        self.libraries.extend(config_to_list('mpi', 'mpi_library'))
 
         # Call original build_ext command
         _build_ext.run(self)
