@@ -9,7 +9,7 @@ lammps_library = lammps
 [mpi]
 mpi_include_dir = $PREFIX/include
 mpi_library_dir = $PREFIX/lib
-mpi_library = mpi, mpi_cxx
+mpi_library = mpi
 
 EOF
 
