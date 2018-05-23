@@ -1,2 +1,2 @@
-python -c 'import lammps'
-python -c 'import lammps.core'
+$PYTHON -c 'import lammps'
+$PYTHON -c 'import lammps.core'
