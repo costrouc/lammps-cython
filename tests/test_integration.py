@@ -45,13 +45,12 @@ def test_dr_xu_integration(lmp):
     # Create atoms (tag, type, positions, velocities)
     assert lmp.system.total == 0
     atom_types = np.array([symbol_indicies[symbol] for symbol in symbols], dtype=np.int32)
-    velocities = np.zeros((len(atom_types), 3))
+    velocities = np.random.random((len(atom_types), 3))
     lmp.system.create_atoms(atom_types, positions, velocities)
     assert lmp.system.total == len(atom_types)
     assert lmp.system.local_total == len(atom_types)
-    assert np.all(lmp.system.types == 1)
-    assert np.all(np.isclose(lmp.system.types, atom_types))
-    assert np.all(lmp.system.tags == np.arange(len(atom_types), dtype=np.int))
+    assert np.all(lmp.system.tags.ravel() == np.arange(len(atom_types), dtype=np.int)+1)
+    assert np.all(lmp.system.types.ravel() == atom_types)
     # sometimes atoms get put on other side of unit cell due to
     # periodic conditions. Mod by number close to unit cell length
     assert np.all(np.isclose(np.mod(lmp.system.positions, 4.2 - 1e-8), positions))
