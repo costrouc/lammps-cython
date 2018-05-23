@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 from setuptools.extension import Extension
 # To use a consistent encoding
 from codecs import open
-from os
+from os import path
 
 # https://stackoverflow.com/questions/2379898/make-distutils-look-for-numpy-header-files-in-the-correct-place
 try:
@@ -40,7 +40,6 @@ class build_ext(_build_ext):
         print('-================')
         print(numpy.get_include())
         print(mpi4py.get_include())
-        import os
         print(os.environ['PREFIX'])
         print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
 
