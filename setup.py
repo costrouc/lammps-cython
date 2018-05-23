@@ -40,6 +40,8 @@ class build_ext(_build_ext):
         print('-================')
         print(numpy.get_include())
         print(mpi4py.get_include())
+        import os
+        print(os.environ['PREFIX'])
         print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
 
         # Add mpi4py, numpy, and custom headers to include_dirs
