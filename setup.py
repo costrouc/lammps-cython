@@ -37,6 +37,11 @@ class build_ext(_build_ext):
         def config_to_list(key1, key2):
             return [s.strip() for s in lammps_config.get(key1, key2).split(',')]
 
+        print('-================')
+        print(numpy.get_include())
+        print(mpi4py.get_include())
+        print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
+
         # Add mpi4py, numpy, and custom headers to include_dirs
         self.include_dirs.extend([
             numpy.get_include(),
