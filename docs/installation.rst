@@ -21,7 +21,9 @@ binary. Everything you need to start experimenting with the package.
 Conda
 -----
 
-**Does Not Work Yet**
+Right now there are only prebuilt conda packages for linux (python3.5,
+python3.6). Creating conda packages for OSX is possible and will be
+done if requested.
 
 `Conda <https://github.com/conda/conda>`_ is an OS agnostic package
 manager. It is developed by `contiuum analytics
@@ -32,7 +34,7 @@ codes. Once you have conda installed it will be as simple as
 
 .. code-block:: bash
 
-   conda install lammps-cython
+   conda install -c costrouc -c conda-forge lammps-cython
 
 Pip
 ---

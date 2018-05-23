@@ -17,6 +17,10 @@ developed.
   <td><img src="https://img.shields.io/pypi/v/lammps-cython.svg" alt="latest release"/></td>
 </tr>
 <tr>
+  <td></td>
+  <td><img src="https://anaconda.org/costrouc/lammps-cython/badges/version.svg" alt="latest release" /></td>
+</tr>
+<tr>
   <td>Package Status</td>
   <td><img src="https://img.shields.io/pypi/status/lammps-cython.svg" alt="status" /></td>
 </tr>
@@ -61,15 +65,19 @@ Lammps(args=sys.args)
 
 `lammps-cython` has several options for installation. The easiest way
 is using the provided docker containter image
-[costrouc/lammps-cython](https://hub.docker.com/r/costrouc/lammps-cython/). There
-are plans to support conda and pip wheels. However currently other
+[costrouc/lammps-cython](https://hub.docker.com/r/costrouc/lammps-cython/)
+or `conda install`.There is no plan to support pip wheels. Other
 methods require manual installation of lammps. Detailed installation
 are provieded in the
 [documentation](https://costrouc.gitlab.io/lammps-cython/installation.html). If
 you have any issues with installation be submit an issue at the
 [gitlab repository](https://gitlab.com/costrouc/lammps-cython/).
 
-The general path to installation is install [LAMMPS as a shared
+ - conda: `conda install -c costrouc -c conda-forge lammps-cython`
+ - docker: `docker pull costrouc/lammps-cython:latest`
+
+Otherwise the general path to installation is install [LAMMPS as a
+shared
 library](http://lammps.sandia.gov/doc/Section_start.html#start-4) then
 edit `~/.config/lammps-site.cfg` to include the paths of necissary
 libraries. See example below.
@@ -90,6 +98,14 @@ mpi_library     = mpi
 ```
 
 Then `pip install lammps-cython` should just work.
+
+## Conda Image
+
+The conda image is built only for linux and python versions (3.5,
+3.6). There is no plan to support Windows due to `MPI` being a
+dependency. However, if OSX is needed please raise an issue. 
+
+`conda install -c costrouc -c conda-forge lammps-cython`
 
 ## Docker Image
 
