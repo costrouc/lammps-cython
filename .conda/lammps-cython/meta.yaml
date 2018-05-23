@@ -18,6 +18,7 @@ requirements:
     - python
     - cython
     - setuptools >=38.6.0
+    - configparser
     - pytest-runner
     - lammps
     - numpy
