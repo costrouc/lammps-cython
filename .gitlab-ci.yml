@@ -64,10 +64,6 @@ deploy_lammps-cython_conda_py36:
   variables:
     PYTHON_VERSION: "3.6"
 
-deploy_lammps-cython_conda_py37:
-  <<: *deploy_lammps-cython_conda_definition
-  variables:
-    PYTHON_VERSION: "3.7"
 
 deploy_docker:
   image: docker:git
