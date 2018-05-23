@@ -1,0 +1,56 @@
+{% set build = 0 %}
+{% set version = 'v0.3.7' %}
+{% set mpi = os.environ.get('MPI_VARIANT', 'mpich') %}
+{% set mpi_version = {'mpich': '3.2.*', 'openmpi': '3.0.*'}[mpi] %}
+
+package:
+  name: lammps-cython
+  version: {{ version }}
+
+source:
+  git_url: ../../
+  # fn: lammps-cython-{{ version }}.tar.gz
+  # url: https://gitlab.com/costrouc/lammps-cython/-/archive/{{ version }}/lammps-cython-{{ version }}.tar.gz
+  # sha256: {{ sha256 }}
+
+requirements:
+  build:
+    - python
+    - cython
+    - setuptools >=38.6.0
+    - pytest-runner
+    - lammps
+    - numpy
+    - mpi4py
+    - {{ mpi }} {{ mpi_version }} # [unix]
+  run:
+    - python
+    - lammps
+    - numpy
+    - mpi4py
+    - {{ mpi }} {{ mpi_version }} # [unix]
+
+test: {}
+
+about:
+  home: https://costrouc.gitlab.io/lammps-cython/
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE
+  summary: Python Wrapper for LAMMPS
+  description: |
+    A high-performance cython wrapper around LAMMPS. Lammps is a great
+    molecular dynamics package that has an unmatched set of potentials
+    and fixes. This package offers unique features such as minimizing
+    I/O by allowing direct access to thermostats and atom properties
+    and allowing interactive lammps within python interpreters such a
+    ipython.  The goal of this project is to put an opinionated
+    wrapper around LAMMPS (the good parts) and allow the user to
+    easily extend it's functionality in python. The api should feel
+    very similar to HOOMD and is being actively developed.
+  doc_url: https://costrouc.gitlab.io/lammps-cython/
+  dev_url: https://gitlab.com/costrouc/lammps-cython
+
+extra:
+  recipe-maintainers:
+    - costrouc

@@ -1,0 +1,49 @@
+{% set build = 0 %}
+{% set version = 'stable_16Mar2018' %}
+{% set sha256 = '03f91d69f472c37a4008611dee13fad91b6bedc66dbf0393416cdacc751b57ff' %}
+{% set mpi = os.environ.get('MPI_VARIANT', 'mpich') %}
+{% set mpi_version = {'mpich': '3.2.*', 'openmpi': '3.0.*'}[mpi] %}
+{% set openblas_version = '0.2.20|0.2.20*' %}
+
+package:
+  name: lammps
+  version: {{ version }}
+
+source:
+  fn: lammps-{{ version }}.tar.gz
+  url: https://github.com/lammps/lammps/archive/{{ version }}.tar.gz
+  sha256: {{ sha256 }}
+
+requirements:
+  build:
+    - gcc             # [osx]
+    - {{ mpi }} {{ mpi_version }} # [unix]
+    - openblas {{ openblas_version }}
+    - fftw
+    - zlib
+  run:
+    - {{ mpi }} {{ mpi_version }} # [unix]
+    - openblas {{ openblas_version }}
+    - fftw
+    - zlib
+
+test: {}
+
+about:
+  home: http://lammps.sandia.gov
+  license: GPL-2.0
+  license_family: GPL
+  license_file: LICENSE
+  summary: 'LAMMPS stands for Large-scale Atomic/Molecular Massively Parallel Simulator.'
+  description: |
+    LAMMPS is a classical molecular dynamics simulation code designed to
+    run efficiently on parallel computers.  It was developed at Sandia
+    National Laboratories, a US Department of Energy facility, with
+    funding from the DOE.  It is an open-source code, distributed freely
+    under the terms of the GNU Public License (GPL).
+  doc_url: http://lammps.sandia.gov/doc/Manual.html
+  dev_url: https://github.com/lammps/lammps
+
+extra:
+  recipe-maintainers:
+    - costrouc
