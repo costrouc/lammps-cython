@@ -31,14 +31,28 @@ deploy_pypi:
     - pip3 install -U cython numpy mpi4py twine setuptools
     - pip3 install .
     - python3.5 setup.py build_ext
-    - python3.5 setup.py sdist bdist_wheel
+    - python3.5 setup.py sdist
     - twine upload dist/*.tar.gz
-    # for now not including wheel becuase
-    # "an unsupported platform tag 'linux_x86_64'"
-    # - twine upload dist/*.whl
   only:
     - /^v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant version (tags)
 
+deploy_lammps_conda:
+  image: continuumio/miniconda:latest
+  stage: deploy
+  script:
+    - apt update; apt install build-essential
+    - conda create -n py36 python=3.6 conda-build anaconda-client -y
+    - conda activate py36
+    - conda build -c conda-forge --user $ANACONDA_USERNAME --token $ANACONDA_TOKEN .conda/lammps
+
+deploy_lammps-cython_conda:
+  image: continuumio/miniconda:latest
+  stage: deploy
+  script:
+    - apt update; apt install build-essential
+    - conda create -n py36 python=3.6 conda-build anaconda-client -y
+    - conda activate py36
+    - conda build -c costrouc -c conda-forge --user $ANACONDA_USERNAME --token $ANACONDA_TOKEN .conda/lammps-cython
 
 deploy_docker:
   image: docker:git
