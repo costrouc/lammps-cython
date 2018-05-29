@@ -38,6 +38,10 @@ developed.
 src="https://gitlab.com/costrouc/lammps-cython/badges/master/pipeline.svg"
 alt="gitlab pipeline status" /> </a> </td>
 </tr>
+<tr>
+  <td>Binder Notebooks</td>
+  <td><a href="http://mybinder.org/v2/gh/costrouc/lammps-cython-notebooks/master?filepath=notebooks/basic.ipynb"><img src="https://mybinder.org/badge.svg" alt="binder notebooks"/></a></td>
+</tr>
 </table>
 
 
