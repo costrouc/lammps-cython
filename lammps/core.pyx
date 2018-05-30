@@ -26,6 +26,7 @@ from libcpp cimport bool
 from mpi4py import MPI
 import numpy as np
 from math import pi
+import warnings
 
 
 class LammpsDataTypes:
@@ -735,9 +736,13 @@ cdef class System:
 ..      note::
 
         Reseting the atom positions is dangerous since it remaps the
-        atoms to processors. Use create_atoms instead.
+        atoms to processors. I HIGHLY recommend create_atoms instead.
         """
         return self.global_gather_property_ordered('x')
+
+    @positions.setter
+    def positions(self, double[:, :] values):
+        self.global_scatter_property_ordered('x', values)
 
     @property
     def velocities(self):
@@ -798,13 +803,15 @@ cdef class System:
 
         Available properties are in :var:`System.ATOM_STYLE_PROPERTIES`
 
-        DO NOT set atom positions with this method. It will result in lost atoms instead use create_atoms
-         - https://sourceforge.net/p/lammps/mailman/message/35842978/
+        I HIGHLY recommend to not set atom positions with this
+        method. It will result in lost atoms instead use create_atoms
+        if not used properly
+        - https://sourceforge.net/p/lammps/mailman/message/35842978/
         """
         if name not in self.ATOM_STYLE_PROPERTIES:
             raise ValueError('atom system property %s does not exist' % name)
         elif name == 'x':
-            raise ValueError('atom positions should not be set using scatter since atoms may change processor ownership. use system.create_atoms instead')
+            warnings.warn('setting atom positions using scatter may change processor ownership this can easily lead to lost atoms')
 
         atom_style_type, atom_style_count = self.ATOM_STYLE_PROPERTIES[name]
         if len(data) != self.total:
