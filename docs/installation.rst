@@ -111,6 +111,17 @@ package by typing ``make yes-<package>``. To deactivate a package type
 package this can be installed via ``make yes-manybody``. Note that
 some of the packages require additional complex dependencies.
 
+To install an near exhaustive list of lammps packages use the
+following.
+
+.. code-block:: bash
+
+   export LAMMPS_PACKAGES="asphere body class2 colloid compress coreshell dipole granular kspace manybody mc misc molecule opt peri qeq replica rigid shock snap srd user-reaxc"
+   for pack in $LAMMPS_PACKAGES; do make "yes-$pack"; done
+
+After you have installed the packages that you would like included in
+the LAMMPS shared library, compile the source code.
+
 .. code-block:: bash
 
    make mode=shlib mpi -j4 LMP_INC="-DLAMMPS_EXCEPTIONS -DLAMMPS_GZIP -DLAMMPS_MEMALIGN=64"
