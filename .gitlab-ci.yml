@@ -12,7 +12,7 @@ stages:
   - docs
 
 test:
-  image: costrouc/lammps:stable_16Mar2018-debian-mpi-none
+  image: costrouc/lammps:patch_11May2018-debian-mpi-none
   stage: test
   script:
     - apt update; apt install python3.5 python3-pip -y
@@ -24,7 +24,7 @@ test:
 
 
 deploy_pypi:
-  image: costrouc/lammps:stable_16Mar2018-debian-mpi-none
+  image: costrouc/lammps:patch_11May2018-debian-mpi-none
   stage: deploy
   script:
     - apt update; apt install python3.5 python3-pip -y
@@ -93,7 +93,7 @@ deploy_docker:
 
 
 pages:
-  image: costrouc/lammps:stable_16Mar2018-debian-mpi-none
+  image: costrouc/lammps:patch_11May2018-debian-mpi-none
   stage: docs
   script:
     - apt update; apt install python3.5 python3-pip -y

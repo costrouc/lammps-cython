@@ -801,6 +801,8 @@ cdef class System:
     def global_gather_property_unordered(self, str name):
         """Gather globally system property to single processor. Data is not sorted.
 
+        You can gather atom ``id`` beforehand to get order of atoms.
+
         Available properties are in :var:`System.ATOM_STYLE_PROPERTIES`
         """
         if name not in self.ATOM_STYLE_PROPERTIES:
