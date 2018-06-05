@@ -94,6 +94,11 @@ are smaller, download faster, and are easier to find. Replace
 for downloading the archive from the terminal but there are of course
 other ways.
 
+.. attention::
+
+   The minimum version of LAMMPS required is greater than March
+   23rd 2018. This is due to several new library methods added.
+
 .. code-block:: bash
 
    wget https://github.com/lammps/lammps/archive/<version>.tar.gz
