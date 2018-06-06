@@ -775,6 +775,11 @@ cdef class System:
         """Gather globally system property to single processor. Sorted by atom id.
 
         Available properties are in :var:`System.ATOM_STYLE_PROPERTIES`
+
+        Parameters
+        ----------
+        name : str
+            atom property name to gather
         """
         if name not in self.ATOM_STYLE_PROPERTIES:
             raise ValueError('atom system property %s does not exist' % name)
@@ -804,6 +809,11 @@ cdef class System:
         You can gather atom ``id`` beforehand to get order of atoms.
 
         Available properties are in :var:`System.ATOM_STYLE_PROPERTIES`
+
+        Parameters
+        ----------
+        name : str
+            atom property name to gather
         """
         if name not in self.ATOM_STYLE_PROPERTIES:
             raise ValueError('atom system property %s does not exist' % name)
@@ -826,6 +836,43 @@ cdef class System:
 
     def _global_gather_property_unordered_double(self, char *name, int atom_style_count, double[:, :] data):
         lammps_gather_atoms_concat(self.lammps._lammps, name, 1, atom_style_count, &data[0][0])
+
+    def global_gather_property_subset(self, str name, int[:] atom_ids):
+        """Gather subset of atom properties in the system.
+
+        Available properties are in :var:`System.ATOM_STYLE_PROPERTIES`
+
+        Parameters
+        ----------
+        name : str
+            atom property name to gather
+        atom_ids : list[int], np.ndarray
+            atom ids to get properties from
+        """
+        if name not in self.ATOM_STYLE_PROPERTIES:
+            raise ValueError('atom system property %s does not exist' % name)
+        atom_style_type, atom_style_count = self.ATOM_STYLE_PROPERTIES[name]
+
+        cdef int num_atom_ids = len(atom_ids)
+        data = np.zeros((num_atom_ids, atom_style_count), dtype=atom_style_type)
+        if num_atom_ids == 0: # if no atoms just return empty array
+            return data
+
+        if atom_style_type == np.intc:
+            self._global_gather_property_subset_int(name.encode('utf-8'), atom_style_count, num_atom_ids, atom_ids, data)
+        elif atom_style_type == np.float64:
+            self._global_gather_property_subset_double(name.encode('utf-8'), atom_style_count, num_atom_ids, atom_ids, data)
+        else:
+            raise TypeError('property %s type %s not recognized' % (name, atom_style_type))
+        self.lammps.check_error()
+        return data
+
+    def _global_gather_property_subset_int(self, char *name, int atom_style_count, int num_atom_ids, int[:] atom_ids, int[:, :] data):
+        cdef int atom_
+        lammps_gather_atoms_subset(self.lammps._lammps, name, 0, atom_style_count, num_atom_ids, &atom_ids[0], &data[0][0])
+
+    def _global_gather_property_subset_double(self, char *name, int atom_style_count, int num_atom_ids, int[:] atom_ids, double[:, :] data):
+        lammps_gather_atoms_subset(self.lammps._lammps, name, 1, atom_style_count, num_atom_ids, &atom_ids[0], &data[0][0])
 
     def global_scatter_property_ordered(self, str name, data):
         """Scatter globally system property to all processors. Sorted by atom id.
