@@ -893,6 +893,7 @@ cdef class System:
         if len(data) != self.total:
             raise ValueError('number of atoms must match data first dimmension')
 
+        # These are conditions that must be met for scatter
         if self.lammps._lammps.atom.map_style == 0:
             raise ValueError('cannot set atom properties if map style is None set "atom_modify"')
         elif self.lammps._lammps.atom.tag_enable == 0:
@@ -913,6 +914,51 @@ cdef class System:
 
     def _global_scatter_property_ordered_double(self, char *name, int atom_style_count, double[:, :] data):
         lammps_scatter_atoms(self.lammps._lammps, name, 1, atom_style_count, &data[0][0])
+
+    def global_scatter_property_subset(self, str name, int[:] atom_ids, data):
+        """Scatter globally system property for subset of atoms to all
+        processors.
+
+        Available properties are in :var:`System.ATOM_STYLE_PROPERTIES`
+
+        I HIGHLY recommend to not set atom positions with this
+        method. It will result in lost atoms instead use create_atoms
+        if not used properly
+        - https://sourceforge.net/p/lammps/mailman/message/35842978/
+
+
+        """
+        if name not in self.ATOM_STYLE_PROPERTIES:
+            raise ValueError('atom system property %s does not exist' % name)
+        elif name == 'x':
+            warnings.warn('setting atom positions using scatter may change processor ownership this can easily lead to lost atoms')
+
+        atom_style_type, atom_style_count = self.ATOM_STYLE_PROPERTIES[name]
+        cdef int num_atom_ids = len(atom_ids)
+        if len(data) != num_atom_ids:
+            raise ValueError('number of atoms must match data first dimmension')
+
+        # These are conditions that must be met for scatter
+        if self.lammps._lammps.atom.map_style == 0:
+            raise ValueError('cannot set atom properties if map style is None set "atom_modify"')
+        elif self.lammps._lammps.atom.tag_enable == 0:
+            raise ValueError('tags must be enabled?')
+        elif self.lammps._lammps.atom.tag_consecutive() == 0:
+            raise ValueError('tags must be consecutive?')
+
+        if atom_style_type == np.intc:
+            self._global_scatter_property_subset_int(name.encode('utf-8'), atom_style_count, num_atom_ids, atom_ids, data)
+        elif atom_style_type == np.float64:
+            self._global_scatter_property_subset_double(name.encode('utf-8'), atom_style_count, num_atom_ids, atom_ids, data)
+        else:
+            raise TypeError('property %s type %s not recognized' % (name, atom_style_type))
+        self.lammps.check_error()
+
+    def _global_scatter_property_subset_int(self, char *name, int atom_style_count, int num_atom_ids, int[:] atom_ids, int[:, :] data):
+        lammps_scatter_atoms_subset(self.lammps._lammps, name, 0, atom_style_count, num_atom_ids, &atom_ids[0], &data[0][0])
+
+    def _global_scatter_property_subset_double(self, char *name, int atom_style_count, int num_atom_ids, int[:] atom_ids, double[:, :] data):
+        lammps_scatter_atoms_subset(self.lammps._lammps, name, 1, atom_style_count, num_atom_ids, &atom_ids[0], &data[0][0])
 
     def create_atoms(self, int[:] atom_types, double[:, :] positions not None, double[:, :] velocities=None, start_index=None, bool wrap_atoms=True):
         """Create atoms for LAMMPS calculation.
