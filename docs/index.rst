@@ -26,7 +26,7 @@ interactive notebooks provided by binder. They only require a web
 browser.
 
 .. image:: https://mybinder.org/badge.svg
-   :target: http://mybinder.org/v2/gh/costrouc/lammps-cython-notebooks/master?filepath=notebooks/basic.ipynb
+   :target: http://mybinder.org/v2/gh/costrouc/lammps-cython-notebooks/master?urlpath=lab/tree/notebooks/basic.ipynb
 
 .. code-block:: python
 

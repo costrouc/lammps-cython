@@ -6,7 +6,7 @@ interactive notebooks provided by binder. They only require a web
 browser and have full demonstrations of ``lammps-cython``.
 
 .. image:: https://mybinder.org/badge.svg
-   :target: http://mybinder.org/v2/gh/costrouc/lammps-cython-notebooks/master?filepath=notebooks/basic.ipynb
+   :target: http://mybinder.org/v2/gh/costrouc/lammps-cython-notebooks/master?urlpath=lab/tree/notebooks/basic.ipynb
 
 I will get a nice document written up soon! But the notebooks should
 be a nearly full demonstration of what is possible and I am putting
