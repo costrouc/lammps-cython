@@ -15,3 +15,6 @@ the most effort there for now.
 In these notebooks there are some important files.
   - benchmarks are provided for many of the functions that may take some time.
   - basic show how to use the basic features of lammps-cython
+
+The benchmarks are especially helpful as they show what the expected
+performance impact will be of using ``lammps-cython``.
