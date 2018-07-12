@@ -25,7 +25,7 @@ from libcpp cimport bool
 # Import Python-level symbols
 from mpi4py import MPI
 import numpy as np
-from math import pi
+from math import pi, radians
 import warnings
 
 
@@ -1008,7 +1008,7 @@ cdef class Box:
         """ Docstring in Box base class (sphinx can find doc when compiled) """
         self.lammps = lammps
 
-    def from_lattice_const(self, atom_types, lengths, angles=None, region_id='lammps-box'):
+    def from_lattice_const(self, atom_types, lengths, angles=None, origin=(0, 0, 0), region_id='lammps-box'):
         """ Create Unit cell (can only be run once)
 
         Parameters
@@ -1022,6 +1022,11 @@ cdef class Box:
         region_id : str
             name of region for lammps simulation. default 'lammps-box'
 
+        Returns
+        -------
+        rotation_matrix, origin: tuple
+            necissary matricies to be used with ``transform_cartesian_vector_to_lammps_vector`` to transform all atom positions, velocities appropriately. If unit cell is orthogonal then you may only need to apply the origin shift.
+
         Essentially runs:
         region region-id prism xlo xhi ylo yhi zlo zhi xy xz yz
         create_box N region-ID keyword value ...
@@ -1029,20 +1034,22 @@ cdef class Box:
 ..      todo::
         This functions needs more thought. It does too much but within
         the LAMMPS C++ function calls I can't see a nice way to do it.
+
         """
         if angles is None:
             angles = [pi/2., pi/2., pi/2.]
 
-        (lx, ly, lz), (xy, xz, yz) = lattice_const_to_lammps_box(lengths, angles)
+        ((xlo, xhi), (ylo, yhi), (zlo, zhi)), (xy, xz, yz), rotation_matrix = lattice_const_to_lammps_box(lengths, angles, origin)
         self.lammps.command((
-            "region {} prism 0.0 {} 0.0 {} 0.0 {} {} {} {}"
-        ).format(region_id, lx, ly, lz, xy, xz, yz))
+            "region {} prism {} {} {} {} {} {} {} {} {}"
+        ).format(region_id, xlo, xhi, ylo, yhi, zlo, zhi, xy, xz, yz))
 
         self.lammps.command((
             "create_box {} {}"
         ).format(atom_types, region_id))
+        return rotation_matrix, origin
 
-    def update_lattice_const(self, lengths, angles=None):
+    def update_lattice_const(self, lengths, angles=None, origin=(0, 0, 0)):
         """Update Unit cell
 
         Parameters
@@ -1057,15 +1064,23 @@ cdef class Box:
 
 .. warning::
 
-        This does not update the atom coordinates. This means that they can easily be lost!
+        This does not update the atom coordinates. This means that
+        they can easily be lost!
+
+        Returns
+        -------
+        rotation_matrix, origin: tuple
+            necissary matricies to be used with ``transform_cartesian_vector_to_lammps_vector`` to transform all atom positions, velocities appropriately. If unit cell is orthogonal then you may only need to apply the origin shift.
+
         """
         if angles == None:
             angles = [pi/2., pi/2., pi/2.]
 
-        (lx, ly, lz), (xy, xz, yz) = lattice_const_to_lammps_box(lengths, angles)
-        cdef double* boxlo = [0., 0., 0.]
-        cdef double* boxhi = [lx, ly, lz]
+        ((xlo, xhi), (ylo, yhi), (zlo, zhi)), (xy, xz, yz), rotation_matrix = lattice_const_to_lammps_box(lengths, angles, origin)
+        cdef double* boxlo = [xlo, ylo, zlo]
+        cdef double* boxhi = [xhi, yhi, zhi]
         lammps_reset_box(self.lammps._lammps, boxlo, boxhi, xy, xz, yz)
+        return rotation_matrix, origin
 
     @property
     def dimension(self):
@@ -1073,8 +1088,8 @@ cdef class Box:
         return self.lammps._lammps.domain.dimension
 
     @property
-    def lohi(self):
-        """ LAMMPS box description of boxhi and boxlo
+    def bounds(self):
+        """ LAMMPS box description of boxhi and boxlo bounds
 
         Additional documentation can be found at `lammps
         <http://lammps.sandia.gov/doc/Section_howto.html?highlight=prism#howto-12>`_. For
@@ -1083,14 +1098,19 @@ cdef class Box:
 ..      code-block:: python
 
         lohi = np.array([
-            [0.0, 0.0, 0.0],
-            [10.0, 10.0, 10.0]
+            [0.0, 10.0],
+            [0.0, 10.0],
+            [0.0, 10.0],
         ])
         """
         cdef int dim = self.dimension
         cdef double[::1] boxlo = <double[:dim]>self.lammps._lammps.domain.boxlo
         cdef double[::1] boxhi = <double[:dim]>self.lammps._lammps.domain.boxhi
-        return np.array([boxlo, boxhi])
+        return np.array([
+            [boxlo[0], boxhi[0]],
+            [boxlo[1], boxhi[1]],
+            [boxlo[2], boxhi[2]]
+        ])
 
     @property
     def tilts(self):
@@ -1111,7 +1131,7 @@ cdef class Box:
         cdef double xy = self.lammps._lammps.domain.xy
         cdef double xz = self.lammps._lammps.domain.xz
         cdef double yz = self.lammps._lammps.domain.yz
-        return np.array([xy, xz, yz])
+        return (xy, xz, yz)
 
     @property
     def lengths_angles(self):
@@ -1124,13 +1144,24 @@ cdef class Box:
         cdef int dim = self.dimension
         cdef double[::1] boxlo = <double[:dim]>self.lammps._lammps.domain.boxlo
         cdef double[::1] boxhi = <double[:dim]>self.lammps._lammps.domain.boxhi
-        cdef double lx = boxhi[0] - boxlo[0]
-        cdef double ly = boxhi[1] - boxlo[1]
-        cdef double lz = boxhi[2] - boxlo[2]
+        cdef double xlo = boxlo[0]
+        cdef double ylo = boxlo[1]
+        cdef double zlo = boxlo[2]
+        cdef double xhi = boxhi[0]
+        cdef double yhi = boxhi[1]
+        cdef double zhi = boxhi[2]
         cdef double xy = self.lammps._lammps.domain.xy
         cdef double xz = self.lammps._lammps.domain.xz
         cdef double yz = self.lammps._lammps.domain.yz
-        return lammps_box_to_lattice_const((lx, ly, lz), (xy, xz, yz))
+
+        lengths, angles, origin = lammps_box_to_lattice_const([[xlo, xhi], [ylo, yhi], [zlo, zhi]], (xy, xz, yz))
+        return lengths, angles
+
+    @property
+    def origin(self):
+        cdef int dim = self.dimension
+        cdef double[::1] boxlo = <double[:dim]>self.lammps._lammps.domain.boxlo
+        return tuple(boxlo)
 
     @property
     def lengths(self):
@@ -1154,7 +1185,7 @@ cdef class Box:
             return vol * self.lammps._lammps.domain.zprd
 
 
-def lattice_const_to_lammps_box(lengths, angles):
+def lattice_const_to_lammps_box(lengths, angles, origin=(0, 0, 0)):
     """ Converts lattice constants to lammps box coorinates(angles in radians)
 
 ..  math::
@@ -1167,18 +1198,41 @@ def lattice_const_to_lammps_box(lengths, angles):
     yz &= \frac{b c \cos{\alpha} - xy xz}{ly}
     """
     a, b, c = lengths
-    alpha, beta, gamma = angles
-    cdef lx = a
-    cdef xy = b * cos(gamma)
-    cdef xz = c * cos(beta)
-    cdef ly = sqrt(b**2 - xy**2)
-    cdef yz = (b*c*cos(alpha) - xy*xz)/ly
-    cdef lz = sqrt(c**2 - xz**2 - yz**2)
-    return (lx, ly, lz), (xy, xz, yz)
+    xlo, ylo, zlo = origin
+    xhi = a + xlo
+    m = lengths_angles_to_matrix(*lengths, *angles)
+    xy = np.dot(m[1], m[0] / a)
+    yhi = np.sqrt(b ** 2 - xy ** 2) + ylo
+    xz = np.dot(m[2], m[0] / a)
+    yz = (np.dot(m[1], m[2]) - xy * xz) / (yhi - ylo)
+    zhi = np.sqrt(c ** 2 - xz ** 2 - yz ** 2) + zlo
+    tilt = [xy, xz, yz]
+    rotation_matrix = np.linalg.solve([[xhi - xlo, 0, 0],
+                                       [xy, yhi - ylo, 0],
+                                       [xz, yz, zhi - zlo]], m)
+    bounds = [[xlo, xhi], [ylo, yhi], [zlo, zhi]]
+    return bounds, tilt, rotation_matrix
 
 
-def lammps_box_to_lattice_const(lengths, tilts):
-    """ Converts lammps box coordinates to lattice constants
+def transform_cartesian_vector_to_lammps_vector(points, rotation_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1)), origin=(0, 0, 0)):
+    rotation_matrix = np.array(rotation_matrix)
+    translation_vec = np.array(origin)
+    points = np.array(points)
+    if rotation_matrix.shape != (3, 3):
+        raise ValueError("Rotation Matrix must be a 3x3 numpy array.")
+    if translation_vec.shape != (3,):
+        raise ValueError("Translation vector must be a rank 1 numpy array "
+                         "with 3 elements.")
+    affine_matrix = np.eye(4)
+    affine_matrix[0:3][:, 0:3] = rotation_matrix
+    affine_matrix[0:3][:, 3] = translation_vec
+    affine_points = np.concatenate(
+            [points, np.ones(points.shape[:-1] + (1,))], axis=-1)
+    return np.inner(affine_points, affine_matrix)[..., :-1]
+
+
+def lammps_box_to_lattice_const(bounds, tilts):
+    """ Converts lammps box coordinates to lattice constants and origin
 
 ..  math::
 
@@ -1189,7 +1243,8 @@ def lammps_box_to_lattice_const(lengths, tilts):
     \cos{\beta} &= \frac{xz}{c} \\
     \cos{\gamma} &= \frac{xy}{b}
     """
-    lx, ly, lz = lengths
+    (xlo, xhi), (ylo, yhi), (zlo, zhi) = bounds
+    lx, ly, lz = xhi-xlo, yhi-ylo, zhi-zlo
     xy, xz, yz = tilts
     cdef double a = lx
     cdef double b = sqrt(ly**2 + xy**2)
@@ -1197,7 +1252,53 @@ def lammps_box_to_lattice_const(lengths, tilts):
     cdef double alpha = acos((xy*xz + ly*yz) / (b*c))
     cdef double beta = acos(xz / c)
     cdef double gamma = acos(xy / b)
-    return (a, b, c), (alpha, beta, gamma)
+    return (a, b, c), (alpha, beta, gamma), (xlo, ylo, zlo)
+
+
+def abs_cap(val, max_abs_val=1):
+    """
+    Returns the value with its absolute value capped at max_abs_val.
+    Particularly useful in passing values to trignometric functions where
+    numerical errors may result in an argument > 1 being passed in.
+
+    Args:
+        val (float): Input value.
+        max_abs_val (float): The maximum absolute value for val. Defaults to 1.
+
+    Returns:
+        val if abs(val) < 1 else sign of val * max_abs_val.
+    """
+    return max(min(val, max_abs_val), -max_abs_val)
+
+
+def lengths_angles_to_matrix(a, b, c, alpha, beta, gamma):
+    """
+    Create a Lattice using unit cell lengths and angles (in degrees).
+
+    Args:
+        a (float): *a* lattice parameter.
+        b (float): *b* lattice parameter.
+        c (float): *c* lattice parameter.
+        alpha (float): *alpha* angle in degrees.
+        beta (float): *beta* angle in degrees.
+        gamma (float): *gamma* angle in degrees.
+
+    """
+    alpha_r = radians(alpha)
+    beta_r = radians(beta)
+    gamma_r = radians(gamma)
+
+    val = (np.cos(alpha_r) * np.cos(beta_r) - np.cos(gamma_r))\
+          / (np.sin(alpha_r) * np.sin(beta_r))
+    # Sometimes rounding errors result in values slightly > 1.
+    val = abs_cap(val)
+    gamma_star = np.arccos(val)
+    vector_a = [a * np.sin(beta_r), 0.0, a * np.cos(beta_r)]
+    vector_b = [-b * np.sin(alpha_r) * np.cos(gamma_star),
+                b * np.sin(alpha_r) * np.sin(gamma_star),
+                b * np.cos(alpha_r)]
+    vector_c = [0.0, 0.0, float(c)]
+    return np.array([vector_a, vector_b, vector_c])
 
 
 cdef char** args_to_cargv(args):
