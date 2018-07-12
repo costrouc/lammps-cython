@@ -30,6 +30,26 @@ def test_lattice_const_to_lammps_box_cubic_offset_origin():
     assert np.all(np.isclose(rotation_matrix, np.eye(3)))
 
 
+def test_lattice_to_lammps_box_cubic_transform():
+    lengths = (5, 5, 5)
+    angles = (pi/2, pi/2, pi/2)
+    origin = (4, 3, 2)
+    a, b, c = lengths
+    xlo, ylo, zlo = origin
+    bounds, tilts, rotation_matrix = lammps.core.lattice_const_to_lammps_box(lengths, angles, origin=origin)
+    assert np.all(np.isclose(bounds, [[xlo, xlo+a], [ylo, ylo+b], [zlo, zlo+c]]))
+    assert np.all(np.isclose(tilts, (0, 0, 0)))
+    assert np.all(np.isclose(rotation_matrix, np.eye(3)))
+
+    points = np.random.random((10, 3))
+    points_new_1 = lammps.core.transform_cartesian_vector_to_lammps_vector(points, rotation_matrix)
+    assert np.all(np.isclose(points, points_new_1))
+    points_new_2 = lammps.core.transform_cartesian_vector_to_lammps_vector(points, rotation_matrix, origin)
+    assert np.all(np.isclose(points + origin, points_new_2))
+
+
+
+
 def test_lattice_const_to_lammps_box_rhomb():
     # 3C-SiC
     lengths = (3.0968, 3.0968, 3.0968)
