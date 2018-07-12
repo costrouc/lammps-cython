@@ -1039,9 +1039,9 @@ cdef class Box:
         if angles is None:
             angles = [pi/2., pi/2., pi/2.]
 
-        ((xlo, xhi), (ylo, yhi), (zlo, zhi)), (xy, xz, yz), rotation_matrix = lattice_const_to_lammps_box(lengths, angles, origin)
-        print(lengths, angles, origin)
-        print(region_id, xlo, xhi, ylo, yhi, zlo, zhi, xy, xz, yz)
+        bounds, tilts, rotation_matrix = lattice_const_to_lammps_box(lengths, angles, origin)
+        (xlo, xhi), (ylo, yhi), (zlo, zhi) = bounds
+        xy, xz, yz = tilts
         self.lammps.command((
             "region {} prism {} {} {} {} {} {} {} {} {}"
         ).format(region_id, xlo, xhi, ylo, yhi, zlo, zhi, xy, xz, yz))
