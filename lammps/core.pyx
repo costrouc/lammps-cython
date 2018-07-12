@@ -25,7 +25,7 @@ from libcpp cimport bool
 # Import Python-level symbols
 from mpi4py import MPI
 import numpy as np
-from math import pi, radians
+from math import pi
 import warnings
 
 
@@ -1040,6 +1040,8 @@ cdef class Box:
             angles = [pi/2., pi/2., pi/2.]
 
         ((xlo, xhi), (ylo, yhi), (zlo, zhi)), (xy, xz, yz), rotation_matrix = lattice_const_to_lammps_box(lengths, angles, origin)
+        print(lengths, angles, origin)
+        print(region_id, xlo, xhi, ylo, yhi, zlo, zhi, xy, xz, yz)
         self.lammps.command((
             "region {} prism {} {} {} {} {} {} {} {} {}"
         ).format(region_id, xlo, xhi, ylo, yhi, zlo, zhi, xy, xz, yz))
@@ -1279,24 +1281,19 @@ def lengths_angles_to_matrix(a, b, c, alpha, beta, gamma):
         a (float): *a* lattice parameter.
         b (float): *b* lattice parameter.
         c (float): *c* lattice parameter.
-        alpha (float): *alpha* angle in degrees.
-        beta (float): *beta* angle in degrees.
-        gamma (float): *gamma* angle in degrees.
-
+        alpha (float): *alpha* angle in radians.
+        beta (float): *beta* angle in radians.
+        gamma (float): *gamma* angle in radians.
     """
-    alpha_r = radians(alpha)
-    beta_r = radians(beta)
-    gamma_r = radians(gamma)
-
-    val = (np.cos(alpha_r) * np.cos(beta_r) - np.cos(gamma_r))\
-          / (np.sin(alpha_r) * np.sin(beta_r))
+    val = (np.cos(alpha) * np.cos(beta) - np.cos(gamma))\
+          / (np.sin(alpha) * np.sin(beta))
     # Sometimes rounding errors result in values slightly > 1.
     val = abs_cap(val)
     gamma_star = np.arccos(val)
-    vector_a = [a * np.sin(beta_r), 0.0, a * np.cos(beta_r)]
-    vector_b = [-b * np.sin(alpha_r) * np.cos(gamma_star),
-                b * np.sin(alpha_r) * np.sin(gamma_star),
-                b * np.cos(alpha_r)]
+    vector_a = [a * np.sin(beta), 0.0, a * np.cos(beta)]
+    vector_b = [-b * np.sin(alpha) * np.cos(gamma_star),
+                b * np.sin(alpha) * np.sin(gamma_star),
+                b * np.cos(alpha)]
     vector_c = [0.0, 0.0, float(c)]
     return np.array([vector_a, vector_b, vector_c])
 

@@ -31,7 +31,8 @@ def test_dr_xu_integration(lmp):
     ]).reshape(-1, 3)
 
     # Setup Unit cell
-    lmp.box.from_lattice_const(len(elements), lengths, angles)
+    rotation_matrix, origin = lmp.box.from_lattice_const(len(elements), lengths, angles)
+    # rotation_matrix and origin needed for non-orthogonal offset unit cells
     assert np.all(np.isclose(lmp.box.lengths, lengths))
     assert np.all(np.isclose(lmp.box.angles, angles))
     assert len(lmp.system.atom_types) == len(elements)
@@ -46,7 +47,7 @@ def test_dr_xu_integration(lmp):
     assert lmp.system.total == 0
     atom_types = np.array([symbol_indicies[symbol] for symbol in symbols], dtype=np.int32)
     velocities = np.random.random((len(atom_types), 3))
-    lmp.system.create_atoms(atom_types, positions, velocities)
+    lmp.system.create_atoms(atom_types, positions + 1e-12, velocities)
     assert lmp.system.total == len(atom_types)
     assert lmp.system.local_total == len(atom_types)
     assert np.all(lmp.system.tags.ravel() == np.arange(len(atom_types), dtype=np.int)+1)

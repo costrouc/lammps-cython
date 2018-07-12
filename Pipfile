@@ -12,6 +12,7 @@ numpy = "*"
 matplotlib = "*"
 cython = "*"
 pymatgen = "*"
+pytest = "*"
 
 
 [dev-packages]
