@@ -56,4 +56,3 @@ def test_dr_xu_integration(lmp):
     # periodic conditions. Mod by number close to unit cell length
     assert np.all(np.isclose(np.mod(lmp.system.positions, 4.2 - 1e-8), positions))
     assert np.all(np.isclose(lmp.system.velocities, velocities))
-    assert np.all(np.isclose(lmp.system.forces, np.zeros((len(atom_types), 3))))

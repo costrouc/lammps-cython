@@ -673,8 +673,8 @@ cdef class System:
         else:
             raise ValueError('style {} is an invalid style'.format(style))
 
-    def add_pymatgen_structure(self, structure, elements=None, atom_style='charge'):
-        """Initialize lammps system from pymatgen structure (sets lattice and atoms)
+    def add_pymatgen_structure(self, structure, elements=None):
+        """Initialize lammps system from pymatgen structure (sets lattice, positions, velocities)
 
         Parameters
         ----------
@@ -704,8 +704,9 @@ cdef class System:
         for element, atom_type in zip(elements, self.lammps.system.atom_types):
             atom_type.mass = element.atomic_mass
 
-        cart_coords = transform_cartesian_vector_to_lammps_vector(
-            structure.cart_coords, rotation_matrix, origin)
+        cart_coords = np.ascontiguousarray(
+            transform_cartesian_vector_to_lammps_vector(
+                structure.cart_coords, rotation_matrix, origin))
 
         velocities = None
         if 'velocities' in structure.site_properties:
@@ -717,6 +718,52 @@ cdef class System:
 
         self.lammps.system.create_atoms(atom_types, cart_coords+1e-8, velocities)
         return elements
+
+    def add_ase_structure(self, structure, elements=None):
+        """Initialize lammps system from ase Atoms (sets lattice, positions, velocities)
+
+        Parameters
+        ----------
+        structure: pymatgen.core.structure.Structure
+             pymatgen structure where lattice, atom positions, and if velocities are present they will be set.
+        elements: list of tuple representing the symbol, mass
+             list of tuples that determine the index of each atom type. If not specified it is determined from structure
+
+        Returns
+        -------
+        elements: list of pymatgen.core.Atom
+             list of elements that specifies the repective index of each element assigned by lammps.
+        """
+        if elements is None:
+            elements = list({(atom.symbol, atom.mass) for atom in structure})
+
+        self.lammps.command('atom_modify map yes')
+        atom_types = np.array([elements.index((atom.symbol, atom.mass))+1 for atom in structure], dtype=np.intc)
+
+        # lammps does not handle non-orthogonal cell well
+        a, b, c, alpha, beta, gamma = structure.get_cell_lengths_and_angles()
+        if not np.all(np.isclose((alpha, beta, gamma), (90, 90, 90), atol=1e-8)):
+            self.lammps.command('box tilt large')
+        rotation_matrix, origin = self.lammps.box.from_lattice_const(
+            len(elements),
+            np.array([a, b, c]),
+            np.array([alpha, beta, gamma]) * (pi/180))
+        for element, atom_type in zip(elements, self.lammps.system.atom_types):
+            atom_type.mass = element[1]  # mass
+
+        cart_coords = np.ascontiguousarray(
+            transform_cartesian_vector_to_lammps_vector(
+                structure.positions, rotation_matrix, origin))
+
+        velocities = structure.get_velocities()
+        if velocities is not None:
+            velocities = np.ascontiguousarray(
+                transform_cartesian_vector_to_lammps_vector(
+                    velocities, rotation_matrix))
+
+        self.lammps.system.create_atoms(atom_types, cart_coords+1e-8, velocities)
+        return elements
+
 
     @property
     def style(self):
