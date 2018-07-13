@@ -38,7 +38,6 @@ def test_dr_xu_integration(lmp):
     assert len(lmp.system.atom_types) == len(elements)
 
     # Set Atom Masses
-    assert np.all(np.isclose(np.array([a.mass for a in lmp.system.atom_types]), [0.] * len(elements)))
     for element, atom_type in zip(elements, lmp.system.atom_types):
         atom_type.mass = element['mass']
     assert np.all(np.isclose(np.array([a.mass for a in lmp.system.atom_types]), [e['mass'] for e in elements]))
