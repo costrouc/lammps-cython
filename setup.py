@@ -94,4 +94,9 @@ setup(
     setup_requires=['pytest-runner', 'setuptools>=38.6.0'],
     tests_require=['pytest', 'pytest-cov'],
     install_requires=['mpi4py', 'numpy'],
+    extras_require={
+        'all': ['pymatgen', 'ase'],
+        'pymatgen': 'pymatgen',
+        'ase': 'ase'
+    }
 )
