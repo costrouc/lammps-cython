@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def write_table_pair_potential(func, dfunc=None, bounds=(1.0, 10.0), samples=1000, tolllerance=1e-6, keyword='PAIR', filename='lammps.table'):
+def write_table_pair_potential(func, dfunc=None, bounds=(1.0, 10.0), samples=1000, tollerance=1e-6, keyword='PAIR', filename='lammps.table'):
     """A helper function to write lammps pair potentials. Assumes that
     functions are vectorized.
 
@@ -33,11 +33,11 @@ def write_table_pair_potential(func, dfunc=None, bounds=(1.0, 10.0), samples=100
     """
     r_min, r_max = bounds
     if dfunc is None:
-        dfunc = lambda r: (func(r+toll) - func(r-toll)) / (2*toll)
+        dfunc = lambda r: (func(r+tollerance) - func(r-tollerance)) / (2*tollerance)
 
     with open(filename, 'w') as f:
-        i = np.arange(1, n+1)
-        r = np.linspace(r_min, r_max, n)
+        i = np.arange(1, samples+1)
+        r = np.linspace(r_min, r_max, samples)
         forces = func(r)
         energies = dfunc(r)
         lines = ['%d %f %f %f\n' % (index, radius, force, energy) for index, radius, force, energy in zip(i, r, forces, energies)]
@@ -53,7 +53,7 @@ def write_tersoff_potential(parameters, filename='lammps.tersoff'):
        keys are tuple of elements with the values being the parameters length 14
     """
     with open(filename, 'w') as f:
-        for (e1, e2, e3), params in parameters:
+        for (e1, e2, e3), params in parameters.items():
             if len(params) != 14:
                 raise ValueError('tersoff three body potential expects 14 parameters')
             f.write(' '.join([e1, e2, e3] + ['{:16.8g}'.format(_) for _ in params]) + '\n')
@@ -68,7 +68,7 @@ def write_stillinger_weber_potential(parameters, filename='lammps.sw'):
            keys are tuple of elements with the values being the parameters length 14
     """
     with open(filename, 'w') as f:
-        for (e1, e2, e3), params in parameters:
+        for (e1, e2, e3), params in parameters.items():
             if len(params) != 11:
                 raise ValueError('stillinger weber three body potential expects 11 parameters')
             f.write(' '.join([e1, e2, e3] + ['{:16.8g}'.format(_) for _ in params]) + '\n')
