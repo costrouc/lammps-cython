@@ -1,4 +1,5 @@
 import functools
+import os
 
 import pytest
 import numpy as np
@@ -48,7 +49,7 @@ def test_tersoff_potential(tmpdir):
         ('Ge', 'Ge', 'Si'): [3.0, 1.0, 0.0, 1.0643e5, 15.652, -0.43884, 0.75627, 0.0, 0.0, 0.0, 2.8996, 0.1500, 0.0, 0.0],
     }
 
-    filename = tmpdir.join('sigec.tersoff')
+    filename = str(tmpdir.join('sigec.tersoff'))
     write_tersoff_potential(parameters, filename=filename)
 
 
@@ -64,5 +65,5 @@ def test_stillinger_weber_potential(tmpdir):
         ('Cd', 'Te', 'Cd'): [1.03, 0.0, 0.0, 25.0, 0.0, -0.333333333333, 0.0, 0.0, 0.0, 0.0, 0.0]
     }
 
-    filename = tmpdir.join('sigec.tersoff')
+    filename = str(tmpdir.join('sigec.tersoff'))
     write_stillinger_weber_potential(parameters, filename=filename)
