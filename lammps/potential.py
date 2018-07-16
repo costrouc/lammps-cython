@@ -105,3 +105,35 @@ def write_vashishta_potential(parameters):
             raise ValueError('vashishta three body potential expects 14 parameters')
         lines.append(' '.join([e1, e2, e3] + ['{:16.8g}'.format(_) for _ in params]))
     return '\n'.join(lines)
+
+
+def write_comb_potential(parameters):
+    """Write comb potential file from parameters
+
+    Parameters
+    ----------
+    parameters: dict
+           keys are tuple of elements with the values being the parameters length 46
+    """
+    lines = []
+    for (e1, e2, e3), params in parameters.items():
+        if len(params) != 46:
+            raise ValueError('comb three body potential expects 46 parameters')
+        lines.append(' '.join([e1, e2, e3] + ['{:16.8g}'.format(_) for _ in params]))
+    return '\n'.join(lines)
+
+
+def write_comb_3_potential(parameters):
+    """Write comb 3 potential file from parameters
+
+    Parameters
+    ----------
+    parameters: dict
+           keys are tuple of elements with the values being the parameters length 71
+    """
+    lines = []
+    for (e1, e2, e3), params in parameters.items():
+        if len(params) != 71:
+            raise ValueError('comb three body potential expects 46 parameters')
+        lines.append(' '.join([e1, e2, e3] + ['{:16.8g}'.format(_) for _ in params]))
+    return '\n'.join(lines)
