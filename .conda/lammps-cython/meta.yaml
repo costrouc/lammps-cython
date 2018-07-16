@@ -1,5 +1,5 @@
 {% set build = 0 %}
-{% set version = 'v0.5.4' %}
+{% set version = 'v0.5.5' %}
 {% set mpi = os.environ.get('MPI_VARIANT', 'mpich') %}
 {% set mpi_version = {'mpich': '3.2.*', 'openmpi': '3.0.*'}[mpi] %}
 
