@@ -51,10 +51,12 @@ def write_tersoff_potential(parameters):
     parameters: dict
        keys are tuple of elements with the values being the parameters length 14
     """
+    lines = []
     for (e1, e2, e3), params in parameters.items():
         if len(params) != 14:
             raise ValueError('tersoff three body potential expects 14 parameters')
-    return ' '.join([e1, e2, e3] + ['{:16.8g}'.format(_) for _ in params]) + '\n'
+        lines.append(' '.join([e1, e2, e3] + ['{:16.8g}'.format(_) for _ in params]))
+    return '\n'.join(lines)
 
 
 def write_stillinger_weber_potential(parameters):
@@ -65,10 +67,12 @@ def write_stillinger_weber_potential(parameters):
     parameters: dict
            keys are tuple of elements with the values being the parameters length 11
     """
+    lines = []
     for (e1, e2, e3), params in parameters.items():
         if len(params) != 11:
             raise ValueError('stillinger weber three body potential expects 11 parameters')
-    return ' '.join([e1, e2, e3] + ['{:16.8g}'.format(_) for _ in params]) + '\n'
+        lines.append(' '.join([e1, e2, e3] + ['{:16.8g}'.format(_) for _ in params]))
+    return '\n'.join(lines)
 
 
 def write_gao_weber_potential(parameters, filename='lammps.gw'):
@@ -79,7 +83,9 @@ def write_gao_weber_potential(parameters, filename='lammps.gw'):
     parameters: dict
            keys are tuple of elements with the values being the parameters length 14
     """
+    lines = []
     for (e1, e2, e3), params in parameters.items():
         if len(params) != 14:
             raise ValueError('gao weber three body potential expects 14 parameters')
-    return ' '.join([e1, e2, e3] + ['{:16.8g}'.format(_) for _ in params]) + '\n'
+        lines.append(' '.join([e1, e2, e3] + ['{:16.8g}'.format(_) for _ in params]))
+    return '\n'.join(lines)
