@@ -688,10 +688,18 @@ cdef class System:
         elements: list of pymatgen.core.Species
              list of elements that specifies the repective index of each element assigned by lammps.
         """
+        import pymatgen as pmg
+
         if elements is None:
             elements = list(set(structure.species))
 
         self.lammps.command('atom_modify map yes')
+
+        # needed to normalize lattice (sometimes lattice is not normal)
+        # I found this when using pymatgen.io.cif
+        lattice = pmg.Lattice.from_parameters(*structure.lattice.abc, *structure.lattice.angles)
+        structure = pmg.Structure(lattice, structure.species, structure.frac_coords, coords_are_cartesian=False)
+
         atom_types = np.array([elements.index(atom.specie)+1 for atom in structure], dtype=np.intc)
 
         # lammps does not handle non-orthogonal cells well
@@ -717,7 +725,7 @@ cdef class System:
                     structure.site_properties['velocities'], rotation_matrix))
 
         self.lammps.system.create_atoms(atom_types, cart_coords+1e-8, velocities)
-        return elements
+        return elements, rotation_matrix
 
     def add_ase_structure(self, structure, elements=None):
         """Initialize lammps system from ase Atoms (sets lattice, positions, velocities)
@@ -1365,9 +1373,9 @@ def abs_cap(val, max_abs_val=1):
     return max(min(val, max_abs_val), -max_abs_val)
 
 
-def lengths_angles_to_matrix(a, b, c, alpha, beta, gamma):
+def lengths_angles_to_matrix(a, b, c, alpha_r, beta_r, gamma_r):
     """
-    Create a Lattice using unit cell lengths and angles (in degrees).
+    Create a Lattice using unit cell lengths and angles (in radians).
 
     Args:
         a (float): *a* lattice parameter.
@@ -1377,15 +1385,15 @@ def lengths_angles_to_matrix(a, b, c, alpha, beta, gamma):
         beta (float): *beta* angle in radians.
         gamma (float): *gamma* angle in radians.
     """
-    val = (np.cos(alpha) * np.cos(beta) - np.cos(gamma))\
-          / (np.sin(alpha) * np.sin(beta))
+    val = (np.cos(alpha_r) * np.cos(beta_r) - np.cos(gamma_r))\
+          / (np.sin(alpha_r) * np.sin(beta_r))
     # Sometimes rounding errors result in values slightly > 1.
     val = abs_cap(val)
     gamma_star = np.arccos(val)
-    vector_a = [a * np.sin(beta), 0.0, a * np.cos(beta)]
-    vector_b = [-b * np.sin(alpha) * np.cos(gamma_star),
-                b * np.sin(alpha) * np.sin(gamma_star),
-                b * np.cos(alpha)]
+    vector_a = [a * np.sin(beta_r), 0.0, a * np.cos(beta_r)]
+    vector_b = [-b * np.sin(alpha_r) * np.cos(gamma_star),
+                b * np.sin(alpha_r) * np.sin(gamma_star),
+                b * np.cos(alpha_r)]
     vector_c = [0.0, 0.0, float(c)]
     return np.array([vector_a, vector_b, vector_c])
 
