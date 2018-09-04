@@ -695,11 +695,6 @@ cdef class System:
 
         self.lammps.command('atom_modify map yes')
 
-        # needed to normalize lattice (sometimes lattice is not normal)
-        # I found this when using pymatgen.io.cif
-        lattice = pmg.Lattice.from_parameters(*structure.lattice.abc, *structure.lattice.angles)
-        structure = pmg.Structure(lattice, structure.species, structure.frac_coords, coords_are_cartesian=False)
-
         atom_types = np.array([elements.index(atom.specie)+1 for atom in structure], dtype=np.intc)
 
         # lammps does not handle non-orthogonal cells well
