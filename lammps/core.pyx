@@ -757,7 +757,7 @@ cdef class System:
             structure = pmg.Structure(lattice, symbols, cart_coords, coords_are_cartesian=True)
             if 'v' in atom_properties:
                 velocities = np.dot(self.velocities.copy(), inv_rotation_matrix)
-                structure.add_site_property('velocity', velocities)
+                structure.add_site_property('velocities', velocities)
             else:
                 raise ValueError('other atom properties not supported for now')
 
