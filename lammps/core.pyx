@@ -722,10 +722,10 @@ cdef class System:
         self.lammps.system.create_atoms(atom_types, cart_coords+1e-8, velocities)
         return elements, rotation_matrix
 
-    def get_structure(self, elements, atom_properties=None, format='pymatgen'):
+    def snapshot(self, elements, atom_properties=None, format='pymatgen'):
         """Get python structure representation of LAMMPS simulation (pymatgen only for now)
 
-        Assumes origin at (0, 0, 0)
+        Assumes origin at (0, 0, 0)!
 
         Parameters
         ----------
@@ -734,11 +734,11 @@ cdef class System:
         atom_properties: set
              set of ATOM_STYLE_PROPERTIES that you want included with structure
         format: str
-             for now only "pymatgen" format is supported
+             for now only "pymatgen" structure and "hoomd" gsd snapshot format is supported
 
         Returns
         -------
-        structure: pmg.Structure
+        snapshot: pmg.Structure or gsd.hoomd.Snapshot
              pymatgen structure
         """
         atom_properties = atom_properties or {'v'}
@@ -762,6 +762,21 @@ cdef class System:
                 raise ValueError('other atom properties not supported for now')
 
             return structure
+        elif format == "snapshot":
+            from gsd import hoomd
+            s = hoomd.Snapshot()
+            s.particles.N = self.total
+            s.particles.types = elements
+            s.particles.typeid = self.types.ravel() - 1
+            s.particles.position = self.positions
+            if 'v' in atom_properties:
+                s.particles.velocity = self.velocities
+
+            s.configuration.step = self.lammps.time_step
+            s.configuration.dimensions = self.lammps.box.dimension
+            s.configuration.box = [*np.array(self.lammps.box.bounds)[:, 1], *self.lammps.box.tilts]
+
+            return s
         else:
             raise ValueError('Only support dumping to pymatgen format for now')
 

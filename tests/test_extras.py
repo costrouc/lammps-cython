@@ -31,10 +31,20 @@ def test_pymatgen_add_and_get_structure(lmp):
     assert np.all(np.isclose(lmp.system.positions, structure.cart_coords, atol=1e-6))
     assert np.all(np.isclose(lmp.system.velocities, velocities))
 
-    new_structure = lmp.system.get_structure(symbols)
-    assert structure.get_sorted_structure().species == new_structure.get_sorted_structure().species
+
+def test_pymatgen_snapshot(lmp_melt):
+    symbols = ['Ne']
+    num_atoms = 16
+    new_structure = lmp_melt.system.snapshot(symbols, format='pymatgen')
+    assert len(new_structure) == num_atoms
 
 
+def test_gsd_snapshot(lmp_melt):
+    symbols = ['Ne']
+    num_atoms = 16
+    snapshot = lmp_melt.system.snapshot(symbols, format='snapshot')
+    assert snapshot.particles.N == num_atoms
+    snapshot.validate()
 
 
 def test_ase_add_structure(lmp):

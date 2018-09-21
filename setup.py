@@ -95,8 +95,9 @@ setup(
     tests_require=['pytest', 'pytest-cov'],
     install_requires=['mpi4py', 'numpy'],
     extras_require={
-        'all': ['pymatgen', 'ase'],
+        'all': ['pymatgen', 'ase', 'gsd'],
         'pymatgen': 'pymatgen',
-        'ase': 'ase'
+        'ase': 'ase',
+        'gsd': 'gsd'
     }
 )
