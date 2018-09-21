@@ -8,7 +8,7 @@ import math
 import numpy as np
 
 
-def test_pymatgen_add_structure(lmp):
+def test_pymatgen_add_and_get_structure(lmp):
     import pymatgen as pmg
 
     a = 4.2
@@ -30,6 +30,11 @@ def test_pymatgen_add_structure(lmp):
     assert np.all(np.isclose(lmp.box.origin, (0, 0, 0)))
     assert np.all(np.isclose(lmp.system.positions, structure.cart_coords, atol=1e-6))
     assert np.all(np.isclose(lmp.system.velocities, velocities))
+
+    new_structure = lmp.system.get_structure(symbols)
+    assert structure.get_sorted_structure().species == new_structure.get_sorted_structure().species
+
+
 
 
 def test_ase_add_structure(lmp):

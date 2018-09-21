@@ -722,6 +722,49 @@ cdef class System:
         self.lammps.system.create_atoms(atom_types, cart_coords+1e-8, velocities)
         return elements, rotation_matrix
 
+    def get_structure(self, elements, atom_properties=None, format='pymatgen'):
+        """Get python structure representation of LAMMPS simulation (pymatgen only for now)
+
+        Assumes origin at (0, 0, 0)
+
+        Parameters
+        ----------
+        elements: list of elements
+             ordered list of elements associated with lammps atom id
+        atom_properties: set
+             set of ATOM_STYLE_PROPERTIES that you want included with structure
+        format: str
+             for now only "pymatgen" format is supported
+
+        Returns
+        -------
+        structure: pmg.Structure
+             pymatgen structure
+        """
+        atom_properties = atom_properties or {'v'}
+        if format == 'pymatgen':
+            import pymatgen as pmg
+
+            lengths, angles_r = self.lammps.box.lengths_angles
+            angles = [_ * 180.0 / pi for _ in angles_r]
+            lattice = pmg.Lattice.from_parameters(*lengths, *angles)
+
+            bounds, tilt, rotation_matrix = lattice_const_to_lammps_box(lengths, angles_r)
+            inv_rotation_matrix = np.linalg.inv(rotation_matrix)
+
+            cart_coords = np.dot(self.positions.copy(), inv_rotation_matrix)
+            symbols = np.array(elements)[self.types.ravel() - 1]
+            structure = pmg.Structure(lattice, symbols, cart_coords, coords_are_cartesian=True)
+            if 'v' in atom_properties:
+                velocities = np.dot(self.velocities.copy(), inv_rotation_matrix)
+                structure.add_site_property('velocity', velocities)
+            else:
+                raise ValueError('other atom properties not supported for now')
+
+            return structure
+        else:
+            raise ValueError('Only support dumping to pymatgen format for now')
+
     def add_ase_structure(self, structure, elements=None):
         """Initialize lammps system from ase Atoms (sets lattice, positions, velocities)
 
@@ -766,7 +809,6 @@ cdef class System:
 
         self.lammps.system.create_atoms(atom_types, cart_coords+1e-8, velocities)
         return elements
-
 
     @property
     def style(self):
