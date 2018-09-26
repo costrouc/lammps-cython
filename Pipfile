@@ -10,18 +10,19 @@ name = "pypi"
 "mpi4py" = "*"
 numpy = "*"
 matplotlib = "*"
-Cython = "*"
+cython = "*"
 pymatgen = "*"
 pytest = "*"
 ase = "*"
+gsd = "*"
 
 
 [dev-packages]
 
-Cython = "*"
-Sphinx = "*"
+cython = "*"
+sphinx = "*"
 pytest = "*"
 sphinxcontrib-napoleon = "*"
-sphinx_rtd_theme = "*"
+sphinx-rtd-theme = "*"
 ipykernel = "*"
 ipython = "*"
