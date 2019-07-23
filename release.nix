@@ -1,7 +1,6 @@
-{ nixpkgs ? <nixpkgs> }:
+{ pkgs ? import <nixpkgs> { } }:
 
-let pkgs = import nixpkgs { };
-    build = import ./build.nix {
+let build = import ./build.nix {
       inherit pkgs;
       pythonPackages = pkgs.python3Packages;
     };

@@ -96,6 +96,7 @@ setup(
     install_requires=['mpi4py', 'numpy'],
     extras_require={
         'all': ['pymatgen', 'ase', 'gsd'],
+        'docs': ['sphinx', 'sphinx-rtd-theme'],
         'pymatgen': 'pymatgen',
         'ase': 'ase',
         'gsd': 'gsd'
