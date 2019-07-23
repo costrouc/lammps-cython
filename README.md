@@ -1,7 +1,3 @@
-**All issues and contributions should be done on
-[Gitlab](https://gitlab.com/costrouc/lammps-cython). Github is used only as a
-mirror for visibility**
-
 # lammps-cython
 
 A high-performance cython wrapper around LAMMPS. Lammps is a great
@@ -138,12 +134,12 @@ These will turn to links when the tutorial exists.
 
 All contributions, bug reports, bug fixes, documentation improvements,
 enhancements and ideas are welcome! These should be submitted at the
-[Gitlab repository](https://gitlab.com/costrouc/lammps-cython). Github is
+[Github repository](https://github.com/costrouc/lammps-cython). Github is
 only used for visibility.
 
 Contributors:
 
-  - [Chris Ostrouchov](https://gitlab.com/costrouc) (maintainer)
+  - [Chris Ostrouchov](https://github.com/costrouc) (maintainer)
 
 # License
 

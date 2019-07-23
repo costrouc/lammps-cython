@@ -1,56 +1,85 @@
-{ pkgs ? import <nixpkgs> {}, pythonPackages ? "python36Packages" }:
+{ pkgs ? import <nixpkgs> {}, pythonPackages ? "python3Packages" }:
 
-let
-  elem = builtins.elem;
-  basename = path: with pkgs.lib; last (splitString "/" path);
-  startsWith = prefix: full: let
-    actualPrefix = builtins.substring 0 (builtins.stringLength prefix) full;
-  in actualPrefix == prefix;
+{
+  package = pythonPackages.buildPythonPackage rec {
+    pname = "lammps-cython";
+    version = "master";
+    disabled = pythonPackages.isPy27;
 
-  src-filter = path: type: with pkgs.lib;
-    let
-      ext = last (splitString "." path);
-    in
-      !elem (basename path) [".git" "__pycache__" ".eggs"] &&
-      !elem ext ["egg-info" "pyc"] &&
-      !startsWith "result" path;
+    src = ./.;
 
-   basePythonPackages = if builtins.isAttrs pythonPackages
-     then pythonPackages
-     else builtins.getAttr pythonPackages pkgs;
+    buildInputs = with pythonPackages; [
+      pytestrunner
+      pkgs.lammps-mpi
+      cython
+    ];
 
-   mpi = basePythonPackages.mpi4py.mpi;
-in
-basePythonPackages.buildPythonPackage rec {
-  pname = "lammps-cython";
-  version = "0.5.8";
-  disabled = (!basePythonPackages.isPy3k);
+    checkInputs = with pythonPackages; [
+      pytest
+      pytestcov
+      pkgs.openssh
+      pymatgen
+      ase
+      gsd
+     ];
 
-  src = builtins.filterSource src-filter ./.;
+    propagatedBuildInputs = with pythonPackages; [
+      numpy
+      mpi4py
+    ];
 
-  buildInputs = with basePythonPackages; [ pytestrunner pkgs.lammps-mpi cython ];
-  checkInputs = with basePythonPackages; [ pytest pytestcov pkgs.openssh pymatgen ase gsd ];
-  propagatedBuildInputs = with basePythonPackages; [ numpy mpi4py ];
+    postConfigure = ''
+      echo "Creating lammps.cfg file..."
+      cat << EOF > lammps.cfg
+      [lammps]
+      lammps_include_dir = ${pkgs.lammps-mpi}/include
+      lammps_library_dir = ${pkgs.lammps-mpi}/lib
+      lammps_library = lammps_mpi
 
-  preBuild = ''
-    echo "Creating lammps.cfg file..."
-    cat << EOF > lammps.cfg
-    [lammps]
-    lammps_include_dir = ${pkgs.lammps-mpi}/include
-    lammps_library_dir = ${pkgs.lammps-mpi}/lib
-    lammps_library = lammps_mpi
+      [mpi]
+      mpi_include_dir = ${pythonPackages.mpi4py.mpi}/include
+      mpi_library_dir = ${pythonPackages.mpi4py.mpi}/lib
+      mpi_library     = mpi
+      EOF
+    '';
 
-    [mpi]
-    mpi_include_dir = ${mpi}/include
-    mpi_library_dir = ${mpi}/lib
-    mpi_library     = mpi
-    EOF
-  '';
-
-  meta = with pkgs; {
-    description = "Pythonic Wrapper to LAMMPS using cython";
-    homepage = https://gitlab.com/costrouc/lammps-cython;
-    license = lib.licenses.mit;
-    maintainers = with lib.maintainers; [ costrouc ];
+    checkPhase = ''
+      pytest --pkg-molecule
+    '';
   };
+
+  docs = pkgs.stdenv.mkDerivation {
+    name = "docs";
+    version = "master";
+
+    src = ./.;
+
+    buildInputs = with pythonPackages; [
+      lammps-cython
+      pkgs.openssh
+      sphinx
+      sphinx_rtd_theme
+    ];
+
+    buildPhase = ''
+      cd docs;
+      sphinx-apidoc -o source/ ../lammps
+      sphinx-build -b html -d build/doctrees . build/html
+    '';
+
+    installPhase = ''
+     mkdir -p $out
+     cp -r build/html/* $out
+    '';
+  };
+
+  docker = let
+      pythonEnv = pythonPackages.python.withPackages
+                   (ps: with ps; [ jupyterlab lammps-cython ase pymatgen gsd ]);
+    in pkgs.dockerTools.buildLayeredImage {
+      name = "lammps-cython";
+      tag = "latest";
+      config.Cmd = [ "${pythonEnv.interpreter}" ];
+      maxLayers = 120;
+    };
 }
