@@ -9,8 +9,7 @@ deploy:
    keep_history: true
    on:
      branch: master
- - deploy:
-   provider: pypi
+ - provider: pypi
    user: costrouc
    password: $PYPI_PASSWORD
    distributions: "sdist"
