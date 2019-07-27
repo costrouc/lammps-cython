@@ -6,6 +6,7 @@ let build = import ./build.nix {
     };
 in {
   lammps-cython = build.package;
+  lammps-cython-sdist = build.sdist;
   lammps-cython-docs = build.docs;
   lammps-cython-docker = build.docker;
 }

@@ -1,12 +1,14 @@
 { pkgs ? import <nixpkgs> {}, pythonPackages ? "python3Packages" }:
 
-{
+rec {
   package = pythonPackages.buildPythonPackage rec {
     pname = "lammps-cython";
     version = "master";
     disabled = pythonPackages.isPy27;
 
-    src = ./.;
+    src = builtins.filterSource
+      (path: _: !builtins.elem  (builtins.baseNameOf path) [".git" "result" "docs"])
+      ./.;
 
     buildInputs = with pythonPackages; [
       pytestrunner
@@ -48,14 +50,35 @@
     '';
   };
 
+  sdist = pkgs.stdenv.mkDerivation {
+    name = "lammps-cython-sdist";
+
+    buildInputs = [ package ];
+
+    src = builtins.filterSource
+        (path: _: !builtins.elem  (builtins.baseNameOf path) [".git" "result"])
+        ./.;
+
+    buildPhase = ''
+      python setup.py sdist
+    '';
+
+    installPhase = ''
+      mkdir -p $out
+      cp dist/* $out
+    '';
+  };
+
   docs = pkgs.stdenv.mkDerivation {
     name = "docs";
     version = "master";
 
-    src = ./.;
+    src = builtins.filterSource
+        (path: _: !builtins.elem  (builtins.baseNameOf path) [".git" "result"])
+        ./.;
 
     buildInputs = with pythonPackages; [
-      lammps-cython
+      package
       pkgs.openssh
       sphinx
       sphinx_rtd_theme
@@ -76,7 +99,7 @@
 
   docker = let
       pythonEnv = pythonPackages.python.withPackages
-                   (ps: with ps; [ jupyterlab lammps-cython ase pymatgen gsd ]);
+                   (ps: with ps; [ jupyterlab package ase pymatgen gsd ]);
     in pkgs.dockerTools.buildLayeredImage {
       name = "lammps-cython";
       tag = "latest";
