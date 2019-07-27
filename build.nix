@@ -70,6 +70,7 @@
     installPhase = ''
      mkdir -p $out
      cp -r build/html/* $out
+     touch $out/.nojekyll
     '';
   };
 
