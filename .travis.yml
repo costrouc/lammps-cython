@@ -1,0 +1,11 @@
+language: nix
+script: nix-build release.nix -A lammps-cython-docs
+
+deploy:
+  provider: pages
+  skip_cleanup: true
+  local_dir: result
+  github_token: $GITHUB_TOKEN
+  keep_history: true
+  on:
+    branch: master
