@@ -1,0 +1,406 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Installation &mdash; lammps-cython 0.3.4 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Tutorial" href="tutorial.html" />
+    <link rel="prev" title="Welcome to lammps-cython’s documentation!" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> lammps-cython
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#docker">Docker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#conda">Conda</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pip">Pip</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#building-lammps-shared-library-linux-and-osx">Building LAMMPS Shared Library (Linux and OSX)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#linux-dependencies">Linux Dependencies</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#osx-dependecies">OSX Dependecies</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#installating-lammps-cython">Installating lammps-cython</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#common-installation-errors">Common Installation Errors</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">lammps-cython</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Installation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/installation.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<p>Installing lammps-cython can be a complex process. But from my
+experience not too hard on most standard linux distributions. If
+installation is hard for you I would recommend using the docker images
+or conda (not done yet) which do not require manual installation of
+<a class="reference external" href="http://lammps.sandia.gov/">LAMMPS</a>.</p>
+<div class="section" id="docker">
+<h2>Docker<a class="headerlink" href="#docker" title="Permalink to this headline">¶</a></h2>
+<p>This method should work for Linux, OSX, and windows. The docker image
+includes the lammps shared library, python3.5, and lammps
+binary. Everything you need to start experimenting with the package.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker pull costrouc/lammps-cython
+</pre></div>
+</div>
+</div>
+<div class="section" id="conda">
+<h2>Conda<a class="headerlink" href="#conda" title="Permalink to this headline">¶</a></h2>
+<p>Right now there are only prebuilt conda packages for linux (python3.5,
+python3.6). Creating conda packages for OSX is possible and will be
+done if requested.</p>
+<p><a class="reference external" href="https://github.com/conda/conda">Conda</a> is an OS agnostic package
+manager. It is developed by <a class="reference external" href="https://anaconda.io">contiuum analytics</a>. <a class="reference external" href="https://docs.anaconda.com/anaconda/install/">Conda installation</a> is by far the easier
+way to get started with python and installing complex scientific
+codes. Once you have conda installed it will be as simple as</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda install -c costrouc -c conda-forge lammps-cython
+</pre></div>
+</div>
+</div>
+<div class="section" id="pip">
+<h2>Pip<a class="headerlink" href="#pip" title="Permalink to this headline">¶</a></h2>
+<p>Installation via pip requires building the LAMMPS shared library. This
+is because pypi does not handle binaries in wheels well. Hopefully
+this changes with <a class="reference external" href="https://github.com/pypa/manylinux">manylinux</a>.</p>
+<div class="section" id="building-lammps-shared-library-linux-and-osx">
+<h3>Building LAMMPS Shared Library (Linux and OSX)<a class="headerlink" href="#building-lammps-shared-library-linux-and-osx" title="Permalink to this headline">¶</a></h3>
+<p>I will attempt to keep this current on how to install in
+Ubuntu. Should work similarly for all Linux distributions. I am not
+knowledgeable on how to install on OSX or Windows (maybe this will
+change). Before installing lammps make sure that you have all the
+necessary dependencies. If you are working on a cluster there is a
+good chance that you will not need to install the dependencies.</p>
+<div class="section" id="linux-dependencies">
+<h4>Linux Dependencies<a class="headerlink" href="#linux-dependencies" title="Permalink to this headline">¶</a></h4>
+<p>For linux derivatives you should have packages very similarly named to
+the ones below. I have installed on both debian and ubuntu and these
+packages should work.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>apt install build-essential libopenblas-dev libfftw3-dev libopenmpi-dev
+</pre></div>
+</div>
+</div>
+<div class="section" id="osx-dependecies">
+<h4>OSX Dependecies<a class="headerlink" href="#osx-dependecies" title="Permalink to this headline">¶</a></h4>
+<p><a class="reference external" href="http://brewformulas.org/">Homebrew</a> is the choice of developer for
+the package manager of OSX. See <a class="reference external" href="https://brew.sh/">homebrew installation instructions</a> if you do not already have the package
+manager. While I have minimal experience using homebrew these
+instructions should work.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>brew install openblas mpich fftw
+</pre></div>
+</div>
+<p>To install the equivalent of <code class="docutils literal notranslate"><span class="pre">build-essential</span></code> in linux you will
+need to have xcode installed. This can be done in the terminal via
+<code class="docutils literal notranslate"><span class="pre">xcode-select</span> <span class="pre">--install</span></code>. Not sure if necessary and probably already
+installed on your machine.</p>
+</div>
+</div>
+<div class="section" id="id2">
+<h3>Installation<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<p>Make sure that your mpi implementation is MPI3. Next download the
+latest LAMMPS <a class="reference external" href="http://lammps.sandia.gov/download.html">release</a> and
+untar the download. I would actually recommend using the <a class="reference external" href="https://github.com/lammps/lammps/releases">LAMMPS
+github repo</a> the archives
+are smaller, download faster, and are easier to find. Replace
+<code class="docutils literal notranslate"><span class="pre">&lt;version&gt;</span></code> with your version you are downloading. <code class="docutils literal notranslate"><span class="pre">wget</span></code> is used
+for downloading the archive from the terminal but there are of course
+other ways.</p>
+<div class="admonition attention">
+<p class="first admonition-title">Attention</p>
+<p class="last">The minimum version of LAMMPS required is greater than March
+23rd 2018. This is due to several new library methods added.</p>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>wget https://github.com/lammps/lammps/archive/&lt;version&gt;.tar.gz
+<span class="nb">cd</span> lammps-&lt;version&gt;/src
+</pre></div>
+</div>
+<p>Inside of the lammps directory you will see a directory called
+<strong>src</strong>. <strong class="command">cd</strong> to the src directory. Next make the LAMMPS
+shared library. Building the shared library should take around 5
+minutes without adding on packages. If you need to add packages to
+LAMMPS this can easily be done. <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">package-status</span></code> will list the
+available packages and if they are activated. You can activate any
+package by typing <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">yes-&lt;package&gt;</span></code>. To deactivate a package type
+<code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">no-&lt;package&gt;</span></code>. As an example if you need to use the <a class="reference external" href="http://lammps.sandia.gov/doc/Section_packages.html#manybody-package">manybody</a>
+package this can be installed via <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">yes-manybody</span></code>. Note that
+some of the packages require additional complex dependencies.</p>
+<p>To install an near exhaustive list of lammps packages use the
+following.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">LAMMPS_PACKAGES</span><span class="o">=</span><span class="s2">&quot;asphere body class2 colloid compress coreshell dipole granular kspace manybody mc misc molecule opt peri qeq replica rigid shock snap srd user-reaxc&quot;</span>
+<span class="k">for</span> pack in <span class="nv">$LAMMPS_PACKAGES</span><span class="p">;</span> <span class="k">do</span> make <span class="s2">&quot;yes-</span><span class="nv">$pack</span><span class="s2">&quot;</span><span class="p">;</span> <span class="k">done</span>
+</pre></div>
+</div>
+<p>After you have installed the packages that you would like included in
+the LAMMPS shared library, compile the source code.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make <span class="nv">mode</span><span class="o">=</span>shlib mpi -j4 <span class="nv">LMP_INC</span><span class="o">=</span><span class="s2">&quot;-DLAMMPS_EXCEPTIONS -DLAMMPS_GZIP -DLAMMPS_MEMALIGN=64&quot;</span>
+cp liblammps_mpi.so /usr/local/lib/liblammps.so
+mkdir /usr/local/include/lammps/<span class="p">;</span> cp *.h /usr/local/include/lammps/
+</pre></div>
+</div>
+<div class="admonition attention">
+<p class="first admonition-title">Attention</p>
+<p class="last">At a minimum the <code class="docutils literal notranslate"><span class="pre">-DLAMMPS_EXCEPTION</span></code> definition is needed. This
+is used so that <code class="docutils literal notranslate"><span class="pre">lammps-cython</span></code> can check if an error in
+execution has happened and the python package will not compile.</p>
+</div>
+<p>Now all include files has been coppied to
+<code class="docutils literal notranslate"><span class="pre">/usr/local/include/lammps/</span></code> and the shared library has been coppied
+to <code class="docutils literal notranslate"><span class="pre">/usr/local/lib</span></code>. This will require root permissions. Another
+great location that does not require root is <code class="docutils literal notranslate"><span class="pre">$HOME/.local/lib/</span></code> and
+<code class="docutils literal notranslate"><span class="pre">$HOME/.local/include/</span></code>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Ensure that the LAMMPS library is installed without any undefined
+symbols. To check the shared library file run <strong class="command">ldd -r
+liblammps_mpi.so</strong>. You should not see any undefined symbols. One
+reported issue is that the gfortran library is not included by
+default with LAMMPS when installing additional add-on packages. To
+fix this issue simply build the LAMMPS library with the gfortran
+shared library included <a href="#id3"><span class="problematic" id="id4">:commmand:`-lgfortran`</span></a>.</p>
+</div>
+</div>
+<div class="section" id="installating-lammps-cython">
+<h3>Installating lammps-cython<a class="headerlink" href="#installating-lammps-cython" title="Permalink to this headline">¶</a></h3>
+<p>lammps-cython installation should be easy if you have exactly followed
+the steps above. The following step should work.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install numpy mpi4py cython
+pip install lammps-cython
+</pre></div>
+</div>
+<p>If it does not you will manually need to specify the location of the
+lammps and mpi include files. This is similar to the approach that
+<a class="reference external" href="https://github.com/numpy/numpy/blob/master/site.cfg.example">numpy takes</a>. You
+will need to specify the locations in a file
+<code class="docutils literal notranslate"><span class="pre">~/.config/lammps-site.cfg</span></code> located in the configuration
+directory. The example input file is included bellow. Change to your
+needs and then run <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">lammps-cython</span></code>. It will work if you
+get the locations correct.</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="c1"># multiple values can be included seperated by commas</span>
+<span class="k">[lammps]</span>
+<span class="na">lammps_include_dir</span> <span class="o">=</span> <span class="s">/usr/local/include/lammps/</span>
+<span class="na">lammps_library_dir</span> <span class="o">=</span> <span class="s">/usr/local/lib/</span>
+<span class="c1"># true library filename is liblammps.so notice lib and .so are removed</span>
+<span class="na">lammps_library</span> <span class="o">=</span> <span class="s">lammps</span>
+
+<span class="c1"># use mpic++ -showme to list libraries and includes</span>
+<span class="k">[mpi]</span>
+<span class="na">mpi_include_dir</span> <span class="o">=</span> <span class="s">/usr/lib/x86_64-linux-gnu/openmpi/include</span>
+<span class="na">mpi_library_dir</span> <span class="o">=</span> <span class="s">/usr/lib/x86_64-linux-gnu/openmpi/lib</span>
+<span class="c1"># no necissarily needed (default are mpi, mpi_cxx)</span>
+<span class="na">mpi_library</span>     <span class="o">=</span> <span class="s">mpi, mpi_cxx</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="common-installation-errors">
+<h2>Common Installation Errors<a class="headerlink" href="#common-installation-errors" title="Permalink to this headline">¶</a></h2>
+<p>There are some common errors that should be checked before submitting
+an issue on the github repository.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">lammps</span>
+<span class="go">from .core import Lammps</span>
+
+<span class="go">ImportError: liblammps.so: cannot open shared object file: No such file or directory</span>
+</pre></div>
+</div>
+<p>This error results because python cannot find the LAMMPS
+library. Meaning that the lammps library is the not in the standard
+library search path. On a typical linux system these paths are
+<strong class="command">/usr/lib</strong> and <strong class="command">/usr/local/lib</strong>. If you would like
+to have the LAMMPS library in another directory not in the standard
+path you must modify the environment variable
+<strong class="command">LD_LIBRARY_PATH</strong>.</p>
+<p>For any other errors PLEASE add an <a class="reference external" href="https://gitlab.com/costrouc/lammps-cython">issue to the gitlab page</a>. I check gitlab often
+and really want to make this a long-term supported addition to the
+LAMMPS community!</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="tutorial.html" class="btn btn-neutral float-right" title="Tutorial" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to lammps-cython’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 1970, Chris Ostrouchov
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

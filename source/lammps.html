@@ -1,0 +1,1015 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>lammps package &mdash; lammps-cython 0.3.4 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> lammps-cython
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">lammps-cython</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>lammps package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/source/lammps.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="lammps-package">
+<h1>lammps package<a class="headerlink" href="#lammps-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-lammps.core">
+<span id="lammps-core-module"></span><h2>lammps.core module<a class="headerlink" href="#module-lammps.core" title="Permalink to this headline">¶</a></h2>
+<p>LAMMPS Python interface (the GOOD parts)</p>
+<p>This interface is inspired by HOOMD and tries its best to look
+similar. I try to include only orthogonal functions (e.g. make
+there only be ONE way to do something).</p>
+<dl class="class">
+<dt id="lammps.core.Atom">
+<em class="property">class </em><code class="descclassname">lammps.core.</code><code class="descname">Atom</code><a class="headerlink" href="#lammps.core.Atom" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Represents a single atom in the LAMMPS simulation</p>
+<p>Since LAMMPS is a distributed system each atom is unique among all
+the processors.</p>
+<dl class="docutils">
+<dt>lammps <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference internal" href="#lammps.core.Lammps" title="lammps.core.Lammps"><code class="xref py py-class docutils literal notranslate"><span class="pre">lammps.core.Lammps</span></code></a></span></dt>
+<dd>Lammps object</dd>
+<dt>tag <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>tag id number of particle</dd>
+<dt>lindex <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>lindex: the local index of the atom</dd>
+</dl>
+<dl class="attribute">
+<dt id="lammps.core.Atom.charge">
+<code class="descname">charge</code><a class="headerlink" href="#lammps.core.Atom.charge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Charge of local atom</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lammps.core.Atom.force">
+<code class="descname">force</code><a class="headerlink" href="#lammps.core.Atom.force" title="Permalink to this definition">¶</a></dt>
+<dd><p>Force on local atom</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lammps.core.Atom.position">
+<code class="descname">position</code><a class="headerlink" href="#lammps.core.Atom.position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Position of local Atom</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lammps.core.Atom.tag">
+<code class="descname">tag</code><a class="headerlink" href="#lammps.core.Atom.tag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unique tag of atom within LAMMPS simulation</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lammps.core.Atom.type">
+<code class="descname">type</code><a class="headerlink" href="#lammps.core.Atom.type" title="Permalink to this definition">¶</a></dt>
+<dd><p>AtomType of local Atom</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lammps.core.Atom.velocity">
+<code class="descname">velocity</code><a class="headerlink" href="#lammps.core.Atom.velocity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Velocity of local atom</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lammps.core.AtomType">
+<em class="property">class </em><code class="descclassname">lammps.core.</code><code class="descname">AtomType</code><a class="headerlink" href="#lammps.core.AtomType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Represents an atom type (denoted by int) in LAMMPS</p>
+<p>Provides a wrapper over atom types that is more user friendly</p>
+<dl class="docutils">
+<dt>lammps <span class="classifier-delimiter">:</span> <span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">lammps.Lammps</span></code></span></dt>
+<dd>Lammps object</dd>
+<dt>index <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>the index of the atom</dd>
+</dl>
+<dl class="attribute">
+<dt id="lammps.core.AtomType.index">
+<code class="descname">index</code><a class="headerlink" href="#lammps.core.AtomType.index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Index of atom type</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lammps.core.AtomType.mass">
+<code class="descname">mass</code><a class="headerlink" href="#lammps.core.AtomType.mass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mass of the AtomType</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lammps.core.Box">
+<em class="property">class </em><code class="descclassname">lammps.core.</code><code class="descname">Box</code><a class="headerlink" href="#lammps.core.Box" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Represents the shape of the simulation cell</p>
+<dl class="docutils">
+<dt>lammps <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference internal" href="#lammps.core.Lammps" title="lammps.core.Lammps"><code class="xref py py-class docutils literal notranslate"><span class="pre">lammps.core.Lammps</span></code></a></span></dt>
+<dd>LAMMPS Object</dd>
+</dl>
+<dl class="attribute">
+<dt id="lammps.core.Box.angles">
+<code class="descname">angles</code><a class="headerlink" href="#lammps.core.Box.angles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates lengths from lammps box. See <a class="reference internal" href="#lammps.core.Box.lengths_angles" title="lammps.core.Box.lengths_angles"><code class="xref py py-func docutils literal notranslate"><span class="pre">lengths_angles()</span></code></a></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lammps.core.Box.bounds">
+<code class="descname">bounds</code><a class="headerlink" href="#lammps.core.Box.bounds" title="Permalink to this definition">¶</a></dt>
+<dd><p>LAMMPS box description of boxhi and boxlo bounds</p>
+<blockquote>
+<div>Additional documentation can be found at <a class="reference external" href="http://lammps.sandia.gov/doc/Section_howto.html?highlight=prism#howto-12">lammps</a>. For
+example return numpy array would be</div></blockquote>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">lohi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+    <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">],</span>
+    <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">],</span>
+    <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">],</span>
+<span class="p">])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lammps.core.Box.dimension">
+<code class="descname">dimension</code><a class="headerlink" href="#lammps.core.Box.dimension" title="Permalink to this definition">¶</a></dt>
+<dd><p>The dimension of the lammps run either 2D or 3D</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lammps.core.Box.from_lattice_const">
+<code class="descname">from_lattice_const</code><span class="sig-paren">(</span><em>self</em>, <em>atom_types</em>, <em>lengths</em>, <em>angles=None</em>, <em>origin=(0</em>, <em>0</em>, <em>0)</em>, <em>region_id='lammps-box'</em><span class="sig-paren">)</span><a class="headerlink" href="#lammps.core.Box.from_lattice_const" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create Unit cell (can only be run once)</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>atom_types <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>number of atom types for simulation (I know weird place to require)</dd>
+<dt>lengths <span class="classifier-delimiter">:</span> <span class="classifier">vector</span></dt>
+<dd>lengths length 3 (a, b, c) lattice constants</dd>
+<dt>angles <span class="classifier-delimiter">:</span> <span class="classifier">vector</span></dt>
+<dd>angles length 3 (alpha, beta, gamma) lattice constants default (pi/2, pi/2, pi/2)</dd>
+<dt>region_id <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>name of region for lammps simulation. default ‘lammps-box’</dd>
+</dl>
+<dl class="docutils">
+<dt>rotation_matrix, origin: tuple</dt>
+<dd>necissary matricies to be used with <code class="docutils literal notranslate"><span class="pre">transform_cartesian_vector_to_lammps_vector</span></code> to transform all atom positions, velocities appropriately. If unit cell is orthogonal then you may only need to apply the origin shift.</dd>
+</dl>
+<p>Essentially runs:
+region region-id prism xlo xhi ylo yhi zlo zhi xy xz yz
+create_box N region-ID keyword value …</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lammps.core.Box.lengths">
+<code class="descname">lengths</code><a class="headerlink" href="#lammps.core.Box.lengths" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates lengths from lammps box. See <a class="reference internal" href="#lammps.core.Box.lengths_angles" title="lammps.core.Box.lengths_angles"><code class="xref py py-func docutils literal notranslate"><span class="pre">lengths_angles()</span></code></a></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lammps.core.Box.lengths_angles">
+<code class="descname">lengths_angles</code><a class="headerlink" href="#lammps.core.Box.lengths_angles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the lengths and angles from lammps box</p>
+<p>Additional documentation can be found at <a class="reference external" href="http://lammps.sandia.gov/doc/Section_howto.html?highlight=prism#howto-12">lammps</a>. See
+implementation <a class="reference internal" href="#lammps.core.lammps_box_to_lattice_const" title="lammps.core.lammps_box_to_lattice_const"><code class="xref py py-func docutils literal notranslate"><span class="pre">lammps_box_to_lattice_const()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lammps.core.Box.origin">
+<code class="descname">origin</code><a class="headerlink" href="#lammps.core.Box.origin" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lammps.core.Box.tilts">
+<code class="descname">tilts</code><a class="headerlink" href="#lammps.core.Box.tilts" title="Permalink to this definition">¶</a></dt>
+<dd><p>LAMMPS box description of xy xz yz</p>
+<blockquote>
+<div>Additional documentation can be found at <a class="reference external" href="http://lammps.sandia.gov/doc/Section_howto.html?highlight=prism#howto-12">lammps</a>.
+For example a return dictionary would be</div></blockquote>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">tilts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="lammps.core.Box.update_lattice_const">
+<code class="descname">update_lattice_const</code><span class="sig-paren">(</span><em>self</em>, <em>lengths</em>, <em>angles=None</em>, <em>origin=(0</em>, <em>0</em>, <em>0)</em><span class="sig-paren">)</span><a class="headerlink" href="#lammps.core.Box.update_lattice_const" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update Unit cell</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>lengths <span class="classifier-delimiter">:</span> <span class="classifier">vector</span></dt>
+<dd>lengths length 3 (a, b, c) lattice constants</dd>
+<dt>angles <span class="classifier-delimiter">:</span> <span class="classifier">vector</span></dt>
+<dd>angles length 3 (alpha, beta, gamma) lattice constants default (pi/2, pi/2, pi/2)</dd>
+</dl>
+<p>Does not adjust the atom coordinates. However it does set the
+global box, set processor grid, and set local box correctly.</p>
+</div></blockquote>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>This does not update the atom coordinates. This means that
+they can easily be lost!</p>
+<dl class="last docutils">
+<dt>rotation_matrix, origin: tuple</dt>
+<dd>necissary matricies to be used with <code class="docutils literal notranslate"><span class="pre">transform_cartesian_vector_to_lammps_vector</span></code> to transform all atom positions, velocities appropriately. If unit cell is orthogonal then you may only need to apply the origin shift.</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lammps.core.Box.volume">
+<code class="descname">volume</code><a class="headerlink" href="#lammps.core.Box.volume" title="Permalink to this definition">¶</a></dt>
+<dd><p>Volume of box given in lammps units</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lammps.core.Compute">
+<em class="property">class </em><code class="descclassname">lammps.core.</code><code class="descname">Compute</code><a class="headerlink" href="#lammps.core.Compute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Extract compute object property from LAMMPS system</p>
+<p>See <a class="reference external" href="http://lammps.sandia.gov/doc/compute.html">compute</a> for
+more information on available computes. This is how properties of
+systems can be exctracted without I/O. See list of <cite>available
+computes
+&lt;http://lammps.sandia.gov/doc/Section_commands.html#cmd-5&gt;</cite></p>
+<dl class="docutils">
+<dt>lammps <span class="classifier-delimiter">:</span> <span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">lammps.Lammps</span></code></span></dt>
+<dd>Lammps object</dd>
+<dt>id <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>name id for lammps compute must be unique</dd>
+<dt>style <span class="classifier-delimiter">:</span> <span class="classifier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></span></dt>
+<dd>compute style to use see <a class="reference external" href="http://lammps.sandia.gov/doc/Section_commands.html#cmd-5">LAMMPS documentation Compute
+styles</a></dd>
+<dt>group <span class="classifier-delimiter">:</span> <span class="classifier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></span></dt>
+<dd>group to apply compute on. default “all” must create group
+if using other group. See <a class="reference external" href="http://lammps.sandia.gov/doc/group.html">group command</a> if creating own
+group</dd>
+<dt>args <span class="classifier-delimiter">:</span> <span class="classifier">list[str]</span></dt>
+<dd>list of additional arguments to supply.</dd>
+</dl>
+<dl class="method">
+<dt id="lammps.core.Compute.modify">
+<code class="descname">modify</code><span class="sig-paren">(</span><em>self</em>, <em>args</em><span class="sig-paren">)</span><a class="headerlink" href="#lammps.core.Compute.modify" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modify a predefined LAMMPS compute</p>
+<dl class="docutils">
+<dt>args <span class="classifier-delimiter">:</span> <span class="classifier">list[str]</span></dt>
+<dd>args to modify lammps compute</dd>
+</dl>
+<p>See <a class="reference external" href="http://lammps.sandia.gov/doc/compute_modify.html">compute_modify</a> for more
+information on args etc.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lammps.core.Compute.name">
+<code class="descname">name</code><a class="headerlink" href="#lammps.core.Compute.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of compute id</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lammps.core.Compute.scalar">
+<code class="descname">scalar</code><a class="headerlink" href="#lammps.core.Compute.scalar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Scalar value of compute</p>
+<dl class="docutils">
+<dt>float</dt>
+<dd>scalar value of compute</dd>
+</dl>
+<dl class="docutils">
+<dt>NotImplementedError</dt>
+<dd>no scalar function for this compute defined</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lammps.core.Compute.style">
+<code class="descname">style</code><a class="headerlink" href="#lammps.core.Compute.style" title="Permalink to this definition">¶</a></dt>
+<dd><p>style of compute id</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lammps.core.Compute.vector">
+<code class="descname">vector</code><a class="headerlink" href="#lammps.core.Compute.vector" title="Permalink to this definition">¶</a></dt>
+<dd><p>vector value of compute</p>
+<dl class="docutils">
+<dt>np.ndarray</dt>
+<dd>vector value of compute</dd>
+</dl>
+<dl class="docutils">
+<dt>NotImplementedError</dt>
+<dd>no vector function for this compute defined</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lammps.core.Lammps">
+<em class="property">class </em><code class="descclassname">lammps.core.</code><code class="descname">Lammps</code><a class="headerlink" href="#lammps.core.Lammps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>LAMMPS base class represents the entire library.</p>
+<dl class="docutils">
+<dt>units <span class="classifier-delimiter">:</span> <span class="classifier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></span></dt>
+<dd>units to use for simulation default lj</dd>
+<dt>style <span class="classifier-delimiter">:</span> <span class="classifier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></span></dt>
+<dd>atomic style to use for simulation. default atomic</dd>
+<dt>comm <span class="classifier-delimiter">:</span> <span class="classifier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mpi4py.Comm</span></code></span></dt>
+<dd>default value is MPI_COMM_WORLD</dd>
+<dt>args <span class="classifier-delimiter">:</span> <span class="classifier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">list[str]</span></code></span></dt>
+<dd>command line args that would be supplied to normal lammps executable</dd>
+<dt>Possible values for the following arguments:</dt>
+<dd><ul class="first last simple">
+<li>args: <a class="reference external" href="http://lammps.sandia.gov/doc/Section_start.html#command-line-options">command-line arguments</a></li>
+<li>units: <a class="reference external" href="http://lammps.sandia.gov/doc/units.html">units</a></li>
+<li>style: <a class="reference external" href="http://lammps.sandia.gov/doc/atom_style.html">atom_style</a></li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="lammps.core.Lammps.AVAILABLE_UNITS">
+<code class="descname">AVAILABLE_UNITS</code><em class="property"> = {'cgs', 'electron', 'lj', 'metal', 'micro', 'nano', 'real', 'si'}</em><a class="headerlink" href="#lammps.core.Lammps.AVAILABLE_UNITS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lammps.core.Lammps.box">
+<code class="descname">box</code><a class="headerlink" href="#lammps.core.Lammps.box" title="Permalink to this definition">¶</a></dt>
+<dd><p>box: lammps.core.Box</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lammps.core.Lammps.check_error">
+<code class="descname">check_error</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#lammps.core.Lammps.check_error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check for error from lammps</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lammps.core.Lammps.command">
+<code class="descname">command</code><span class="sig-paren">(</span><em>self</em>, <em>str cmd</em><span class="sig-paren">)</span><a class="headerlink" href="#lammps.core.Lammps.command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run a LAMMPS command</p>
+<dl class="docutils">
+<dt>command <span class="classifier-delimiter">:</span> <span class="classifier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></span></dt>
+<dd>command for lammps to execute</dd>
+</dl>
+<dl class="docutils">
+<dt>str</dt>
+<dd>output from running command</dd>
+</dl>
+<p>See lammps documentation for available <a class="reference external" href="http://lammps.sandia.gov/doc/Section_commands.html#individual-commands">commands</a>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lammps.core.Lammps.dt">
+<code class="descname">dt</code><a class="headerlink" href="#lammps.core.Lammps.dt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Timestep size for run step in simulation <strong>time units</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lammps.core.Lammps.file">
+<code class="descname">file</code><span class="sig-paren">(</span><em>self</em>, <em>str filename</em><span class="sig-paren">)</span><a class="headerlink" href="#lammps.core.Lammps.file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read in a file as sequential list of commands</p>
+<dl class="docutils">
+<dt>filename <span class="classifier-delimiter">:</span> <span class="classifier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></span></dt>
+<dd>filename of input file for LAMMPS</dd>
+</dl>
+<p>Can be invoked more than once</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lammps.core.Lammps.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#lammps.core.Lammps.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resets (clear) the lammps simulation</p>
+<p>Deletes all atoms, restores all settings to their default
+values, and frees all memory allocated by LAMMPS. Equivalent
+to the LAMMPS <a class="reference external" href="http://lammps.sandia.gov/doc/clear.html">clear command</a>. Some settings are
+not affected. These include: working directory, log file
+status, echo status, and input script variables.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lammps.core.Lammps.run">
+<code class="descname">run</code><span class="sig-paren">(</span><em>self</em>, <em>long steps</em>, <em>bool pre=True</em>, <em>bool post=True</em><span class="sig-paren">)</span><a class="headerlink" href="#lammps.core.Lammps.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs the lammps simulation for N steps</p>
+<dl class="docutils">
+<dt>steps <span class="classifier-delimiter">:</span> <span class="classifier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">int</span></code></span></dt>
+<dd>number of steps to run simulation equivalent to “run &lt;steps&gt;” command</dd>
+<dt>pre <span class="classifier-delimiter">:</span> <span class="classifier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code></span></dt>
+<dd>before run create neighbor lists, compute forces, and imposes fix contraints. default True</dd>
+<dt>post <span class="classifier-delimiter">:</span> <span class="classifier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code></span></dt>
+<dd>print full timing summary</dd>
+</dl>
+<p>See lammps documentation for description of <a class="reference external" href="http://lammps.sandia.gov/doc/run.html">run command</a></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lammps.core.Lammps.system">
+<code class="descname">system</code><a class="headerlink" href="#lammps.core.Lammps.system" title="Permalink to this definition">¶</a></dt>
+<dd><p>system: lammps.core.System</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lammps.core.Lammps.thermo">
+<code class="descname">thermo</code><a class="headerlink" href="#lammps.core.Lammps.thermo" title="Permalink to this definition">¶</a></dt>
+<dd><p>thermo: lammps.core.Thermo</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lammps.core.Lammps.time">
+<code class="descname">time</code><a class="headerlink" href="#lammps.core.Lammps.time" title="Permalink to this definition">¶</a></dt>
+<dd><p>total time that has elapsed from lammps runs <strong>time units</strong></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lammps.core.Lammps.time_step">
+<code class="descname">time_step</code><a class="headerlink" href="#lammps.core.Lammps.time_step" title="Permalink to this definition">¶</a></dt>
+<dd><p>current number of timesteps that have been run</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lammps.core.Lammps.units">
+<code class="descname">units</code><a class="headerlink" href="#lammps.core.Lammps.units" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unit style used in lammps simulation</p>
+<p>See <a class="reference external" href="http://lammps.sandia.gov/doc/units.html">units</a> for
+more information.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="lammps.core.LammpsAbortError">
+<em class="property">exception </em><code class="descclassname">lammps.core.</code><code class="descname">LammpsAbortError</code><a class="headerlink" href="#lammps.core.LammpsAbortError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lammps.core.LammpsError" title="lammps.core.LammpsError"><code class="xref py py-class docutils literal notranslate"><span class="pre">lammps.core.LammpsError</span></code></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="lammps.core.LammpsDataTypes">
+<em class="property">class </em><code class="descclassname">lammps.core.</code><code class="descname">LammpsDataTypes</code><a class="headerlink" href="#lammps.core.LammpsDataTypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="attribute">
+<dt id="lammps.core.LammpsDataTypes.BIG_INT">
+<code class="descname">BIG_INT</code><a class="headerlink" href="#lammps.core.LammpsDataTypes.BIG_INT" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.int64</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lammps.core.LammpsDataTypes.DOUBLE">
+<code class="descname">DOUBLE</code><a class="headerlink" href="#lammps.core.LammpsDataTypes.DOUBLE" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.float64</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lammps.core.LammpsDataTypes.IMAGE_INT">
+<code class="descname">IMAGE_INT</code><a class="headerlink" href="#lammps.core.LammpsDataTypes.IMAGE_INT" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.int32</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lammps.core.LammpsDataTypes.INT">
+<code class="descname">INT</code><a class="headerlink" href="#lammps.core.LammpsDataTypes.INT" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.int32</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lammps.core.LammpsDataTypes.SMALL_INT">
+<code class="descname">SMALL_INT</code><a class="headerlink" href="#lammps.core.LammpsDataTypes.SMALL_INT" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.int32</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lammps.core.LammpsDataTypes.TAG_INT">
+<code class="descname">TAG_INT</code><a class="headerlink" href="#lammps.core.LammpsDataTypes.TAG_INT" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.int32</span></code></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="lammps.core.LammpsError">
+<em class="property">exception </em><code class="descclassname">lammps.core.</code><code class="descname">LammpsError</code><a class="headerlink" href="#lammps.core.LammpsError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="lammps.core.LammpsNormalError">
+<em class="property">exception </em><code class="descclassname">lammps.core.</code><code class="descname">LammpsNormalError</code><a class="headerlink" href="#lammps.core.LammpsNormalError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lammps.core.LammpsError" title="lammps.core.LammpsError"><code class="xref py py-class docutils literal notranslate"><span class="pre">lammps.core.LammpsError</span></code></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="lammps.core.System">
+<em class="property">class </em><code class="descclassname">lammps.core.</code><code class="descname">System</code><a class="headerlink" href="#lammps.core.System" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Represents all the atoms and respective properties in the LAMMPS simulation</p>
+<p>Since LAMMPS is a distributed system each processor has a local
+view of its Atoms. This class hopes to provide both and local and
+global view of the properties.</p>
+<dl class="docutils">
+<dt>lammps <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference internal" href="#lammps.core.Lammps" title="lammps.core.Lammps"><code class="xref py py-class docutils literal notranslate"><span class="pre">lammps.core.Lammps</span></code></a></span></dt>
+<dd>LAMMPS Object</dd>
+<dt>style <span class="classifier-delimiter">:</span> <span class="classifier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></span></dt>
+<dd>one the <a class="reference external" href="http://lammps.sandia.gov/doc/atom_style.html">atom_styles</a></dd>
+</dl>
+<dl class="attribute">
+<dt id="lammps.core.System.ATOM_STYLE_PROPERTIES">
+<code class="descname">ATOM_STYLE_PROPERTIES</code><em class="property"> = {'angmom': (&lt;class 'numpy.float64'&gt;, 3), 'contact_radius': (&lt;class 'numpy.float64'&gt;, 1), 'cs': (&lt;class 'numpy.float64'&gt;, 1), 'csforce': (&lt;class 'numpy.float64'&gt;, 1), 'cv': (&lt;class 'numpy.float64'&gt;, 1), 'damage': (&lt;class 'numpy.float64'&gt;, 1), 'de': (&lt;class 'numpy.float64'&gt;, 1), 'dpdTheta': (&lt;class 'numpy.float64'&gt;, 1), 'drho': (&lt;class 'numpy.float64'&gt;, 1), 'e': (&lt;class 'numpy.float64'&gt;, 1), 'edpd_temp': (&lt;class 'numpy.float64'&gt;, 1), 'eff_plastic_strain': (&lt;class 'numpy.float64'&gt;, 1), 'eff_plastic_strain_rate': (&lt;class 'numpy.float64'&gt;, 1), 'ellipsoid': (&lt;class 'numpy.float64'&gt;, 1), 'eradius': (&lt;class 'numpy.float64'&gt;, 1), 'erforce': (&lt;class 'numpy.float64'&gt;, 1), 'ervel': (&lt;class 'numpy.float64'&gt;, 1), 'ervelforce': (&lt;class 'numpy.float64'&gt;, 1), 'etag': &lt;class 'numpy.int32'&gt;, 'f': (&lt;class 'numpy.float64'&gt;, 3), 'id': (&lt;class 'numpy.int32'&gt;, 1), 'image': (&lt;class 'numpy.int32'&gt;, 1), 'line': (&lt;class 'numpy.float64'&gt;, 1), 'mask': (&lt;class 'numpy.int32'&gt;, 1), 'mass': (&lt;class 'numpy.float64'&gt;, 1), 'molecule': (&lt;class 'numpy.int32'&gt;, 1), 'mu': (&lt;class 'numpy.float64'&gt;, 3), 'omega': (&lt;class 'numpy.float64'&gt;, 3), 'q': (&lt;class 'numpy.float64'&gt;, 1), 'radius': (&lt;class 'numpy.float64'&gt;, 1), 'rho': (&lt;class 'numpy.float64'&gt;, 1), 'rmass': (&lt;class 'numpy.float64'&gt;, 1), 's0': (&lt;class 'numpy.float64'&gt;, 1), 'smd_data_9': (&lt;class 'numpy.float64'&gt;, 3), 'smd_stress': (&lt;class 'numpy.float64'&gt;, 3), 'spin': (&lt;class 'numpy.int32'&gt;, 1), 'torque': (&lt;class 'numpy.float64'&gt;, 3), 'tri': (&lt;class 'numpy.float64'&gt;, 1), 'type': (&lt;class 'numpy.int32'&gt;, 1), 'v': (&lt;class 'numpy.float64'&gt;, 3), 'vest': (&lt;class 'numpy.float64'&gt;, 3), 'vforce': (&lt;class 'numpy.float64'&gt;, 1), 'vfrac': (&lt;class 'numpy.float64'&gt;, 3), 'x': (&lt;class 'numpy.float64'&gt;, 3), 'x0': (&lt;class 'numpy.float64'&gt;, 3)}</em><a class="headerlink" href="#lammps.core.System.ATOM_STYLE_PROPERTIES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lammps.core.System.AVAILABLE_ATOM_STYLES">
+<code class="descname">AVAILABLE_ATOM_STYLES</code><em class="property"> = ['angle', 'atomic', 'body', 'bond', 'chargedipole', 'electron', 'ellipsoid', 'full', 'line', 'meso', 'molecular', 'peri', 'smd', 'sphere', 'template', 'tri', 'wavepacket']</em><a class="headerlink" href="#lammps.core.System.AVAILABLE_ATOM_STYLES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="lammps.core.System.add_ase_structure">
+<code class="descname">add_ase_structure</code><span class="sig-paren">(</span><em>self</em>, <em>structure</em>, <em>elements=None</em><span class="sig-paren">)</span><a class="headerlink" href="#lammps.core.System.add_ase_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize lammps system from ase Atoms (sets lattice, positions, velocities)</p>
+<dl class="docutils">
+<dt>structure: pymatgen.core.structure.Structure</dt>
+<dd>pymatgen structure where lattice, atom positions, and if velocities are present they will be set.</dd>
+<dt>elements: list of tuple representing the symbol, mass</dt>
+<dd>list of tuples that determine the index of each atom type. If not specified it is determined from structure</dd>
+</dl>
+<dl class="docutils">
+<dt>elements: list of pymatgen.core.Atom</dt>
+<dd>list of elements that specifies the repective index of each element assigned by lammps.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="lammps.core.System.add_pymatgen_structure">
+<code class="descname">add_pymatgen_structure</code><span class="sig-paren">(</span><em>self</em>, <em>structure</em>, <em>elements=None</em><span class="sig-paren">)</span><a class="headerlink" href="#lammps.core.System.add_pymatgen_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize lammps system from pymatgen structure (sets lattice, positions, velocities)</p>
+<dl class="docutils">
+<dt>structure: pymatgen.core.structure.Structure</dt>
+<dd>pymatgen structure where lattice, atom positions, and if velocities are present they will be set.</dd>
+<dt>elements: list of pymatgen.core.Species</dt>
+<dd>list of pymatgen.core.Species that determine the index of each atom type. If not specified it is determined from structure</dd>
+</dl>
+<dl class="docutils">
+<dt>elements: list of pymatgen.core.Species</dt>
+<dd>list of elements that specifies the repective index of each element assigned by lammps.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lammps.core.System.atom_types">
+<code class="descname">atom_types</code><a class="headerlink" href="#lammps.core.System.atom_types" title="Permalink to this definition">¶</a></dt>
+<dd><p>AtomTypes in lammps system return list of AtomTypes</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lammps.core.System.charges">
+<code class="descname">charges</code><a class="headerlink" href="#lammps.core.System.charges" title="Permalink to this definition">¶</a></dt>
+<dd><p>Charges associated with global atoms sorted by tag id</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lammps.core.System.create_atoms">
+<code class="descname">create_atoms</code><span class="sig-paren">(</span><em>self</em>, <em>int[:] atom_types</em>, <em>double[:</em>, <em>:] positions</em>, <em>double[:</em>, <em>:] velocities=None</em>, <em>start_index=None</em>, <em>bool wrap_atoms=True</em><span class="sig-paren">)</span><a class="headerlink" href="#lammps.core.System.create_atoms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create atoms for LAMMPS calculation.</p>
+<p>If atoms already exist on the system you will need to change
+the atom “start_id_index” to greater than the max value.</p>
+<dl class="docutils">
+<dt>atom_types <span class="classifier-delimiter">:</span> <span class="classifier">list[int], np.array[int]</span></dt>
+<dd>vector of atom types</dd>
+<dt>positions <span class="classifier-delimiter">:</span> <span class="classifier">np.array[Nx3]</span></dt>
+<dd>array of atom positions</dd>
+<dt>velocities <span class="classifier-delimiter">:</span> <span class="classifier">np.array[Nx3]</span></dt>
+<dd>array of atom velocities. default set all velocities to 0</dd>
+<dt>start_index <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>index to start atom ids</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lammps.core.System.forces">
+<code class="descname">forces</code><a class="headerlink" href="#lammps.core.System.forces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Forces associated with global atoms sorted by atom tag id</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lammps.core.System.global_gather_property_ordered">
+<code class="descname">global_gather_property_ordered</code><span class="sig-paren">(</span><em>self</em>, <em>str name</em><span class="sig-paren">)</span><a class="headerlink" href="#lammps.core.System.global_gather_property_ordered" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gather globally system property to single processor. Sorted by atom id.</p>
+<p>Available properties are in <a href="#id4"><span class="problematic" id="id5">:var:`System.ATOM_STYLE_PROPERTIES`</span></a></p>
+<dl class="docutils">
+<dt>name <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>atom property name to gather</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="lammps.core.System.global_gather_property_subset">
+<code class="descname">global_gather_property_subset</code><span class="sig-paren">(</span><em>self</em>, <em>str name</em>, <em>int[:] atom_ids</em><span class="sig-paren">)</span><a class="headerlink" href="#lammps.core.System.global_gather_property_subset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gather subset of atom properties in the system.</p>
+<p>Available properties are in <a href="#id6"><span class="problematic" id="id7">:var:`System.ATOM_STYLE_PROPERTIES`</span></a></p>
+<dl class="docutils">
+<dt>name <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>atom property name to gather</dd>
+<dt>atom_ids <span class="classifier-delimiter">:</span> <span class="classifier">list[int], np.ndarray</span></dt>
+<dd>atom ids to get properties from</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="lammps.core.System.global_gather_property_unordered">
+<code class="descname">global_gather_property_unordered</code><span class="sig-paren">(</span><em>self</em>, <em>str name</em><span class="sig-paren">)</span><a class="headerlink" href="#lammps.core.System.global_gather_property_unordered" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gather globally system property to single processor. Data is not sorted.</p>
+<p>You can gather atom <code class="docutils literal notranslate"><span class="pre">id</span></code> beforehand to get order of atoms.</p>
+<p>Available properties are in <a href="#id8"><span class="problematic" id="id9">:var:`System.ATOM_STYLE_PROPERTIES`</span></a></p>
+<dl class="docutils">
+<dt>name <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>atom property name to gather</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="lammps.core.System.global_scatter_property_ordered">
+<code class="descname">global_scatter_property_ordered</code><span class="sig-paren">(</span><em>self</em>, <em>str name</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#lammps.core.System.global_scatter_property_ordered" title="Permalink to this definition">¶</a></dt>
+<dd><p>Scatter globally system property to all processors. Sorted by atom id.</p>
+<p>Available properties are in <a href="#id10"><span class="problematic" id="id11">:var:`System.ATOM_STYLE_PROPERTIES`</span></a></p>
+<p>I HIGHLY recommend to not set atom positions with this
+method. It will result in lost atoms instead use create_atoms
+if not used properly
+- <a class="reference external" href="https://sourceforge.net/p/lammps/mailman/message/35842978/">https://sourceforge.net/p/lammps/mailman/message/35842978/</a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lammps.core.System.global_scatter_property_subset">
+<code class="descname">global_scatter_property_subset</code><span class="sig-paren">(</span><em>self</em>, <em>str name</em>, <em>int[:] atom_ids</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#lammps.core.System.global_scatter_property_subset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Scatter globally system property for subset of atoms to all
+processors.</p>
+<p>Available properties are in <a href="#id12"><span class="problematic" id="id13">:var:`System.ATOM_STYLE_PROPERTIES`</span></a></p>
+<p>I HIGHLY recommend to not set atom positions with this
+method. It will result in lost atoms instead use create_atoms
+if not used properly
+- <a class="reference external" href="https://sourceforge.net/p/lammps/mailman/message/35842978/">https://sourceforge.net/p/lammps/mailman/message/35842978/</a></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lammps.core.System.local_total">
+<code class="descname">local_total</code><a class="headerlink" href="#lammps.core.System.local_total" title="Permalink to this definition">¶</a></dt>
+<dd><p>Local number of atoms stored on processor</p>
+<p>An important concept in LAMMPS parallal calculations is that
+the atoms are distributed between all the processors.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lammps.core.System.positions">
+<code class="descname">positions</code><a class="headerlink" href="#lammps.core.System.positions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Positions associated with global atoms sorted by atom tag id</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Reseting the atom positions is dangerous since it remaps the
+atoms to processors. I HIGHLY recommend create_atoms instead.</p>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lammps.core.System.style">
+<code class="descname">style</code><a class="headerlink" href="#lammps.core.System.style" title="Permalink to this definition">¶</a></dt>
+<dd><p>The LAMMPS <a class="reference external" href="http://lammps.sandia.gov/doc/atom_style.html">atom_style</a> used in simulation</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lammps.core.System.tags">
+<code class="descname">tags</code><a class="headerlink" href="#lammps.core.System.tags" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tags associated with local atoms stored on processor</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lammps.core.System.total">
+<code class="descname">total</code><a class="headerlink" href="#lammps.core.System.total" title="Permalink to this definition">¶</a></dt>
+<dd><p>Total number of atoms in LAMMPS simulation</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lammps.core.System.types">
+<code class="descname">types</code><a class="headerlink" href="#lammps.core.System.types" title="Permalink to this definition">¶</a></dt>
+<dd><p>Atom type ids associated with global atoms</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lammps.core.System.velocities">
+<code class="descname">velocities</code><a class="headerlink" href="#lammps.core.System.velocities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Velocities associated with global atoms sorted by atom tag id</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lammps.core.Thermo">
+<em class="property">class </em><code class="descclassname">lammps.core.</code><code class="descname">Thermo</code><a class="headerlink" href="#lammps.core.Thermo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Computes thermodynamic properties of a group of particles</p>
+<p>You must first define a compute before you can extract
+thermodynamics properties of the current time step. Three computes
+are always created, named “thermo_temp”, “thermo_press”, and
+“thermo_pe” these are initialized in the output.cpp in
+LAMMPS. These computes are made easy to access. All computes can
+be accessed via the comptutes dictionary.</p>
+<dl class="docutils">
+<dt>lammps <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference internal" href="#lammps.core.Lammps" title="lammps.core.Lammps"><code class="xref py py-class docutils literal notranslate"><span class="pre">Lammps</span></code></a></span></dt>
+<dd>lammps object</dd>
+</dl>
+<dl class="method">
+<dt id="lammps.core.Thermo.add">
+<code class="descname">add</code><span class="sig-paren">(</span><em>self</em>, <em>str id</em>, <em>str style</em>, <em>str group='all'</em>, <em>args=None</em><span class="sig-paren">)</span><a class="headerlink" href="#lammps.core.Thermo.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a compute to LAMMPS</p>
+<dl class="docutils">
+<dt>id <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>name of new LAMMPS compute must be unique</dd>
+<dt>style <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>name of compute to add</dd>
+<dt>group <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>name of compute group. default ‘all’.</dd>
+<dt>args <span class="classifier-delimiter">:</span> <span class="classifier">list[str]</span></dt>
+<dd>additional args to supply to compute</dd>
+</dl>
+<p>Equivalent lammps command: <code class="docutils literal notranslate"><span class="pre">compute</span> <span class="pre">ID</span> <span class="pre">group-ID</span> <span class="pre">style</span> <span class="pre">args</span></code></p>
+<p>See <a class="reference external" href="http://lammps.sandia.gov/doc/compute.html">compute</a> for
+more information on creating computes.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lammps.core.Thermo.computes">
+<code class="descname">computes</code><a class="headerlink" href="#lammps.core.Thermo.computes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dictionary of available computes</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lammps.core.Thermo.potential_energy">
+<code class="descname">potential_energy</code><a class="headerlink" href="#lammps.core.Thermo.potential_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>potential_energy: lammps.core.Compute</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lammps.core.Thermo.pressure">
+<code class="descname">pressure</code><a class="headerlink" href="#lammps.core.Thermo.pressure" title="Permalink to this definition">¶</a></dt>
+<dd><p>pressure: lammps.core.Compute</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lammps.core.Thermo.temperature">
+<code class="descname">temperature</code><a class="headerlink" href="#lammps.core.Thermo.temperature" title="Permalink to this definition">¶</a></dt>
+<dd><p>temperature: lammps.core.Compute</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="lammps.core.abs_cap">
+<code class="descclassname">lammps.core.</code><code class="descname">abs_cap</code><span class="sig-paren">(</span><em>val</em>, <em>max_abs_val=1</em><span class="sig-paren">)</span><a class="headerlink" href="#lammps.core.abs_cap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the value with its absolute value capped at max_abs_val.
+Particularly useful in passing values to trignometric functions where
+numerical errors may result in an argument &gt; 1 being passed in.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>val (float): Input value.
+max_abs_val (float): The maximum absolute value for val. Defaults to 1.</dd>
+<dt>Returns:</dt>
+<dd>val if abs(val) &lt; 1 else sign of val * max_abs_val.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lammps.core.lammps_box_to_lattice_const">
+<code class="descclassname">lammps.core.</code><code class="descname">lammps_box_to_lattice_const</code><span class="sig-paren">(</span><em>bounds</em>, <em>tilts</em><span class="sig-paren">)</span><a class="headerlink" href="#lammps.core.lammps_box_to_lattice_const" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts lammps box coordinates to lattice constants and origin</p>
+<div class="math notranslate nohighlight">
+\[a &amp;= lx \
+b &amp;= \sqrt{ly^2 + xy^2} \
+c &amp;= \sqrt{lz^2 + xz^2 + yz^2} \
+\cos{lpha} &amp;= \]</div>
+<dl class="docutils">
+<dt>rac{xy xz + ly yz}{b c} </dt>
+<dd>cos{eta} &amp;=</dd>
+<dt>rac{xz}{c} </dt>
+<dd>cos{gamma} &amp;=</dd>
+</dl>
+<p>rac{xy}{b}</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lammps.core.lattice_const_to_lammps_box">
+<code class="descclassname">lammps.core.</code><code class="descname">lattice_const_to_lammps_box</code><span class="sig-paren">(</span><em>lengths</em>, <em>angles</em>, <em>origin=(0</em>, <em>0</em>, <em>0)</em><span class="sig-paren">)</span><a class="headerlink" href="#lammps.core.lattice_const_to_lammps_box" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts lattice constants to lammps box coorinates(angles in radians)</p>
+<div class="math notranslate nohighlight">
+\[lx &amp;= boxhi[0] - boxlo[0] = a \
+ly &amp;= boxhi[1] - boxlo[1] = \sqrt{b^2 - xy^2} \
+lz &amp;= boxhi[2] - boxlo[2] = \sqrt{c^2 - xz^2 - yz^2}
+xy &amp;= b \cos{\gamma} \
+xz &amp;= c \cos{eta}  \
+yz &amp;= \]</div>
+<p>rac{b c cos{lpha} - xy xz}{ly}</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lammps.core.lengths_angles_to_matrix">
+<code class="descclassname">lammps.core.</code><code class="descname">lengths_angles_to_matrix</code><span class="sig-paren">(</span><em>a</em>, <em>b</em>, <em>c</em>, <em>alpha</em>, <em>beta</em>, <em>gamma</em><span class="sig-paren">)</span><a class="headerlink" href="#lammps.core.lengths_angles_to_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a Lattice using unit cell lengths and angles (in degrees).</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>a (float): <em>a</em> lattice parameter.
+b (float): <em>b</em> lattice parameter.
+c (float): <em>c</em> lattice parameter.
+alpha (float): <em>alpha</em> angle in radians.
+beta (float): <em>beta</em> angle in radians.
+gamma (float): <em>gamma</em> angle in radians.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lammps.core.transform_cartesian_vector_to_lammps_vector">
+<code class="descclassname">lammps.core.</code><code class="descname">transform_cartesian_vector_to_lammps_vector</code><span class="sig-paren">(</span><em>points</em>, <em>rotation_matrix=((1</em>, <em>0</em>, <em>0)</em>, <em>(0</em>, <em>1</em>, <em>0)</em>, <em>(0</em>, <em>0</em>, <em>1))</em>, <em>origin=(0</em>, <em>0</em>, <em>0)</em><span class="sig-paren">)</span><a class="headerlink" href="#lammps.core.transform_cartesian_vector_to_lammps_vector" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-lammps">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-lammps" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 1970, Chris Ostrouchov
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

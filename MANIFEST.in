@@ -1,2 +1,0 @@
-include *.cfg
-recursive-include lammps *.pyx *.pyd *.cpp
