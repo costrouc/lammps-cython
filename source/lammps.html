@@ -807,6 +807,25 @@ atoms to processors. I HIGHLY recommend create_atoms instead.</p>
 </div>
 </dd></dl>
 
+<dl class="method">
+<dt id="lammps.core.System.snapshot">
+<code class="descname">snapshot</code><span class="sig-paren">(</span><em>self</em>, <em>elements</em>, <em>atom_properties=None</em>, <em>format='pymatgen'</em><span class="sig-paren">)</span><a class="headerlink" href="#lammps.core.System.snapshot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get python structure representation of LAMMPS simulation (pymatgen only for now)</p>
+<p>Assumes origin at (0, 0, 0)!</p>
+<dl class="docutils">
+<dt>elements: list of elements</dt>
+<dd>ordered list of elements associated with lammps atom id</dd>
+<dt>atom_properties: set</dt>
+<dd>set of ATOM_STYLE_PROPERTIES that you want included with structure</dd>
+<dt>format: str</dt>
+<dd>for now only “pymatgen” structure and “hoomd” gsd snapshot format is supported</dd>
+</dl>
+<dl class="docutils">
+<dt>snapshot: pmg.Structure or gsd.hoomd.Snapshot</dt>
+<dd>pymatgen structure</dd>
+</dl>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="lammps.core.System.style">
 <code class="descname">style</code><a class="headerlink" href="#lammps.core.System.style" title="Permalink to this definition">¶</a></dt>
@@ -948,8 +967,8 @@ yz &amp;= \]</div>
 
 <dl class="function">
 <dt id="lammps.core.lengths_angles_to_matrix">
-<code class="descclassname">lammps.core.</code><code class="descname">lengths_angles_to_matrix</code><span class="sig-paren">(</span><em>a</em>, <em>b</em>, <em>c</em>, <em>alpha</em>, <em>beta</em>, <em>gamma</em><span class="sig-paren">)</span><a class="headerlink" href="#lammps.core.lengths_angles_to_matrix" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a Lattice using unit cell lengths and angles (in degrees).</p>
+<code class="descclassname">lammps.core.</code><code class="descname">lengths_angles_to_matrix</code><span class="sig-paren">(</span><em>a</em>, <em>b</em>, <em>c</em>, <em>alpha_r</em>, <em>beta_r</em>, <em>gamma_r</em><span class="sig-paren">)</span><a class="headerlink" href="#lammps.core.lengths_angles_to_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a Lattice using unit cell lengths and angles (in radians).</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd>a (float): <em>a</em> lattice parameter.
