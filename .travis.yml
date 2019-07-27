@@ -14,5 +14,4 @@ deploy:
    password: $PYPI_PASSWORD
    distributions: "sdist"
    on:
-     branch: master
-     #tags: true
+     tags: true
