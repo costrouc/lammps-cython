@@ -50,25 +50,6 @@ rec {
     '';
   };
 
-  sdist = pkgs.stdenv.mkDerivation {
-    name = "lammps-cython-sdist";
-
-    buildInputs = [ package ];
-
-    src = builtins.filterSource
-        (path: _: !builtins.elem  (builtins.baseNameOf path) [".git" "result"])
-        ./.;
-
-    buildPhase = ''
-      python setup.py sdist
-    '';
-
-    installPhase = ''
-      mkdir -p $out
-      cp dist/* $out
-    '';
-  };
-
   docs = pkgs.stdenv.mkDerivation {
     name = "docs";
     version = "master";
