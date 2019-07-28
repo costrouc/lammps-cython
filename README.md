@@ -30,13 +30,17 @@ developed.
 </tr>
 <tr>
   <td>Build Status</td>
-  <td> <a href="https://gitlab.com/costrouc/lammps-cython/pipelines"> <img
-src="https://gitlab.com/costrouc/lammps-cython/badges/master/pipeline.svg"
-alt="gitlab pipeline status" /> </a> </td>
+  <td> <a href="https://travis-ci.org/costrouc/lammps-cython"> <img
+src="https://api.travis-ci.org/costrouc/lammps-cython.svg?branch=master"
+alt="travis ci pipeline status" /> </a> </td>
 </tr>
 <tr>
   <td>Binder Notebooks</td>
   <td><a href="http://mybinder.org/v2/gh/costrouc/lammps-cython-notebooks/master?urlpath=lab/tree/notebooks/basic.ipynb"><img src="https://mybinder.org/badge.svg" alt="binder notebooks"/></a></td>
+</tr>
+<tr>
+  <td>Documentation</td>
+  <td><a href="https://chrisostrouchov.com/lammps-cython/">documentation</a> </td>
 </tr>
 </table>
 
@@ -44,7 +48,7 @@ alt="gitlab pipeline status" /> </a> </td>
 # Documentation
 
 Full documentation can be found at
-[lammps-cython](https://costrouc.gitlab.io/lammps-cython/).
+[lammps-cython](https://chrisostrouchov.com/lammps-cython/).
 
 # Features
 
@@ -73,9 +77,9 @@ is using the provided docker containter image
 or `conda install`.There is no plan to support pip wheels. Other
 methods require manual installation of lammps. Detailed installation
 are provieded in the
-[documentation](https://costrouc.gitlab.io/lammps-cython/installation.html). If
+[documentation](https://chrisostrouchov.com/lammps-cython/installation.html). If
 you have any issues with installation be submit an issue at the
-[gitlab repository](https://gitlab.com/costrouc/lammps-cython/).
+[github repository](https://github.com/costrouc/lammps-cython/).
 
  - conda: `conda install -c costrouc -c conda-forge lammps-cython`
  - docker: `docker pull costrouc/lammps-cython:latest`
@@ -122,7 +126,7 @@ uses `python3.5` and has the library preinstalled with the executables
 # Tutorials
 
 Work is being done to show how to use the features of `lammps-cython`
-for now just visit the [tutorial page](https://costrouc.gitlab.io/lammps-cython/tutorial.html).
+for now just visit the [tutorial page](https://chrisostrouchov.com/lammps-cython/tutorial.html).
 
 These will turn to links when the tutorial exists.
 
@@ -134,8 +138,7 @@ These will turn to links when the tutorial exists.
 
 All contributions, bug reports, bug fixes, documentation improvements,
 enhancements and ideas are welcome! These should be submitted at the
-[Github repository](https://github.com/costrouc/lammps-cython). Github is
-only used for visibility.
+[Github repository](https://github.com/costrouc/lammps-cython).
 
 Contributors:
 

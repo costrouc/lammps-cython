@@ -11,4 +11,4 @@ RUN apt update && \
 
 RUN pip3 install cython numpy mpi4py
 
-RUN pip3 install --no-cache-dir https://gitlab.com/$USERNAME/$PROJECT/repository/$VERSION/archive.tar.gz
+RUN pip3 install --no-cache-dir https://github.com/$USERNAME/$PROJECT/repository/$VERSION/archive.tar.gz

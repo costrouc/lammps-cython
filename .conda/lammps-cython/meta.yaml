@@ -10,7 +10,7 @@ package:
 source:
   git_url: ../../
   # fn: lammps-cython-{{ version }}.tar.gz
-  # url: https://gitlab.com/costrouc/lammps-cython/-/archive/{{ version }}/lammps-cython-{{ version }}.tar.gz
+  # url: https://github.com/costrouc/lammps-cython/-/archive/{{ version }}/lammps-cython-{{ version }}.tar.gz
   # sha256: {{ sha256 }}
 
 requirements:
@@ -33,7 +33,7 @@ requirements:
 test: {}
 
 about:
-  home: https://costrouc.gitlab.io/lammps-cython/
+  home: https://chrisostrouchov.com/lammps-cython/
   license: MIT
   license_family: MIT
   license_file: LICENSE
@@ -48,8 +48,8 @@ about:
     wrapper around LAMMPS (the good parts) and allow the user to
     easily extend it's functionality in python. The api should feel
     very similar to HOOMD and is being actively developed.
-  doc_url: https://costrouc.gitlab.io/lammps-cython/
-  dev_url: https://gitlab.com/costrouc/lammps-cython
+  doc_url: https://chrisostrouchov.com/lammps-cython/
+  dev_url: https://github.com/costrouc/lammps-cython
 
 extra:
   recipe-maintainers:
