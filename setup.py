@@ -62,9 +62,10 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 
+version = '0.6.2'
 setup(
     name='lammps-cython',
-    version='0.6.2',
+    version=version,
     description='Pythonic Wrapper to LAMMPS using cython',
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -81,7 +82,7 @@ setup(
         'Programming Language :: Python :: 3.6',
     ],
     url='https://github.com/costrouc/lammps-cython',
-    download_url='https://github.com/costrouc/lammps-cython/archive/master.zip',
+    download_url='https://github.com/costrouc/lammps-cython/archive/v%s.zip' % version,
     keywords=['lammps', 'molecular dynamics', 'cython', 'wrapper', 'mpi'],
     cmdclass={'build_ext': build_ext},
     ext_modules=ext_modules,
