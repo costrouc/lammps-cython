@@ -78,13 +78,15 @@ rec {
     '';
   };
 
-  docker = let
-      pythonEnv = pythonPackages.python.withPackages
-                   (ps: with ps; [ jupyterlab package ase pymatgen gsd ]);
-    in pkgs.dockerTools.buildLayeredImage {
-      name = "lammps-cython";
-      tag = "latest";
-      config.Cmd = [ "${pythonEnv.interpreter}" ];
-      maxLayers = 120;
-    };
+  docker = pkgs.dockerTools.buildLayeredImage {
+    name = "lammps-cython";
+    tag = "latest";
+    contents = [
+      (pythonPackages.python.withPackages
+        (ps: with ps; [ jupyterlab package ase pymatgen gsd ]))
+      pkgs.openmpi
+    ];
+    config.Cmd = [ "ipython" ];
+    maxLayers = 120;
+  };
 }
