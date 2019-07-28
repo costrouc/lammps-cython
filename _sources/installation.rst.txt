@@ -216,7 +216,7 @@ to have the LAMMPS library in another directory not in the standard
 path you must modify the environment variable
 :command:`LD_LIBRARY_PATH`.
 
-For any other errors PLEASE add an `issue to the gitlab page
-<https://gitlab.com/costrouc/lammps-cython>`_. I check gitlab often
+For any other errors PLEASE add an `issue to the github page
+<https://github.com/costrouc/lammps-cython>`_. I check github often
 and really want to make this a long-term supported addition to the
 LAMMPS community!
