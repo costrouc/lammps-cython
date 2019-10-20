@@ -1,0 +1,25 @@
+FROM debian:sid
+
+RUN apt-get update && \
+    apt-get install -y wget build-essential ssh zlib1g-dev libfftw3-dev libopenblas-dev libopenmpi-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+ARG VERSION=stable_7Aug2019
+ARG PACKAGES="asphere body class2 colloid compress coreshell dipole granular kspace manybody mc misc molecule opt peri qeq replica rigid shock snap srd user-reaxc"
+ARG BUILD=mpi
+ARG LMP_INCLUDES="-DLAMMPS_EXCEPTIONS -DLAMMPS_GZIP -DLAMMPS_MEMALIGN=64"
+
+RUN wget -q https://github.com/lammps/lammps/archive/$VERSION.tar.gz && \
+    tar -xf $VERSION.tar.gz && \
+    cd lammps-$VERSION/src && \
+    for pack in $PACKAGES; do make "yes-$pack"; done && \
+    make mode=lib $BUILD -j4 LMP_INC="$LMP_INCLUDES" && \
+    make mode=shlib $BUILD -j4 LMP_INC="$LMP_INCLUDES" && \
+    make $BUILD && \
+    cp lmp_$BUILD /usr/local/bin/lammps && \
+    cp liblammps_$BUILD.so /usr/local/lib/liblammps.so && \
+    cp liblammps_$BUILD.a /usr/local/lib/liblammps.a && \
+    mkdir -p /usr/local/include/lammps && \
+    cp *.h /usr/local/include/lammps && \
+    cd ../.. && \
+    rm -rf lammps-$VERSION $VERSION.tar.gz
